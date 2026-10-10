@@ -122,6 +122,40 @@
   .cta{display:inline-flex;align-items:center;gap:10px;justify-self:start;
     padding:14px 22px;border-radius:99px;background:#fff;color:#111;font-size:14px;font-weight:500}
 
+  .case-bar{z-index:6;opacity:0;transform:translate(-50%,40px);pointer-events:none}
+  .case-bar.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+  body:has(.fonts) .case-bar{bottom:26px}
+
+  /* ---------- живые обложки коммуникаций ---------- */
+  .cv-stories,.cv-cols,.cv-banners{position:absolute;inset:0;overflow:hidden;background:#0d0d0e}
+  /* сторис — рядом, каждая один раз, слегка покачиваются */
+  .cv-stories{display:flex;align-items:center;justify-content:center;gap:24px;padding:0 6%}
+  .cv-stories img{width:min(42%,520px);height:auto;border-radius:24px;animation:cvfloat 6s ease-in-out infinite alternate}
+  .cv-stories img:nth-child(2n){animation-delay:-3s}
+  @keyframes cvfloat{to{transform:translateY(-16px)}}
+  /* колонки и баннеры: если работ больше, чем влезает, колонка медленно ходит вверх-вниз; без повторов */
+  .cv-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:100%;gap:16px;padding:0 16px}
+  .cv-col{position:relative;overflow:hidden;container-type:size}
+  .cv-banners{container-type:size}
+  .cv-run{animation:cvdrift 34s ease-in-out infinite alternate;will-change:transform}
+  .cv-col.down .cv-run{animation-direction:alternate-reverse}
+  .cv-run img{display:block;width:100%;margin-bottom:16px;border-radius:18px}
+  @keyframes cvdrift{from{transform:translateY(0)}to{transform:translateY(min(0px, calc(100cqh - 100%)))}}
+  .cv-banners{display:flex;justify-content:center;align-items:center;padding:0 6%}
+  .cv-banners .cv-run{width:100%;animation-duration:44s}
+  .cv-banners .cv-run img{border-radius:14px}
+  /* длинная страница сайта медленно листается в рамке по центру */
+  .cv-page{position:absolute;inset:0;background:#0d0d0e;display:flex;justify-content:center;align-items:center}
+  .cv-page img{width:min(34%,420px);height:86%;object-fit:cover;object-position:50% 0;border-radius:22px;
+    animation:cvpage 26s ease-in-out infinite alternate}
+  @keyframes cvpage{to{object-position:50% 100%}}
+  @media (prefers-reduced-motion:reduce){ .cv-stories img,.cv-run,.cv-page img{animation:none} }
+  /* галерея работ в кейсе коммуникаций — сеткой */
+  /* галерея — на всю ширину; сетка работ «кирпичиками» по колонкам, без пустот между картинками разной высоты */
+  .cs.cs-full{grid-template-columns:1fr;gap:22px}
+  .cs-gallery.grid{display:block;columns:3 300px;column-gap:16px}
+  .cs-gallery.grid img{margin-bottom:16px;break-inside:avoid}
+
   /* ---------- надпись у курсора над проектом ---------- */
   .ctag{position:fixed;left:0;top:0;z-index:26;pointer-events:none;padding:14px 22px;border-radius:12px;
     background:rgba(14,17,26,.84);color:#fff;font-size:15px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;
@@ -151,6 +185,9 @@
   /* смена проекта как сплошная лента: старый и новый едут вместе, новый прикреплён снизу (или сверху — назад) */
   .pv-slide{position:absolute;inset:0;overflow:hidden;will-change:transform}
   /* проект — во всю ширину и до низа экрана, скруглён только сверху: при смене следующий выезжает снизу скруглённым краем */
+  /* притенение уходящего вглубь проекта — слой поверх, а не фильтр на весь экран */
+  .pv-slide::before{content:"";position:absolute;inset:0;z-index:5;background:#000;opacity:0;pointer-events:none;transition:opacity 1.3s var(--ease)}
+  .pv-slide.dim::before{opacity:.28}
   .pv-slide:not(.intro){inset:0;border-radius:var(--radius) var(--radius) 0 0;transition:border-radius .3s var(--ease)}
   /* на странице проекта углы ровные: выпрямляются в самом конце въезда */
   .pv-slide.cur:not(.intro),.pv-slide.flat{border-radius:0}
@@ -166,6 +203,8 @@
   .pv-device{position:absolute;overflow:hidden;background:#000;border-radius:var(--dr,10px);
     box-shadow:inset 0 0 0 var(--bz,3px) #0a0a0b}
   .pv-device iframe{position:absolute;left:var(--bz,3px);top:var(--bz,3px);border:0;transform-origin:0 0;background:#0b0d12}
+  .pv-device .pv-shot{position:absolute;inset:var(--bz,3px);width:calc(100% - 2*var(--bz,3px));height:calc(100% - 2*var(--bz,3px));object-fit:cover;object-position:center top}
+  .pv-device iframe{z-index:1}
   .pv-device .cam{position:absolute;left:50%;top:0;width:8%;height:2.4%;transform:translateX(-50%);
     background:#0a0a0b;border-radius:0 0 7px 7px;z-index:2}
   .pv-device .glare{position:absolute;inset:0;z-index:2;pointer-events:none;
@@ -195,10 +234,12 @@
   /* пока внизу временная панель шрифтов — плашка чуть выше, чтобы не наезжать */
   body:has(.fonts) .pv-bar{bottom:72px}
   .pv-bar{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:3;display:flex;align-items:center;gap:14px;
-    padding:8px 8px 8px 8px;border-radius:20px;background:rgba(18,18,18,.86);color:#fff;
-    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:hidden}
+    padding:8px 8px 8px 8px;border-radius:20px;background:rgba(18,18,18,.94);color:#fff;
+    overflow:hidden}
   .pv-bar{transition:opacity .6s, transform .8s var(--ease), padding .5s var(--ease), gap .5s var(--ease), border-radius .5s var(--ease)}
-  .pv-thumbs{display:flex;gap:6px;transition:gap .5s var(--ease)}
+  .pv-thumbs{display:flex;gap:6px;transition:gap .5s var(--ease);max-width:calc(100vw - 360px);overflow-x:auto;scrollbar-width:none}
+  .pv-thumbs::-webkit-scrollbar{display:none}
+  .pv-thumb{flex:none}
   /* миниатюра; при наведении на плашку — мини-карточка проекта с подписью */
   .pv-thumb{width:42px;display:flex;flex-direction:column;text-align:left;opacity:.45;
     transition:width .55s var(--ease), opacity .3s, transform .4s var(--ease)}
@@ -262,6 +303,33 @@
   @media (prefers-reduced-motion:reduce){
     *{transition-duration:.01s !important;animation-duration:.01s !important}
   }
+  /* ---------- плашка переключения проектов: на компьютере — вертикально у правого края;
+     стоит в конце стилей, чтобы перебивать правила горизонтальной плашки ---------- */
+  @media (min-width:761px){
+    .pv-bar,body:has(.fonts) .pv-bar{left:auto;right:20px;top:50%;bottom:auto;transform:translateY(-50%);
+      flex-direction:column;align-items:flex-end;gap:10px;padding:8px}
+    .pv-bar:hover{padding:8px 8px 8px 14px;gap:10px}
+    .pv-thumbs{flex-direction:column;align-items:flex-end;max-width:none;max-height:calc(100vh - 200px);
+      overflow-x:hidden;overflow-y:auto}
+    .pv-meta{display:none}
+    /* подпись выезжает слева от миниатюры */
+    .pv-thumb,.pv-bar:hover .pv-thumb{width:auto;flex-direction:row-reverse;align-items:center;gap:0;transform:none}
+    .pv-thumb .ph,.pv-bar:hover .pv-thumb .ph{width:38px;height:38px;flex:none;border-radius:11px}
+    .pv-thumb .cap{max-height:none;max-width:0;padding:0;text-align:right;
+      transition:max-width .5s var(--ease), opacity .3s, padding .5s var(--ease)}
+    .pv-bar:hover .pv-thumb .cap{max-width:240px;max-height:none;opacity:1;padding:0 12px 0 4px}
+    .pv-thumb.on{transform:none}
+    .pv-open{width:38px;height:38px;border-radius:11px}
+    /* прогресс — вертикальная полоска слева */
+    .pv-progress{left:3px;right:auto;top:14px;bottom:14px;width:1.5px;height:auto}
+    .pv-progress b{width:100%;height:0;bottom:auto}
+    @keyframes pvrun{to{height:100%}}
+    .pv-progress b.run{animation-name:pvrun}
+    /* в кейсе плашка выезжает справа */
+    .case-bar{transform:translate(40px,-50%)}
+    .case-bar.on{transform:translate(0,-50%)}
+  }
+
 </style>
 </head>
 <body>
@@ -306,6 +374,8 @@
     </div>
     <div class="case-content" id="caseContent"></div>
   </div>
+  <!-- в кейсе, когда пролистали первый экран, снизу появляется плашка для перехода к другим проектам -->
+  <div class="pv-bar case-bar" id="caseBar"><div class="pv-thumbs" id="caseThumbs"></div><div class="pv-meta" id="caseMeta"></div></div>
   <div class="case-top">
     <button class="back" id="back">← Все работы</button>
     <div class="logo" id="caseLogo"></div>
@@ -321,7 +391,7 @@ const CASES = [
     cover:'assets/trading-cover.jpg',   // обложка для ленты — из Figma
     thumb:'assets/trading-thumb.jpg',   // для миниатюр и карточек: обложка с сайтом в экране
     // в экран ноутбука на обложке встаёт CSS-экран с живым лендингом; координаты экрана — в пикселях обложки
-    device:{ src:'projects/trading-101/index.html', img:[2800,1877], rect:[784,546,1219,775] },
+    device:{ src:'projects/trading-101/index.html', shot:'assets/trading.jpg', img:[2800,1877], rect:[784,546,1219,775] },
     color:'#5ab8ff',
     slides:['assets/slides/trading-1.jpg','assets/slides/trading-2.jpg','assets/slides/trading-3.jpg','assets/slides/trading-4.jpg'],
     line:'Сложная и пугающая тема, поданная так, чтобы новичок решился начать.',
@@ -341,11 +411,55 @@ const CASES = [
     line:'Состояние организма без медицинской тревоги: живая капсула вместо дашборда.',
     role:'Концепция, интерфейс, моушн, прототип', short:'IMPRE',
     url:'projects/impre/landing.html', urlLabel:'Открыть прототип' },
-  { id:'store', type:'apps', name:'Магазин одежды', kind:'мобильное приложение',
-    status:'В разработке', theme:'light', wip:true,
-    color:'#d9cdbd',
-    line:'Лента или каталог на главной: ресёрч Lamoda, ЦУМа и Ultima и выбор модели.',
-    role:'Ресёрч, гипотезы, вайрфрейм', short:'STORE' },
+  /* ---------- коммуникации: тексты черновые, по описаниям из презентации ---------- */
+  { id:'tb', type:'comms', name:'Therapiezentrum Blender', kind:'айдентика и сайт', status:'Коммерческий проект',
+    color:'#1a1a1c', cover:'assets/comms/tb/05.jpg', gallery:['assets/comms/tb/01.jpg','assets/comms/tb/02.jpg','assets/comms/tb/03.jpg','assets/comms/tb/04.jpg','assets/comms/tb/05.jpg','assets/comms/tb/06.jpg','assets/comms/tb/07.jpg'], galleryLayout:'grid',
+    line:'Фирменный стиль с нуля и сайт для центра терапии и тренировок.',
+    role:'Айдентика, дизайн сайта', short:'BLENDER' },
+  { id:'stories', type:'comms', name:'Сторис в приложении', kind:'ключевые визуалы для сторис', status:'Коммерческий проект',
+    color:'#1a1a1c', coverType:'stories', stories:['assets/comms/stories/01.jpg','assets/comms/stories/02.jpg'], gallery:['assets/comms/stories/01.jpg','assets/comms/stories/02.jpg'], galleryLayout:'grid',
+    line:'Сторис с акциями и подборками для мобильного приложения ритейлера.',
+    role:'Ключевые визуалы, сторис', short:'STORIES' },
+  { id:'mvideo', type:'comms', name:'М.Видео и Эльдорадо', kind:'ключевые визуалы', status:'Коммерческий проект',
+    color:'#1a1a1c', coverType:'banners', gallery:['assets/comms/mvideo/01.jpg','assets/comms/mvideo/02.jpg','assets/comms/mvideo/03.jpg','assets/comms/mvideo/04.jpg','assets/comms/mvideo/05.jpg','assets/comms/mvideo/06.jpg','assets/comms/mvideo/07.jpg','assets/comms/mvideo/08.jpg','assets/comms/mvideo/09.jpg','assets/comms/mvideo/10.jpg'], galleryLayout:'wide',
+    line:'Ключевые визуалы для сезонных акций и промо — единый узнаваемый стиль на сайте и в приложении.',
+    role:'Баннеры и ключевые визуалы для акций', short:'MVIDEO' },
+  { id:'leveraged', type:'comms', name:'Leveraged', kind:'посты для соцсетей', status:'Коммерческий проект',
+    color:'#1a1a1c', coverType:'columns', gallery:['assets/comms/leveraged/01.jpg','assets/comms/leveraged/02.jpg','assets/comms/leveraged/03.jpg','assets/comms/leveraged/04.jpg','assets/comms/leveraged/05.jpg','assets/comms/leveraged/06.jpg'], galleryLayout:'grid',
+    line:'Посты для трейдинг-сервиса: акции, выплаты трейдерам и анонсы мероприятий.',
+    role:'Ключевые визуалы, посты', short:'LEVERAGED' },
+  { id:'verss', type:'comms', name:'Verss.ai', kind:'дизайн презентаций', status:'Коммерческий проект',
+    color:'#1a1a1c', cover:'assets/comms/verss/01.jpg', gallery:['assets/comms/verss/01.jpg','assets/comms/verss/02.jpg','assets/comms/verss/03.jpg'], galleryLayout:'grid',
+    line:'Универсальная система слайдов для коммерческих и инвестиционных проектов.',
+    role:'Дизайн-система презентаций', short:'VERSS' },
+  { id:'posters', type:'comms', name:'Постеры', kind:'серия постеров', status:'Личные и коммерческие',
+    color:'#1a1a1c', coverType:'columns', gallery:['assets/comms/posters/01.jpg','assets/comms/posters/02.jpg','assets/comms/posters/03.jpg','assets/comms/posters/04.jpg','assets/comms/posters/05.jpg','assets/comms/posters/06.jpg'], galleryLayout:'grid',
+    line:'Серия в разных графических стилях — от коммерческих предложений и культурных событий до экспериментальных арт-постеров.',
+    role:'Графический дизайн, леттеринг', short:'POSTERS' },
+  { id:'onewin-yt', type:'comms', name:'1WIN — обложки YouTube', kind:'превью для видео', status:'Коммерческий проект',
+    color:'#1a1a1c', coverType:'columns', gallery:['assets/comms/onewin-yt/01.jpg','assets/comms/onewin-yt/02.jpg','assets/comms/onewin-yt/03.jpg','assets/comms/onewin-yt/04.jpg','assets/comms/onewin-yt/05.jpg','assets/comms/onewin-yt/06.jpg'], galleryLayout:'grid',
+    line:'Серия брендированных превью для видео: единый стиль, фирменные цвета, акцент на контент и событие.',
+    role:'Превью, ключевые визуалы', short:'1WIN' },
+  { id:'onewin-ig', type:'comms', name:'1WIN — Instagram', kind:'посты и сторис', status:'Коммерческий проект',
+    color:'#1a1a1c', coverType:'columns', gallery:['assets/comms/onewin-ig/01.jpg','assets/comms/onewin-ig/02.jpg','assets/comms/onewin-ig/03.jpg','assets/comms/onewin-ig/04.jpg','assets/comms/onewin-ig/05.jpg','assets/comms/onewin-ig/06.jpg','assets/comms/onewin-ig/07.jpg','assets/comms/onewin-ig/08.jpg','assets/comms/onewin-ig/09.jpg','assets/comms/onewin-ig/10.jpg','assets/comms/onewin-ig/11.jpg','assets/comms/onewin-ig/12.jpg'], galleryLayout:'grid',
+    line:'Посты и сторис партнёрской программы: анонсы событий, условия и итоги.',
+    role:'Посты, сторис, ключевые визуалы', short:'1WIN' },
+  { id:'anons', type:'comms', name:'Анонсы и розыгрыши', kind:'посты для соцсетей', status:'Коммерческий проект',
+    color:'#1a1a1c', coverType:'columns', gallery:['assets/comms/anons/01.jpg','assets/comms/anons/02.jpg','assets/comms/anons/03.jpg','assets/comms/anons/04.jpg','assets/comms/anons/05.jpg','assets/comms/anons/06.jpg'], galleryLayout:'grid',
+    line:'Посты для продвижения акций и анонса мероприятий.',
+    role:'Посты, леттеринг', short:'ANONS' },
+  { id:'igaming', type:'comms', name:'eCommerce vs iGaming', kind:'презентация', status:'Коммерческий проект',
+    color:'#1a1a1c', coverType:'banners', gallery:['assets/comms/igaming/01.jpg','assets/comms/igaming/02.jpg','assets/comms/igaming/03.jpg'], galleryLayout:'grid',
+    line:'Презентация о переходе бизнеса из одного сегмента в другой: цифры рынка и источники трафика.',
+    role:'Дизайн презентации, инфографика', short:'IGAMING' },
+  { id:'apork', type:'comms', name:'Angry Pork', kind:'лендинг и баннеры', status:'Коммерческий проект',
+    color:'#1a1a1c', coverType:'banners', gallery:['assets/comms/apork/01.jpg','assets/comms/apork/02.jpg','assets/comms/apork/03.jpg','assets/comms/apork/04.jpg'], galleryLayout:'grid',
+    line:'Лендинг и рекламные баннеры для криптовалюты APORK.',
+    role:'Лендинг, баннеры, иллюстрации', short:'APORK' },
+  { id:'snaky', type:'comms', name:'Snaky Way', kind:'лендинг и баннеры', status:'Коммерческий проект',
+    color:'#1a1a1c', coverType:'page', gallery:['assets/comms/snaky/01.jpg'], galleryLayout:'grid',
+    line:'Лендинг и баннеры для криптовалюты $AKE.',
+    role:'Лендинг, баннеры', short:'SNAKY' },
 ];
 
 const $ = s => document.querySelector(s);
@@ -465,7 +579,9 @@ const PV_EASE = 'cubic-bezier(.76,0,.2,1)';   // мягкий разгон и д
 // картинка проекта в ленте: обложка, если есть, иначе первый кадр
 const pvSrc = c => c.cover || (c.slides && c.slides[0]) || c.img;
 // для миниатюр и карточек — готовая картинка, где экран устройства уже заполнен
-const thumbSrc = c => c.thumb || pvSrc(c);
+// миниатюры и карточки — заранее уменьшенные копии (assets/thumbs 120px, assets/cards 800px), а не полноразмерные кадры
+const thumbSrc = c => `assets/thumbs/${c.id}.jpg`;
+const cardSrc = c => `assets/cards/${c.id}.jpg`;
 const introHTML = ()=>`<div class="intro-in">
   <figure class="intro-photo"><img src="assets/me.webp" alt="Алиса Брюква"></figure>
   <p class="intro-lead">Привет! Меня зовут Алиса — я&nbsp;мультидисциплинарный дизайнер. Создаю фирменные стили, digital-интерфейсы и&nbsp;визуальные концепции.</p>
@@ -475,13 +591,15 @@ const introHTML = ()=>`<div class="intro-in">
   </div>
   <button class="intro-go" data-go>Работы ↓</button>
 </div>`;
+// миниатюры проектов — одни и те же в ленте и в кейсе
+const thumbsHTML = list => list.map((c,i)=>`<button class="pv-thumb" data-i="${i}" style="--c:${c.color}" aria-label="${c.name}">
+    <span class="ph">${c.wip ? lockSVG : `<img src="${thumbSrc(c)}" alt="" loading="lazy">`}</span>
+    <span class="cap"><b>${c.name}</b><i>${c.kind[0].toUpperCase() + c.kind.slice(1)}${c.wip ? ' · в разработке' : ''}</i></span>
+  </button>`).join('');
 // start: -1 — первый экран «кто я», 0… — проект
 function renderPreview(start = -1){
   const list = visible();
-  $('#pvThumbs').innerHTML = list.map((c,i)=>`<button class="pv-thumb" data-i="${i}" style="--c:${c.color}" aria-label="${c.name}">
-    <span class="ph">${c.wip ? lockSVG : `<img src="${thumbSrc(c)}" alt="">`}</span>
-    <span class="cap"><b>${c.name}</b><i>${c.kind[0].toUpperCase() + c.kind.slice(1)}${c.wip ? ' · в разработке' : ''}</i></span>
-  </button>`).join('');
+  $('#pvThumbs').innerHTML = thumbsHTML(list);
   // клик по мини-карточке — сразу внутрь кейса (лента под ним переходит на этот проект); проект в разработке — только показываем
   $('#pvThumbs').querySelectorAll('.pv-thumb').forEach(b=>b.addEventListener('click', e=>{
     e.stopPropagation();
@@ -510,7 +628,10 @@ function pvShow(i, instant, dir){
     sl.className = 'pv-slide'; sl.style.background = '#0d0d0e'; sl.dataset.i = i;
     sl.innerHTML = `<div class="pv-hero"><h2 class="pv-title">${c.name}</h2>${factsHTML(c)}</div>${picHTML(c, i)}`;
   }
-  if(c && c.device) requestAnimationFrame(()=>placeDevice(sl.querySelector('.pv-pic'), c));
+  if(c && c.device){
+    requestAnimationFrame(()=>placeDevice(sl.querySelector('.pv-pic'), c));
+    setTimeout(()=>{ if(pvIdx === i && sl.isConnected && openIdx < 0) goLive(sl, c); }, PV_T + 900);
+  }
   const theme = ()=>{
     document.body.classList.toggle('on-intro', intro);
     document.body.classList.toggle('on-work', !intro);      // на проектах у шапки — размытая плашка
@@ -525,25 +646,25 @@ function pvShow(i, instant, dir){
     // Назад — зеркально: верхний уезжает вниз, лежащий под ним поднимается из глубины.
     pvBusy = true;
     const T = PV_T, E = PV_EASE;
-    const DEEP = 'translateY(-6%) scale(.965)', DIM = 'brightness(.72)', LAG = 'translateY(-16%) scale(1.12)';
+    const DEEP = 'translateY(-6%) scale(.965)', LAG = 'translateY(-16%) scale(1.12)';
     const pic = el => el.querySelector(':scope > img, :scope > .pv-pic, :scope > .wip-cover, :scope > .intro-in');
     if(fwd > 0){
       sl.style.transform = 'translateY(100%)';
       if(pic(sl)) pic(sl).style.transform = LAG;
       stage.append(sl); old.classList.add('flat');
     } else {
-      sl.classList.add('cur'); sl.style.transform = DEEP; sl.style.filter = DIM;
+      sl.classList.add('cur', 'dim'); sl.style.transform = DEEP;
       stage.insertBefore(sl, old);
     }
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      const go = (el, tf, extra = '')=>{ el.style.transition = `transform ${T}ms ${E}, filter ${T}ms ${E}${extra}`; el.style.transform = tf; };
+      const go = (el, tf, extra = '')=>{ el.style.transition = `transform ${T}ms ${E}${extra}`; el.style.transform = tf; };
       const picGo = (el, tf)=>{ const im = pic(el); if(im){ im.style.transition = `transform ${T*1.15}ms ${E}`; im.style.transform = tf; } };
       if(fwd > 0){
         go(sl, 'translateY(0)', `, border-radius .45s var(--ease) ${T*.62}ms`); picGo(sl, 'none');
-        go(old, DEEP); old.style.filter = DIM;
+        go(old, DEEP); old.classList.add('dim');
       } else {
         go(old, 'translateY(100%)', ', border-radius .3s var(--ease)'); picGo(old, LAG);
-        go(sl, 'none'); sl.style.filter = 'none';
+        go(sl, 'none'); requestAnimationFrame(()=>sl.classList.remove('dim'));
       }
       old.classList.remove('cur'); sl.classList.add('cur');
     }));
@@ -560,6 +681,7 @@ function pvShow(i, instant, dir){
   $('#pvThumbs').querySelectorAll('.pv-thumb').forEach(b=>b.classList.toggle('on', +b.dataset.i === i));
   // прогресс внизу плашки; когда дойдёт до конца — следующий проект
   pr.style.setProperty('--pvdur', PV_DUR + 'ms'); pr.classList.add('run');
+  (window.requestIdleCallback || (f=>setTimeout(f, 600)))(()=>preload((i + 1) % list.length));
 }
 const cap = t => t[0].toUpperCase() + t.slice(1);
 const factsHTML = c => `<div class="pv-facts">
@@ -567,10 +689,24 @@ const factsHTML = c => `<div class="pv-facts">
   <div><b>Статус</b><span>${c.status}</span></div>
   <div><b>Что делала</b><span>${c.role}</span></div></div>`;
 // обложка проекта: картинка (и экран устройства с живым сайтом, если он есть)
+// живые обложки коммуникаций; каждая работа показывается один раз, без повторов
+function motionCover(c){
+  const im = src => `<img src="${src}" alt="" loading="lazy">`;
+  if(c.coverType === 'stories')
+    return `<div class="cv-stories">${c.stories.map(im).join('')}</div>`;
+  if(c.coverType === 'page')
+    return `<div class="cv-page"><img src="${c.gallery[0]}" alt=""></div>`;
+  if(c.coverType === 'banners')
+    return `<div class="cv-banners"><div class="cv-run">${c.gallery.map(im).join('')}</div></div>`;
+  const cols = [[], [], []];
+  c.gallery.forEach((src, k)=>cols[k % 3].push(src));
+  return `<div class="cv-cols">${cols.map((col, k)=>`<div class="cv-col${k % 2 ? ' down' : ''}"><div class="cv-run">${col.map(im).join('')}</div></div>`).join('')}</div>`;
+}
 const picHTML = (c, i) => `<div class="pv-pic" data-i="${i}">${
-  c.wip ? wipCover(c)
+  c.coverType ? motionCover(c)
+  : c.wip ? wipCover(c)
   : `<img class="cover" src="${pvSrc(c)}" alt="${c.name}" style="object-position:${c.cover ? 'center' : 'center top'}">${
-      c.device ? `<div class="pv-device"><iframe src="${c.device.src}" title="${c.name} — живой сайт" loading="eager"></iframe><i class="cam"></i><i class="glare"></i></div>` : ''}`
+      c.device ? `<div class="pv-device"><img class="pv-shot" src="${c.device.shot}" alt=""><i class="cam"></i><i class="glare"></i></div>` : ''}`
 }</div>`;
 /* экран устройства на обложке: та же математика, что у object-fit: cover — масштаб по большей стороне, центр */
 function placeDevice(box0, c){
@@ -585,8 +721,19 @@ function placeDevice(box0, c){
   const bz = Math.max(2, Math.round(box.width * .006)), inner = box.width - bz*2, vw = 1440;
   dev.style.setProperty('--bz', bz + 'px'); dev.style.setProperty('--dr', Math.round(box.width*.012) + 'px');
   const f = dev.querySelector('iframe');
-  f.style.width = vw + 'px'; f.style.height = Math.round((box.height - bz*2) * vw / inner) + 'px';
-  f.style.transform = `scale(${inner / vw})`;
+  if(f){ f.style.width = vw + 'px'; f.style.height = Math.round((box.height - bz*2) * vw / inner) + 'px'; f.style.transform = `scale(${inner / vw})`; }
+}
+// живой сайт в экране — тяжёлый (свой 3D и анимации), поэтому только на компьютере, только в текущем проекте
+// и только когда он постоял на экране; до этого и в кейсе — статичный снимок
+const canLive = matchMedia('(hover:hover) and (min-width:761px)').matches;
+function goLive(sl, c){
+  if(!canLive || !c.device || sl.querySelector('.pv-device iframe')) return;
+  const dev = sl.querySelector('.pv-device');
+  const f = document.createElement('iframe');
+  f.src = c.device.src; f.title = `${c.name} — живой сайт`; f.style.opacity = 0;
+  f.addEventListener('load', ()=>{ f.style.transition = 'opacity .6s'; f.style.opacity = 1; });
+  dev.prepend(f);
+  placeDevice(sl.querySelector('.pv-pic'), c);
 }
 addEventListener('resize', ()=>{
   document.querySelectorAll('.pv-pic[data-i]').forEach(el=>{
@@ -594,6 +741,12 @@ addEventListener('resize', ()=>{
   });
 });
 
+// подгрузить картинки проекта заранее, чтобы переход на него не дёргался
+function preload(i){
+  const c = visible()[i]; if(!c) return;
+  [pvSrc(c), ...(c.coverType ? (c.stories || c.gallery).slice(0, 6) : [])].filter(Boolean)
+    .forEach(src=>{ const im = new Image(); im.src = src; im.decode?.().catch(()=>{}); });
+}
 const pvStep = sg => {
   const n = visible().length;
   if(pvIdx === -1){ if(sg > 0) pvShow(0, false, 1); return; }
@@ -632,6 +785,8 @@ $('#pvOpen').addEventListener('click', e=>{ e.stopPropagation(); pvOpenCurrent()
 // колесо листает проекты по одному; в открытом кейсе прокрутка вверх возвращает к ленте
 let wheelAcc = 0, wheelT = 0, wheelMuteUntil = 0, lastWheel = 0, gestureFromTop = false;
 addEventListener('wheel', e=>{
+  const th = e.target.closest && e.target.closest('.pv-thumbs');
+  if(th){ if(th.scrollHeight > th.clientHeight) th.scrollTop += e.deltaY; else th.scrollLeft += e.deltaY + e.deltaX; th.scrollLeft += e.deltaX; return; }
   clearTimeout(wheelT);
   wheelAcc += e.deltaY;
   wheelT = setTimeout(()=>{ wheelAcc = 0; }, 220);
@@ -703,21 +858,29 @@ function fillCase(i){
   $('#caseFacts').outerHTML = factsHTML(c).replace('class="pv-facts"', 'class="pv-facts" id="caseFacts"');
   $('#caseCover').innerHTML = picHTML(c, i);
   if(c.device) requestAnimationFrame(()=>placeDevice($('#caseCover .pv-pic'), c));
-  const shots = [...(c.slides || []), ...(c.cover && c.img ? [c.img] : [])];
+  const shots = c.gallery || [...(c.slides || []), ...(c.cover && c.img ? [c.img] : [])];
   // тексты пока черновые — из того, что известно о проекте
   $('#caseContent').innerHTML = `
     <section class="cs reveal"><h3>Задача</h3><p>${c.line}</p></section>
     <section class="cs reveal"><h3>Что делала</h3><p>${c.role}</p></section>
-    ${shots.length ? `<section class="cs reveal"><h3>Как выглядит</h3><div class="cs-gallery">${shots.map(src=>`<img class="reveal" src="${src}" alt="" loading="lazy">`).join('')}</div></section>` : ''}
+    ${shots.length ? `<section class="cs cs-full reveal"><h3>Как выглядит</h3><div class="cs-gallery${c.galleryLayout === 'grid' ? ' grid' : ''}">${shots.map(src=>`<img class="reveal" src="${src}" alt="" loading="lazy">`).join('')}</div></section>` : ''}
     ${c.url ? `<section class="cs reveal"><h3>Посмотреть</h3><a class="cta" href="${c.url}" ${linkAttrs(c)}>${c.urlLabel} ↗</a></section>` : ''}
     <section class="cs-more reveal"><h3>Другие проекты</h3><div class="cs-cards">${
       visible().map((o,j)=>j === i ? '' : `<button class="cs-card${o.wip ? ' wip' : ''}" data-i="${j}" style="--c:${o.color}">
-        <span class="ph">${o.wip ? lockSVG : `<img src="${thumbSrc(o)}" alt="" loading="lazy">`}</span>
+        <span class="ph">${o.wip ? lockSVG : `<img src="${cardSrc(o)}" alt="" loading="lazy">`}</span>
         <b>${o.name}</b><i>${cap(o.kind)}${o.wip ? ' · в разработке' : ''}</i></button>`).join('')
     }</div></section>`;
   $('#caseContent').querySelectorAll('.cs-card:not(.wip)').forEach(b=>b.addEventListener('click', ()=>switchCase(+b.dataset.i)));
   $('#caseContent').querySelectorAll('.reveal').forEach(el=>revealIO.observe(el));
   caseScroll.scrollTop = 0;
+  $('#caseThumbs').innerHTML = thumbsHTML(visible());
+  $('#caseThumbs').querySelectorAll('.pv-thumb').forEach(b=>{
+    const j = +b.dataset.i;
+    b.classList.toggle('on', j === i);
+    b.addEventListener('click', ()=>{ if(j !== openIdx && !visible()[j].wip) switchCase(j); });
+  });
+  $('#caseMeta').innerHTML = `<b>${c.name}</b><span>${cap(c.kind)} · ${c.status}</span>`;
+  $('#caseBar').classList.remove('on');
   scramble($('#caseLogo'), 'BRUKWA');   // в шапке кейса — логотип, маленький, как на экранах проектов
 }
 function openCase(i){
@@ -732,6 +895,7 @@ function closeCase(){
   openIdx = -1;
   caseEl.classList.remove('is-open'); caseEl.setAttribute('aria-hidden','true');
   syncHash();
+  setTimeout(()=>{ if(openIdx < 0){ $('#caseCover').innerHTML = ''; $('#caseContent').innerHTML = ''; } }, 500);
 }
 // открыть другой кейс поверх текущего; лента под ним тоже переходит на этот проект
 function switchCase(j){
@@ -743,6 +907,12 @@ function switchCase(j){
 }
 const goNextCase = ()=>switchCase(nextOpen(openIdx));
 $('#back').addEventListener('click', closeCase);
+// плашка видна после первого экрана и прячется, когда снизу показались карточки «Другие проекты»
+caseScroll.addEventListener('scroll', ()=>{
+  const more = $('#caseContent .cs-more');
+  const moreIn = more && more.getBoundingClientRect().top < innerHeight - 40;
+  $('#caseBar').classList.toggle('on', caseScroll.scrollTop > innerHeight*.5 && !moreIn);
+}, { passive:true });
 $('#next').addEventListener('click', goNextCase);
 
 /* ---------- временный выбор шрифта ---------- */
@@ -767,8 +937,8 @@ document.fonts.ready.then(()=>{
   fisheye($('#caseLogo'), 'fishCase', .5);
   const h = decodeURIComponent(location.hash.slice(1));
   // кадры проектов грузим и раскодируем заранее, в паузе после старта
-  const warm = ()=>CASES.flatMap(c=>[pvSrc(c), c.img]).filter(Boolean).forEach(src=>{ const im = new Image(); im.src = src; im.decode?.().catch(()=>{}); });
-  (window.requestIdleCallback || (f=>setTimeout(f, 1500)))(warm);
+  // заранее грузим только первый проект; следующий подгружается, пока смотришь текущий (см. pvShow)
+  (window.requestIdleCallback || (f=>setTimeout(f, 1500)))(()=>preload(0));
   const ci = h.startsWith('case/') ? visible().findIndex(c=>c.id === h.slice(5)) : -1;
   setTimeout(()=>{
     document.body.classList.add('ready');
