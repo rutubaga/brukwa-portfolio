@@ -26,6 +26,8 @@
     overflow:hidden;-webkit-font-smoothing:antialiased;
   }
   button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  button:focus,[tabindex]:focus{outline:none}
+  button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
   a{color:inherit;text-decoration:none}
 
   /* ---------- шапка ---------- */
@@ -75,8 +77,7 @@
   /* «тело» карточки: только оно наклоняется в перспективе, название и кнопки лежат поверх ровно */
   .skin{
     position:absolute;inset:0;border-radius:var(--radius);overflow:hidden;
-    transform-origin:50% 0;will-change:transform;
-    box-shadow:0 -10px 40px rgba(0,0,0,.10);
+    transform-origin:50% 0;will-change:transform;contain:paint;backface-visibility:hidden;
     background:#ccc;
   }
   .media{position:absolute;inset:-40px;filter:blur(22px) saturate(1.25);transform:scale(1.04);
@@ -97,7 +98,7 @@
   .t-dark{color:#fff}
   .t-dark .scrim{background:linear-gradient(rgba(10,10,12,.6),rgba(10,10,12,0))}
 
-  .label{position:absolute;left:calc(var(--inset,0px) + clamp(20px,14vw,240px));top:calc(var(--peek,96px)/2 - .62em - 2px);right:calc(var(--inset,0px) + 20px);font-size:clamp(17px,1.6vw,26px)}
+  .label{position:absolute;left:calc(var(--inset,0px) + clamp(20px,14vw,240px));top:calc(var(--peek,96px)*.17);right:calc(var(--inset,0px) + 20px);font-size:clamp(17px,1.6vw,26px)}
   .label .word{font-size:1em;display:inline-block}
   /* вариант: названия по центру карточек */
   .titles-center .label{left:calc(var(--inset,0px) + 20px);right:calc(var(--inset,0px) + 20px);text-align:center}
@@ -112,6 +113,33 @@
   }
   .arrow i{font-style:normal;color:var(--bg)}
   .t-dark .arrow i{color:#111}
+  /* визуалы проекта: при наведении заполняют карточку и по очереди проявляются из размытия */
+  .slides{position:absolute;inset:0;pointer-events:none}
+  .slides img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;
+    opacity:0;filter:blur(28px);transform:scale(1.08);
+    transition:opacity .7s, filter 1s var(--ease), transform 1.4s var(--ease)}
+  .slides img.on{opacity:1;filter:blur(0);transform:scale(1)}
+  .slides::after{content:"";position:absolute;inset:0 0 auto 0;height:45%;z-index:999;opacity:0;
+    background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,0));transition:opacity .5s}
+  .card.has-slides:hover .slides::after{opacity:1}
+  /* поверх картинок название и кнопки белые */
+  .card.has-slides:hover{color:#fff}
+  .card.has-slides:hover .label{text-shadow:0 1px 18px rgba(0,0,0,.35)}
+  .card.has-slides:hover .site i,.card.has-slides:hover .arrow i{color:#111}
+  .card.expanding .label,.card.expanding .side{opacity:0 !important;transition:opacity .2s}
+  /* проект в разработке: замок вместо стрелки, карточка не открывается — замок вздрагивает */
+  .arrow.lock svg{stroke:var(--bg)}
+  .card:hover .arrow.lock{transform:none}
+  .arrow.lock.shake{animation:shake .45s var(--ease)}
+  @keyframes shake{20%{transform:rotate(-14deg)}45%{transform:rotate(11deg)}70%{transform:rotate(-6deg)}100%{transform:none}}
+  /* проект в разработке */
+  .label .wip{display:inline-block;margin-left:.8em;font-size:13px;opacity:.55;vertical-align:middle}
+  .wip-cover{position:absolute;inset:0;display:grid;place-items:center;color:var(--ink)}
+  .wip-cover span{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);
+    font-size:clamp(28px,3vw,48px);opacity:.6}
+  .case.is-wip{color:var(--ink)}
+  .case.is-wip .case-shade{display:none}
+  .case.is-wip .facts div{border-top-color:rgba(20,20,20,.18)}
   /* кнопки появляются, только когда наводим на карточку */
   .side > *{opacity:0;transform:translateY(-6px);transition:opacity .35s, transform .45s var(--ease)}
   .card:hover .side > *,.card:focus-visible .side > *{opacity:1;transform:none}
@@ -127,6 +155,9 @@
     padding:6px 12px;border-radius:99px;background:rgba(236,236,234,.75);backdrop-filter:blur(8px);
     -webkit-backdrop-filter:blur(8px);transition:opacity .6s}
   .hint{left:50%;transform:translateX(-50%)}
+  /* подпись: дизайн сайта мой */
+  .credit{position:fixed;right:24px;bottom:24px;z-index:20;font-size:12px;color:var(--mute);transition:opacity .6s}
+  body:not(.ready) .credit,body.about-on .credit{opacity:0}
 
   /* временный переключатель шрифтов названий — убрать, когда выберем */
   .fonts{position:fixed;left:20px;bottom:18px;z-index:25;display:flex;padding:3px;border-radius:99px;
@@ -140,13 +171,16 @@
   body:not(.ready) .hint{opacity:0}
 
   /* ---------- раскрытый кейс ---------- */
+  /* кейс проявляется поверх карточки, которая уже раскрылась на весь экран */
   .case{
     position:fixed;inset:0;z-index:30;color:#fff;
-    clip-path:inset(var(--ct,100%) var(--cr,0) var(--cb,0) var(--cl,0) round var(--cround,44px));
-    transition:clip-path .85s var(--ease);
-    visibility:hidden;
+    opacity:0;visibility:hidden;transition:opacity .4s, visibility 0s .4s;
   }
-  .case.is-open,.case.is-anim{visibility:visible}
+  .case.is-open{opacity:1;visibility:visible;transition:opacity .45s}
+  .case-media > *{filter:blur(24px);transform:scale(1.05);transition:filter .9s var(--ease), transform 1.2s var(--ease)}
+  .case.is-open .case-media > *{filter:none;transform:none}
+  .case-media .phone{transform:translate(-50%,-46%) rotate(-4deg)}
+  .case.is-open .case-media .phone{transform:translate(-50%,-46%) rotate(-4deg)}
   .case-media{position:absolute;inset:0;background:#222}
   .case-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s}
   .case-media .phone{position:absolute;left:50%;top:50%;width:min(360px,62vw);height:auto;inset:auto;
@@ -170,6 +204,8 @@
   .case-body > *{opacity:0;transform:translateY(16px);transition:opacity .6s, transform .7s var(--ease)}
   .case.is-open .case-body > *{opacity:1;transform:none;transition-delay:.45s}
   .case.is-open .case-body > *:nth-child(2){transition-delay:.55s}
+  /* крупный заголовок и подзаголовок кейса пока скрыты */
+  .case-word,.case-line{display:none !important}
   .case-word{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);font-size:clamp(48px,8vw,124px);letter-spacing:-.04em;line-height:.95}
   .case-line{font-size:clamp(16px,1.5vw,21px);line-height:1.35;margin-top:16px;max-width:30ch;opacity:.9}
   .facts{display:grid;gap:12px;font-size:13px}
@@ -179,6 +215,50 @@
     padding:13px 20px;border-radius:99px;background:#fff;color:#111;font-size:13px;font-weight:500}
   .cta.muted{background:rgba(255,255,255,.14);color:#fff;font-weight:400;cursor:default}
 
+  /* ---------- обо мне и контакты ---------- */
+  .about{position:fixed;inset:0;z-index:28;background:var(--bg);overflow-y:auto;
+    opacity:0;visibility:hidden;filter:blur(24px);transition:opacity .6s, filter .8s var(--ease), visibility 0s .8s}
+  .about.is-open{opacity:1;visibility:visible;filter:blur(0);transition:opacity .6s, filter .8s var(--ease)}
+  body.about-on .top{z-index:40}
+  body.about-on .hint,body.about-on .fonts{opacity:0;pointer-events:none}
+  /* та же центральная ось, что у шапки: портрет под логотипом, ниже текст, бренды и контакты */
+  .about-in{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;gap:30px;padding:140px 20px 56px}
+  /* фото — маленькое, в скруглённом квадрате */
+  .about-photo{order:-1;width:84px;height:84px;border-radius:20px;overflow:hidden;background:#dcd9d2;
+    display:flex;justify-content:center;align-items:flex-end;transform:rotate(-4deg)}
+  .about-photo img{height:94%;width:auto;display:block}
+  .about-text{display:flex;flex-direction:column;align-items:center}
+  .about-lead{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);
+    font-size:clamp(22px,2.2vw,36px);line-height:1.2;letter-spacing:-.01em;max-width:30ch}
+  .about-block{margin-top:26px;display:flex;flex-direction:column;align-items:center}
+  .about-cap{font-size:13px;color:var(--mute);margin-bottom:10px}
+  .brands{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+  .brands li{padding:8px 16px;border-radius:99px;border:1px solid rgba(20,20,20,.18);font-size:15px}
+  .contacts{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+  .contacts .about-cap{flex-basis:100%;margin:0}
+  .contact{display:inline-flex;align-items:baseline;gap:10px;padding:14px 24px;border-radius:99px;
+    background:var(--ink);color:#fff;font-size:clamp(17px,1.4vw,22px);transition:background .3s, transform .4s var(--ease)}
+  .contact span{font-size:12px;color:rgba(255,255,255,.55)}
+  .contact b{font-weight:400;font-family:var(--title-font),"Inter Tight",sans-serif}
+  .contact:hover{background:var(--accent);transform:translateY(-2px)}
+  /* появление: блоки по очереди проявляются из размытия */
+  .about-in > *{opacity:0;filter:blur(14px);transform:translateY(18px);
+    transition:opacity .6s, filter .8s var(--ease), transform .8s var(--ease)}
+  .about.is-open .about-in > *{opacity:1;filter:blur(0);transform:none}
+  .about.is-open .about-text{transition-delay:.1s}
+  .about.is-open .contacts{transition-delay:.2s}
+  .about-in.pre > *{opacity:0 !important;filter:blur(14px) !important;transform:translateY(18px) !important;transition:none !important}
+  .about[data-page="about"] .contacts{display:none}
+  .about[data-page="contacts"] .about-text,.about[data-page="contacts"] .about-photo{display:none}
+  .about[data-page="contacts"] .contacts{gap:14px}
+  .about[data-page="contacts"] .contact{font-size:clamp(24px,2.6vw,42px);padding:20px 36px}
+  .about[data-page="contacts"] .contact span{font-size:14px}
+  .nav [data-page]{position:relative;padding:4px 0}
+  .nav [data-page]::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;
+    transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease)}
+  .nav [data-page].is-active::after{transform:scaleX(1)}
+
   /* ---------- мобильная ---------- */
   @media (max-width:760px){
     :root{--radius:30px}
@@ -187,6 +267,11 @@
     .nav{gap:20px}
     .nav.left,.nav.right{padding:0;justify-content:center}
     .nav.right{display:none}
+    .slides{display:none}
+    .credit{display:none}
+    .nav.right{display:flex}
+    .about-in{padding:170px 20px 40px;gap:24px}
+    .about-photo{width:72px;height:72px;border-radius:18px}
     .fonts{left:8px;right:8px;bottom:10px;overflow-x:auto;font-size:11px}
     .fonts button{padding:6px 9px;white-space:nowrap}
     .side{display:none}
@@ -218,13 +303,14 @@
   </nav>
   <div class="logo enter" id="logo" role="button" tabindex="0" aria-label="Все работы"></div>
   <nav class="nav right">
-    <a href="#">Обо мне</a>
-    <a href="#">Контакты</a>
+    <button data-page="about">Обо мне</button>
+    <button data-page="contacts">Контакты</button>
   </nav>
 </header>
 
 <main class="deck" id="deck"></main>
 <p class="hint" id="hint">Листайте вниз ↓</p>
+<p class="credit">Дизайн сайта — Алиса Брюква, 2026</p>
 <div class="fonts" id="fonts" role="group" aria-label="Шрифт названий">
   <button data-font="Manrope" data-w="300" style="font-family:Manrope">Manrope</button>
   <button data-font="Onest" data-w="300" style="font-family:Onest">Onest</button>
@@ -234,6 +320,29 @@
   <button data-align="left">Слева</button>
   <button data-align="center">По центру</button>
 </div>
+
+<section class="about" id="about" aria-hidden="true">
+  <div class="about-in">
+    <div class="about-text">
+      <p class="about-lead">Привет! Меня зовут Алиса — я&nbsp;мультидисциплинарный дизайнер. Создаю фирменные стили, digital-интерфейсы и&nbsp;визуальные концепции.</p>
+      <div class="about-block">
+        <p class="about-cap">Работала с брендами</p>
+        <ul class="brands">
+          <li>НСПК — Мир и СБП</li><li>М.Видео и Эльдорадо</li><li>МузТорг</li>
+        </ul>
+      </div>
+      <div class="about-block">
+        <p class="about-cap">Преподавала</p>
+        <ul class="brands"><li>Granich School</li></ul>
+      </div>
+    </div>
+    <figure class="about-photo"><img src="assets/me.webp" alt="Алиса Брюква"></figure>
+    <div class="contacts" id="contacts">
+      <a class="contact" href="https://t.me/brukwa" target="_blank" rel="noopener"><span>Telegram</span><b>@brukwa ↗</b></a>
+      <a class="contact" href="https://himki.hh.ru/resume/be003531ff079394cd0039ed1f4b7554794a5a" target="_blank" rel="noopener"><span>Резюме</span><b>hh.ru ↗</b></a>
+    </div>
+  </div>
+</section>
 
 <section class="case" id="case" aria-hidden="true">
   <div class="case-media" id="caseMedia"></div>
@@ -255,30 +364,33 @@
 <script>
 /* Кейсы. Порядок = сверху вниз в колоде; последняя карточка лежит впереди и видна целиком. Тексты черновые. */
 const CASES = [
-  { id:'trading', type:'landings', name:'Трейдинг 101', kind:'лендинг курса',
-    status:'Концепт', theme:'dark', img:'assets/trading.jpg', pos:'center 30%',
-    color:'#0e0f13',
+    { id:'trading', type:'landings', name:'Трейдинг 101', kind:'лендинг курса',
+    status:'Концепт', theme:'light', img:'assets/trading.jpg', pos:'center 30%',
+    color:'#5ab8ff',
+    slides:['assets/slides/trading-1.jpg','assets/slides/trading-2.jpg','assets/slides/trading-3.jpg','assets/slides/trading-4.jpg'],
     line:'Сложная и пугающая тема, поданная так, чтобы новичок решился начать.',
     role:'Дизайн, адаптивы, 3D в первом экране', short:'TRADING',
     url:'projects/trading-101/index.html', urlLabel:'Открыть сайт' },
-  { id:'store', type:'apps', name:'Магазин одежды', kind:'мобильное приложение',
-    status:'В работе', theme:'light', wire:'assets/store-wire.png', bg:'#CDBFAF',
-    color:'#d9cdbd',
-    line:'Лента или каталог на главной: ресёрч Lamoda, ЦУМа и Ultima и выбор модели.',
-    role:'Ресёрч, гипотезы, вайрфрейм', short:'STORE' },
   { id:'revnikoff', type:'landings', name:'Revnikoff', kind:'сайт мастерской',
     status:'Запущен', theme:'dark', img:'assets/revnikoff.jpg', pos:'center top',
     color:'#ff6a13',
+    slides:['assets/slides/revnikoff-1.jpg','assets/slides/revnikoff-2.jpg','assets/slides/revnikoff-3.jpg','assets/slides/revnikoff-4.jpg'],
     line:'Как доверить дорогую и памятную вещь незнакомой мастерской.',
     role:'Структура, путь клиента, визуал, вёрстка', short:'REVNIKOFF',
     url:'https://revnikoff.ru/', urlLabel:'Открыть сайт' },
   { id:'impre', type:'apps', name:'Impre', kind:'приложение о здоровье',
-    status:'Концепт', theme:'dark', img:'assets/impre.jpg', pos:'center center',
+    status:'Концепт', theme:'light', img:'assets/impre.jpg', pos:'center center',
     // в карточке — чистый цвет проекта; в раскрытом кейсе — экран приложения
-    color:'#2f5bea',
+    color:'#b8f03c',
+    slides:['assets/slides/impre-1.jpg','assets/slides/impre-2.jpg','assets/slides/impre-3.jpg'],
     line:'Состояние организма без медицинской тревоги: живая капсула вместо дашборда.',
     role:'Концепция, интерфейс, моушн, прототип', short:'IMPRE',
     url:'projects/impre/landing.html', urlLabel:'Открыть прототип' },
+  { id:'store', type:'apps', name:'Магазин одежды', kind:'мобильное приложение',
+    status:'В разработке', theme:'light', wip:true,
+    color:'#d9cdbd',
+    line:'Лента или каталог на главной: ресёрч Lamoda, ЦУМа и Ultima и выбор модели.',
+    role:'Ресёрч, гипотезы, вайрфрейм', short:'STORE' },
 ];
 
 const $ = s => document.querySelector(s);
@@ -290,7 +402,10 @@ function setLetters(el, text){ el.innerHTML = [...text].map((c,i)=>`<span style=
 setLetters(logo, 'BRUKWA');
 
 const wobbleMap = document.getElementById('wobbleMap');
+// Safari и все браузеры на iPhone (WebKit) с SVG-фильтром на тексте могут не нарисовать логотип — там эффекты выключены
+const NO_SVG_FX = (()=>{ const ua = navigator.userAgent; return /iP(hone|ad|od)/.test(ua) || (/Safari/.test(ua) && !/Chrome|Chromium|Edg|OPR/.test(ua)); })();
 function wobble(from, dur){
+  if(NO_SVG_FX) return;
   const t0 = performance.now();
   document.querySelectorAll('.logo').forEach(l=>l.classList.add('wob'));
   (function step(t){
@@ -316,6 +431,8 @@ function visible(){ return CASES.filter(c => filter==='all' || c.type===filter);
 
 function mediaHTML(c, inCase){
   if(c.color && !inCase) return `<div class="solid" style="background:${c.color}"></div>`;
+  // проект в разработке: вместо картинок — цвет проекта и надпись
+  if(c.wip) return `<div class="wip-cover" style="background:${c.color}"><span>В разработке</span></div>`;
   return c.img
     ? `<img src="${c.img}" alt="" style="object-position:${c.pos}">`
     : `<div style="position:absolute;inset:0;background:${c.bg}"></div><img class="phone" src="${c.wire}" alt="">`;
@@ -323,16 +440,17 @@ function mediaHTML(c, inCase){
 function linkAttrs(c){ return /^https?:/.test(c.url) ? 'target="_blank" rel="noopener"' : 'target="_blank"'; }
 
 function cardHTML(c){
-  return `<article class="card t-${c.theme}" data-id="${c.id}" tabindex="0" aria-label="${c.name}">
+  return `<article class="card t-${c.theme}${c.slides ? ' has-slides' : ''}" data-id="${c.id}" tabindex="0" aria-label="${c.name}">
     <div class="skin">
       <div class="media${c.color ? ' live' : ''}">${mediaHTML(c)}</div>
+      <div class="slides">${(c.slides||[]).map(src=>`<img src="${src}" alt="" loading="lazy">`).join('')}</div>
       <div class="scrim"></div>
     </div>
-    <div class="label"><h2 class="word">${c.name}</h2></div>
+    <div class="label"><h2 class="word">${c.name}</h2>${c.wip ? '<span class="wip">в разработке</span>' : ''}</div>
     <div class="side">
       <span class="chip">${c.status}</span>
       ${c.url ? `<a class="site" href="${c.url}" ${linkAttrs(c)}><i>Сайт ↗</i></a>` : ''}
-      <span class="arrow"><i>↗</i></span>
+      ${c.wip ? `<span class="arrow lock" title="В разработке"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg></span>` : `<span class="arrow"><i>↗</i></span>`}
     </div>
   </article>`;
 }
@@ -359,6 +477,13 @@ function geometry(){
   };
 }
 const easeOut = k => 1 - Math.pow(1-k, 3);
+// версия раскладки названий: меняется при ресайзе, смене шрифта или выравнивания — тогда их положение пересчитывается
+let layoutVer = 0;
+const bumpLayout = ()=>{ layoutVer++; };
+addEventListener('resize', bumpLayout);
+document.fonts.addEventListener?.('loadingdone', bumpLayout);
+// если в системе включено «уменьшить движение» — без веера, наклона и изгиба
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- рыбий глаз на логотипе ----------
    Круглая линза ездит за курсором. Внутри радиуса R точка берёт картинку из c + (p − c)·(1 − k·(1 − r²)):
@@ -366,6 +491,7 @@ const easeOut = k => 1 - Math.pow(1-k, 3);
    Карта линзы рисуется один раз, а при движении мыши сдвигается только её позиция. */
 const SVGNS = 'http://www.w3.org/2000/svg';
 function fisheye(el, id, k){
+  if(NO_SVG_FX) return;
   const svg = document.querySelector('svg');
   const f = document.createElementNS(SVGNS, 'filter');
   f.id = id;
@@ -441,15 +567,25 @@ function frame(now){
   vel += ((pos - prev) - vel) * .2;
   if(Math.abs(target-pos) < .001) pos = target;
 
+  // какая карточка сейчас раскрывается в кейс и насколько (значения прошлого кадра)
+  let openI = -1, openEx = 0;
+  state.forEach((st,i)=>{ if((st.exp||0) > openEx){ openEx = st.exp; openI = i; } });
+  // на время раскрытия колода поднимается над шапкой, чтобы карточка закрыла весь экран
+  const dz = openEx > .001 ? '26' : '';
+  if(deck.style.zIndex !== dz) deck.style.zIndex = dz;
+
   cards.forEach((el,i)=>{
     const st = state[i];
-    // появление / уход
-    const k = Math.min(1, Math.max(0, (now - st.t0) / 900));
+    // появление: все карточки одновременно стартуют от нижнего края и веером расходятся по местам
+    const k = REDUCED ? 1 : Math.min(1, Math.max(0, (now - st.t0) / 1100));
     const e = st.dir > 0 ? easeOut(k) : 1 - easeOut(k);
-    // наведение
-    const want = (hovered > -1 && i > hovered) ? 1 : 0;
-    st.spread += (want - st.spread) * .14;
-    st.lift += ((i===hovered ? 1 : 0) - st.lift) * .14;
+    // наведение: карточка под курсором поднимается, нижние слегка отъезжают
+    st.spread += (((hovered > -1 && i > hovered) ? 1 : 0) - st.spread) * .12;
+    st.lift += ((i===hovered ? 1 : 0) - st.lift) * .12;
+    // раскрытие в кейс
+    st.exp += (st.expT - st.exp) * .14;
+    if(Math.abs(st.expT - st.exp) < .002) st.exp = st.expT;
+    const x = st.exp*st.exp*(3 - 2*st.exp);
 
     const d = i - pos;
     let y, s, o = 1;
@@ -463,39 +599,58 @@ function frame(now){
       s = .95 + d*.04;
       o = Math.max(0, 1 + d*.45);
     }
-    // положение без раздвигания при наведении — по нему ставим названия, чтобы они не уезжали
-    st.by = y + (1 - e) * g.vh * 1.1;
+    const start = g.vh * 1.04;
+    // положение без наведения — по нему ставим названия
+    st.by = y*e + start*(1 - e);
     st.d = d;
-    y += st.spread * g.peek * 1.6 - st.lift * 14;
-    y += (1 - e) * g.vh * 1.1;
+    y += st.spread * g.peek * 1.3 - st.lift * g.peek * .32;
+    y = y*e + start*(1 - e);
+    // карточки под раскрывающейся уезжают вниз
+    if(openI > -1 && i > openI) y += openEx * g.vh * .7;
     // перспектива: низ карточки ближе к зрителю; при наведении выпрямляется, при прокрутке гнётся
-    const rx = -11 + st.lift*7 - vel*60;
-    const rz = TILT[i % TILT.length]*(1 - st.lift*.8) + vel*18*(i%2 ? 1 : -1);
+    let rx = REDUCED ? 0 : -11 + st.lift*7 - vel*60;
+    let rz = REDUCED ? 0 : TILT[i % TILT.length]*(1 - st.lift*.8) + vel*18*(i%2 ? 1 : -1);
+    // раскрытие: карточка едет вверх, выпрямляется и растягивается на весь экран
+    if(x > 0){ y *= (1 - x); rx *= (1 - x); rz *= (1 - x); s += (1 - s)*x; }
+    const sz = x > 0 ? `${(wCur + (g.vw - wCur)*x).toFixed(1)}|${(g.h + (g.vh - g.h)*x).toFixed(1)}|${(1-x).toFixed(3)}` : '';
+    if(sz !== st.sz){
+      const skin = (st.skin ||= el.querySelector('.skin'));
+      if(sz){
+        const [w, h, r] = sz.split('|');
+        el.style.width = w+'px'; el.style.height = h+'px'; el.style.marginLeft = (-w/2)+'px';
+        skin.style.borderRadius = `calc(var(--radius) * ${r})`;
+        el.style.zIndex = 100; el.classList.add('expanding');
+      } else {
+        el.style.width = el.style.height = el.style.marginLeft = el.style.zIndex = skin.style.borderRadius = '';
+        el.classList.remove('expanding');
+      }
+      st.sz = sz;
+    }
     // сдвиг — у всей карточки; наклон и уменьшение — только у фона, чтобы названия стояли ровно и на одной линии
     const tf = `translate3d(0,${y.toFixed(1)}px,0)`;
     const sk = `perspective(1500px) rotateX(${rx.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg) scale(${s.toFixed(4)})`;
     if(sk !== st.sk){ (st.skin ||= el.querySelector('.skin')).style.transform = sk; st.sk = sk; }
     st.rz = rz; st.y = y;
-    // пишем стиль только при изменении: фильтр перерисовывается от каждой правки
+    // пишем стиль только при изменении
     if(tf !== st.tf){ el.style.transform = tf; st.tf = tf; }
     const op = o.toFixed(3);
     if(op !== st.op){ el.style.opacity = op; st.op = op; }
     el.style.pointerEvents = o < .5 ? 'none' : '';
   });
 
-  // наклоны разные, поэтому у края с названием полоска то шире, то уже:
-  // ставим название по центру настоящего зазора между верхом своей карточки и верхом следующей
+  // название — у верхнего края своей полоски; наклон сдвигает край, поэтому поправка на него
   cards.forEach((el,i)=>{
-    const st = state[i], nx = state[i+1];
-    // lx — горизонтальное расстояние от центра карточки (оси поворота) до середины названия
+    const st = state[i];
     const lab = (st.label ||= el.querySelector('.label')), w = (st.word ||= el.querySelector('.word'));
-    const lx = lab.offsetLeft + w.offsetLeft + w.offsetWidth/2 - wCur/2;
-    const own = lx*Math.sin(st.rz*Math.PI/180);
-    const next = nx ? Math.min(g.peek, nx.by - st.by) + lx*Math.sin(nx.rz*Math.PI/180) : g.peek + own;
-    const off = ((own + next)/2 - g.peek/2).toFixed(1);
+    // lx — горизонтальное расстояние от центра карточки (оси поворота) до середины названия
+    if(st.lxv !== layoutVer){ st.lxc = lab.offsetLeft + w.offsetLeft + w.offsetWidth/2; st.lxv = layoutVer; }
+    const lx = st.lxc - wCur/2;
+    const off = (lx*Math.sin(st.rz*Math.PI/180)).toFixed(1);
     if(off !== st.lo){ lab.style.transform = `translateY(${off}px)`; st.lo = off; }
-    // у пролистанной карточки название сразу гаснет, чтобы не висело поверх следующей
-    const lop = (st.d >= 0 ? 1 : Math.max(0, 1 + st.d*3)).toFixed(3);
+    // названия проявляются, когда карточки встали; у пролистанной карточки сразу гаснут
+    const t = now - st.t0;
+    const le = st.dir > 0 ? Math.min(1, Math.max(0, (t - 650) / 450)) : Math.max(0, 1 - t/250);
+    const lop = ((st.d >= 0 ? 1 : Math.max(0, 1 + st.d*3)) * le).toFixed(3);
     if(lop !== st.lop){ lab.style.opacity = lop; st.lop = lop; }
   });
   requestAnimationFrame(frame);
@@ -505,11 +660,29 @@ function render(){
   deck.innerHTML = visible().map(cardHTML).join('');
   cards = [...deck.querySelectorAll('.card')];
   const now = performance.now();
-  state = cards.map((_,i)=>({ t0: now + i*90, dir: 1, spread: 0, lift: 0 }));
+  state = cards.map(()=>({ t0: now, dir: 1, spread: 0, lift: 0, exp: 0, expT: 0 }));
   pos = target = 0; hovered = -1;
   cards.forEach((el,i)=>{
     el.addEventListener('mouseenter', ()=>{ if(!geometry().mobile) hovered = i; });
-    el.addEventListener('click', e=>{ if(!e.target.closest('a')) openCase(i); });
+    el.addEventListener('click', e=>{
+      if(e.target.closest('a')) return;
+      if(visible()[i].wip){ const l = el.querySelector('.lock'); l.classList.remove('shake'); void l.offsetWidth; l.classList.add('shake'); return; }
+      openCase(i);
+    });
+    // слайды: при наведении кадры по очереди проявляются из размытия, каждый новый — поверх предыдущего
+    const imgs = [...el.querySelectorAll('.slides img')];
+    if(imgs.length){
+      let timer = 0, k = -1, z = 1;
+      const step = ()=>{
+        const prev = imgs[k];
+        k = (k + 1) % imgs.length;
+        const im = imgs[k];
+        im.classList.remove('on'); im.style.zIndex = ++z; void im.offsetWidth; im.classList.add('on');
+        if(prev && prev !== im) setTimeout(()=>{ if(imgs[k] !== prev) prev.classList.remove('on'); }, 1000);
+      };
+      el.addEventListener('mouseenter', ()=>{ if(geometry().mobile) return; clearInterval(timer); k = -1; step(); timer = setInterval(step, 1800); });
+      el.addEventListener('mouseleave', ()=>{ clearInterval(timer); imgs.forEach(im=>im.classList.remove('on')); });
+    }
     el.addEventListener('keydown', e=>{ if(e.key==='Enter') openCase(i); });
   });
 }
@@ -517,7 +690,7 @@ deck.addEventListener('mouseleave', ()=>{ hovered = -1; });
 
 /* прокрутка: колесо, тач, стрелки */
 function scrollBy(dy){
-  if(openIdx > -1 || busy || !cards.length) return;
+  if(openIdx > -1 || busy || !cards.length || aboutOpen) return;
   target = Math.min(cards.length-1, Math.max(0, target + dy));
   if(target > .3) $('#hint').classList.add('is-hidden');
 }
@@ -537,7 +710,7 @@ addEventListener('keydown', e=>{
 // клик по пустому месту — колода плавно возвращается в исходное положение
 addEventListener('click', e=>{
   if(openIdx > -1 || busy) return;
-  if(e.target.closest('.card, .top, .fonts, .case, a, button')) return;
+  if(aboutOpen || e.target.closest('.card, .top, .fonts, .case, .about, a, button')) return;
   target = 0; hovered = -1;
 });
 // после колеса докатываем до ближайшей карточки
@@ -546,24 +719,64 @@ addEventListener('wheel', ()=>{ clearTimeout(snapTimer); snapTimer = setTimeout(
 
 function setFilter(f){
   if(busy || openIdx > -1) return;
+  if(aboutOpen){ closeAbout(); if(f===filter) return; }
   if(f===filter) f = 'all';
   filter = f;
   document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('is-active', b.dataset.filter===filter));
   busy = true;
   const now = performance.now();
-  state.forEach((st,i)=>{ st.t0 = now + (cards.length-1-i)*50; st.dir = -1; });
+  state.forEach(st=>{ st.t0 = now; st.dir = -1; });
   scramble(logo, 'BRUKWA');
-  setTimeout(()=>{ render(); busy = false; }, 650);
+  setTimeout(()=>{ render(); busy = false; syncHash(); }, 650);
 }
 document.querySelectorAll('[data-filter]').forEach(b=>{
   b.querySelector('sup').textContent = CASES.filter(c=>c.type===b.dataset.filter).length;
   b.addEventListener('click', ()=>setFilter(b.dataset.filter));
 });
-logo.addEventListener('click', ()=>{ if(filter!=='all') setFilter('all'); else wobble(22, 800); });
+logo.addEventListener('click', ()=>{ if(aboutOpen) return closeAbout(); if(filter!=='all') setFilter('all'); else wobble(22, 800); });
+
+/* ---------- обо мне и контакты ---------- */
+let aboutOpen = false;
+const aboutEl = $('#about');
+/* адрес страницы помнит, что открыто: обновление страницы возвращает туда же */
+let aboutPage = '';
+function syncHash(){
+  let h = '';
+  if(aboutOpen) h = aboutPage;
+  else if(openIdx > -1) h = 'case/' + visible()[openIdx].id;
+  else if(filter !== 'all') h = filter;
+  history.replaceState(null, '', h ? '#' + h : location.pathname + location.search);
+}
+function openAbout(page){
+  aboutOpen = true; aboutPage = page;
+  document.body.classList.add('about-on');
+  aboutEl.classList.add('is-open'); aboutEl.setAttribute('aria-hidden','false');
+  document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('is-active', b.dataset.page===page));
+  // «Обо мне» и «Контакты» — две разные страницы в одном слое; при смене содержимое заново проявляется
+  aboutEl.dataset.page = page;
+  const inner = aboutEl.querySelector('.about-in');
+  inner.classList.add('pre');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>inner.classList.remove('pre')));
+  aboutEl.scrollTo({ top:0 });
+  syncHash();
+}
+function closeAbout(){
+  aboutOpen = false;
+  document.body.classList.remove('about-on');
+  aboutEl.classList.remove('is-open'); aboutEl.setAttribute('aria-hidden','true');
+  document.querySelectorAll('[data-page]').forEach(b=>b.classList.remove('is-active'));
+  syncHash();
+}
+document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click', ()=>{
+  if(openIdx > -1) closeCase();
+  if(aboutOpen && b.classList.contains('is-active')) return closeAbout();
+  openAbout(b.dataset.page);
+}));
 logo.addEventListener('keydown', e=>{ if(e.key==='Enter') logo.click(); });
 
 /* ---------- раскрытие кейса ---------- */
 function fillCase(c){
+  caseEl.classList.toggle('is-wip', !!c.wip);
   $('#caseMedia').innerHTML = mediaHTML(c, true).replace('alt=""', `alt="${c.name}"`);
   $('#caseWord').textContent = c.name;
   $('#caseLine').textContent = c.line;
@@ -576,51 +789,45 @@ function fillCase(c){
   scramble($('#caseLogo'), c.short);
 }
 
-function clipFrom(el){
-  const r = el.getBoundingClientRect();
-  caseEl.style.setProperty('--ct', Math.max(0,r.top)+'px');
-  caseEl.style.setProperty('--cl', Math.max(0,r.left)+'px');
-  caseEl.style.setProperty('--cr', Math.max(0,innerWidth-r.right)+'px');
-  caseEl.style.setProperty('--cb', Math.max(0,innerHeight-r.bottom)+'px');
-  caseEl.style.setProperty('--cround', getComputedStyle(document.documentElement).getPropertyValue('--radius'));
-}
-function clipFull(){ ['--ct','--cl','--cr','--cb','--cround'].forEach(p=>caseEl.style.setProperty(p,'0px')); }
-
+let caseTimer = 0;
 function openCase(i){
   if(busy || openIdx > -1) return;
-  openIdx = i;
+  openIdx = i; hovered = -1;
   fillCase(visible()[i]);
-  caseEl.style.transition = 'none';
-  clipFrom(cards[i]);
+  state[i].expT = 1;
   caseEl.classList.add('is-anim');
-  caseEl.offsetHeight;
-  caseEl.style.transition = '';
-  clipFull();
-  caseEl.classList.add('is-open');
-  caseEl.setAttribute('aria-hidden','false');
+  clearTimeout(caseTimer);
+  // содержимое кейса проявляется, когда карточка почти закрыла экран
+  caseTimer = setTimeout(()=>{ caseEl.classList.add('is-open'); caseEl.setAttribute('aria-hidden','false'); }, 620);
+  syncHash();
 }
 function closeCase(){
   if(openIdx < 0) return;
-  // возвращаемся в колоду на той карточке, которую смотрели
-  target = pos = openIdx;
-  caseEl.classList.remove('is-open');
   const i = openIdx;
   openIdx = -1;
-  requestAnimationFrame(()=>clipFrom(cards[i]));
+  clearTimeout(caseTimer);
+  caseEl.classList.remove('is-open');
   caseEl.setAttribute('aria-hidden','true');
-  setTimeout(()=>{ if(openIdx < 0) caseEl.classList.remove('is-anim'); }, 850);
+  // когда содержимое погасло, карточка сворачивается обратно в колоду
+  caseTimer = setTimeout(()=>{ if(state[i]) state[i].expT = 0; caseEl.classList.remove('is-anim'); }, 380);
+  syncHash();
 }
 $('#back').addEventListener('click', closeCase);
 $('#next').addEventListener('click', ()=>{
   const list = visible();
+  const old = openIdx;
   openIdx = (openIdx+1) % list.length;
+  // под кейсом теперь раскрыта следующая карточка — в неё он и свернётся при закрытии
+  state[old].exp = state[old].expT = 0;
+  state[openIdx].exp = state[openIdx].expT = 1;
   caseEl.classList.remove('is-open');
-  setTimeout(()=>{ fillCase(list[openIdx]); caseEl.classList.add('is-open'); }, 280);
+  setTimeout(()=>{ fillCase(list[openIdx]); caseEl.classList.add('is-open'); syncHash(); }, 280);
 });
-addEventListener('keydown', e=>{ if(e.key==='Escape') closeCase(); });
+addEventListener('keydown', e=>{ if(e.key==='Escape'){ if(aboutOpen) closeAbout(); else closeCase(); } });
 
 /* ---------- временный выбор шрифта названий ---------- */
 function setFont(b){
+  bumpLayout();
   document.documentElement.style.setProperty('--title-font', `"${b.dataset.font}"`);
   document.documentElement.style.setProperty('--title-weight', b.dataset.w);
   document.querySelectorAll('#fonts [data-font]').forEach(x=>x.classList.toggle('is-active', x===b));
@@ -634,6 +841,7 @@ function setFont(b){
   setFont(btns.find(b=>b.dataset.font===saved) || btns[0]);
 }
 function setAlign(v){
+  bumpLayout();
   document.body.classList.toggle('titles-center', v==='center');
   document.querySelectorAll('#fonts [data-align]').forEach(x=>x.classList.toggle('is-active', x.dataset.align===v));
   try { localStorage.setItem('brukwa-align', v); } catch(e) {}
@@ -650,7 +858,22 @@ document.fonts.ready.then(()=>{
   wobble(34, 1300);
   fisheye(logo, 'fishLogo', .5);
   fisheye($('#caseLogo'), 'fishCase', .5);
-  setTimeout(()=>{ document.body.classList.add('ready'); render(); requestAnimationFrame(frame); }, 450);
+  const h = decodeURIComponent(location.hash.slice(1));
+  if(h === 'apps' || h === 'landings'){
+    filter = h;
+    document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('is-active', b.dataset.filter===filter));
+  }
+  // картинки для наведения грузим и раскодируем заранее, в паузе после старта
+  const warm = ()=>CASES.flatMap(c=>c.slides||[]).forEach(src=>{ const im = new Image(); im.src = src; im.decode?.().catch(()=>{}); });
+  (window.requestIdleCallback || (f=>setTimeout(f, 1500)))(warm);
+  setTimeout(()=>{
+    document.body.classList.add('ready'); render(); requestAnimationFrame(frame);
+    if(h === 'about' || h === 'contacts') openAbout(h);
+    else if(h.startsWith('case/')){
+      const i = visible().findIndex(c=>c.id === h.slice(5));
+      if(i > -1) setTimeout(()=>openCase(i), 1200);  // ждём, пока колода поднимется
+    }
+  }, 450);
 });
 </script>
 </body>
