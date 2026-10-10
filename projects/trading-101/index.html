@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Трейдинг 101 — курс по техническому анализу и трейдингу</title>
+  <meta name="description" content="Курс практикующего трейдера: технический анализ, управление рисками, психология и собственная торговая стратегия. Тарифы Lite и Plus.">
+  <meta name="theme-color" content="#0d0e12">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <script>if(!/[?&]static/.test(location.search))document.documentElement.classList.add('js')</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<a class="skip" href="#main">К содержанию</a>
+
+<!-- ============ HEADER ============ -->
+<header class="header" data-header>
+  <div class="header__bar">
+    <a class="header__logo" href="#top">Трейдинг 101</a>
+    <nav class="header__nav" aria-label="Разделы">
+      <a href="#extras">что внутри?</a>
+      <a href="#program">программа курса</a>
+      <a href="#tariffs">тарифы</a>
+    </nav>
+    <a class="btn btn--blue btn--dark-text header__cta" href="#tariffs">Записаться</a>
+    <button class="header__burger" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="menu" data-menu-open>
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- mobile menu -->
+<div class="menu" id="menu" data-menu hidden>
+  <div class="menu__overlay" data-menu-close></div>
+  <div class="menu__panel" role="dialog" aria-modal="true" aria-label="Меню">
+    <button class="menu__close" type="button" aria-label="Закрыть меню" data-menu-close></button>
+    <nav class="menu__nav">
+      <a href="#extras" data-menu-link>Что внутри?</a>
+      <a href="#program" data-menu-link>Программа курса</a>
+      <a href="#tariffs" data-menu-link>Тарифы</a>
+    </nav>
+    <a class="btn btn--blue btn--dark-text menu__cta" href="#tariffs" data-menu-link>Записаться</a>
+  </div>
+</div>
+
+<main id="main">
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top" data-hero>
+  <div class="hero__stage">
+    <div class="hero__bg" data-parallax="0.35">
+      <picture class="hero__pixels-pic" aria-hidden="true"><source media="(max-width: 767px)" srcset="assets/svg/hero-pixels-m.svg"><source media="(max-width: 1023px)" srcset="assets/svg/hero-pixels-t.svg"><img class="hero__pixels" src="assets/svg/hero-pixels.svg" alt=""></picture>
+      <span class="hero__square" aria-hidden="true"></span>
+    </div>
+
+    <!-- 3D candles -->
+    <div class="scene3d scene3d--candle-l" aria-hidden="true">
+      <div class="obj3d candle" data-obj3d data-base="-32,40,35" data-amp="10,14">
+        <div class="box" style="--w:12rem;--h:60rem;--d:12rem">
+          <i class="f f--front"></i><i class="f f--back"></i><i class="f f--right"></i><i class="f f--left"></i><i class="f f--top"></i><i class="f f--bottom"></i>
+        </div>
+        <div class="wick wick--top"><i></i><i></i></div>
+        <div class="wick wick--bottom"><i></i><i></i></div>
+      </div>
+    </div>
+    <div class="scene3d scene3d--candle-r" aria-hidden="true">
+      <div class="obj3d candle" data-obj3d data-base="-30,40,-18" data-amp="10,14">
+        <div class="box" style="--w:11rem;--h:24rem;--d:11rem">
+          <i class="f f--front"></i><i class="f f--back"></i><i class="f f--right"></i><i class="f f--left"></i><i class="f f--top"></i><i class="f f--bottom"></i>
+        </div>
+        <div class="wick wick--top"><i></i><i></i></div>
+        <div class="wick wick--bottom"><i></i><i></i></div>
+      </div>
+    </div>
+
+    <h1 class="hero__title" data-split-lines>
+      <span class="line"><span>Трейдинг</span></span>
+      <span class="line"><span>101</span></span>
+    </h1>
+    <p class="hero__lead" data-reveal>Хотите зарабатывать больше, чем дают банк и&nbsp;начальник? Это ваша точка входа в&nbsp;технический анализ и&nbsp;трейдинг</p>
+
+    <!-- 3D cube with author photo -->
+    <div class="scene3d scene3d--cube">
+      <div class="obj3d cube" data-obj3d data-base="-13,-22,17" data-amp="9,13">
+        <div class="box" style="--w:36.4rem;--h:34.6rem;--d:36rem">
+          <i class="f f--front"><img src="assets/img/author-cube.webp" alt="Тина Армстронг — автор курса" width="691" height="677"></i>
+          <i class="f f--back"></i><i class="f f--right"></i><i class="f f--left"></i><i class="f f--top"></i><i class="f f--bottom"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero__author" data-reveal>
+      <p class="hero__author-name">Тина Армстронг</p>
+      <p class="hero__author-role">Автор курса</p>
+    </div>
+
+    <a class="btn btn--white hero__cta" href="#tariffs" data-reveal>Купить курс</a>
+  </div>
+</section>
+
+<!-- ============ WHAT IS TRADING ============ -->
+<section class="about" id="about">
+  <picture class="about__blob-pic" aria-hidden="true" data-parallax="0.12"><source media="(max-width: 767px)" srcset="assets/svg/blob-m.svg"><img class="about__blob" src="assets/svg/blob.svg" alt=""></picture>
+  <div class="container">
+    <p class="label" data-reveal>{ Что такое трейдинг }</p>
+    <h2 class="about__title" data-split-words>Возможность зарабатывать на финансовых рынках без начальника, графика и&nbsp;офиса — <span class="accent">ты сам решаешь, когда и&nbsp;как работать.</span></h2>
+    <p class="about__text" data-reveal>
+      <span class="accent">Если вы не <button class="spoiler" type="button" aria-label="Показать скрытое слово" data-spoiler><span class="spoiler__word">распиздяй</span><span class="spoiler__cover" aria-hidden="true"><img src="assets/svg/eye.svg" alt=""></span></button></span>
+      и&nbsp;готовы учиться и&nbsp;действовать, трейдинг станет логичным продолжением ваших инвестиций, а&nbsp;этот курс — <span class="accent">первым шагом к&nbsp;системному подходу.</span>
+    </p>
+  </div>
+  <div class="about__cards-wrap">
+    <ul class="about__cards" data-stagger>
+      <li class="tile tile--a1"><p>Скорость и&nbsp;гибкость вместо неспешного пути инвестора</p><img class="tile__dice tile__dice--1" src="assets/img/dice-arrow.webp" alt="" loading="lazy"></li>
+      <li class="tile tile--a2"><p>Работа с&nbsp;живым рынком: анализ, стратегия и&nbsp;решения в&nbsp;реальном времени</p><img class="tile__dice tile__dice--2" src="assets/img/dice-chess.webp" alt="" loading="lazy"></li>
+      <li class="tile tile--a3"><p>Управление капиталом, а&nbsp;не&nbsp;пассивное накопление</p><img class="tile__dice tile__dice--3" src="assets/img/dice-chart.webp" alt="" loading="lazy"></li>
+      <li class="tile tile--a3"><p>Умение видеть возможности там, где другие видят хаос</p><img class="tile__dice tile__dice--4" src="assets/img/dice-eye.webp" alt="" loading="lazy"></li>
+      <li class="tile tile--a5"><p>Финансовая свобода, а&nbsp;не&nbsp;иллюзия «быстрых денег»</p><img class="tile__dice tile__dice--5" src="assets/img/dice-coin.webp" alt="" loading="lazy"></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ AUTHOR RESULTS ============ -->
+<section class="author" id="author">
+  <div class="container">
+    <div class="split">
+      <p class="label" data-reveal>{ Результаты автора курса }</p>
+      <p class="lead" data-reveal>Курс ведёт практикующий трейдер — вот результаты за&nbsp;прошлый год</p>
+    </div>
+    <ul class="stats" data-stagger>
+      <li class="stat"><span class="stat__value" data-count="13.3" data-prefix="+" data-suffix="%" data-decimals="1">+13,3%</span><span class="stat__label">средняя месячная доходность</span></li>
+      <li class="stat"><span class="stat__value" data-count="160" data-prefix="+" data-suffix="%">+160%</span><span class="stat__label">средняя годовая доходность</span></li>
+      <li class="stat"><span class="stat__value" data-count="176" data-prefix="+" data-suffix="%">+176%</span><span class="stat__label">лучшая сделка года</span></li>
+      <li class="stat"><span class="stat__value" data-count="300" data-suffix="+">300+</span><span class="stat__label">сделок за прошлый год</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ BENEFITS ============ -->
+<section class="benefits" id="benefits">
+  <div class="container">
+    <div class="split">
+      <p class="label" data-reveal>{ Что вы получите от курса }</p>
+      <p class="lead" data-reveal>Здесь не только теория, но и&nbsp;практика: реальные примеры, подробные разборы сделок, задания и&nbsp;торговый конкурс. Хотите зарабатывать как профессионалы — учитесь думать как&nbsp;они.</p>
+    </div>
+
+    <div class="pills" data-pills>
+      <div class="pill-row pill-row--1 is-open" data-reveal>
+        <span class="pill-row__lead">Как</span>
+        <button class="pill" type="button" aria-expanded="true" aria-controls="pill-1">читать рынок<i class="pm" aria-hidden="true"></i></button>
+        <div class="pill-row__body" id="pill-1">
+          <ul class="dots">
+            <li>Глубоко понимать технический анализ, читать графики, распознавать сигналы</li>
+            <li>Не&nbsp;полагаться слепо на&nbsp;чужое мнение и&nbsp;принимать решения самостоятельно</li>
+          </ul>
+        </div>
+      </div>
+      <div class="pill-row pill-row--2" data-reveal>
+        <span class="pill-row__lead">Когда</span>
+        <button class="pill" type="button" aria-expanded="false" aria-controls="pill-2">нажимать на&nbsp;газ, а&nbsp;когда — на&nbsp;тормоз<i class="pm" aria-hidden="true"></i></button>
+        <div class="pill-row__body" id="pill-2">
+          <ul class="dots">
+            <li>Находить точки входа и&nbsp;выхода по&nbsp;сигналам графика</li>
+            <li>Понимать, когда лучше переждать, а&nbsp;не&nbsp;торговать</li>
+          </ul>
+        </div>
+      </div>
+      <div class="pill-row pill-row--3" data-reveal>
+        <span class="pill-row__lead">Как</span>
+        <button class="pill" type="button" aria-expanded="false" aria-controls="pill-3">сохранить нервы и&nbsp;депозит<i class="pm" aria-hidden="true"></i></button>
+        <div class="pill-row__body" id="pill-3">
+          <ul class="dots">
+            <li>Считать риск до&nbsp;входа в&nbsp;сделку и&nbsp;вовремя ставить стоп-лосс</li>
+            <li>Управлять капиталом так, чтобы одна ошибка не&nbsp;обнулила счёт</li>
+          </ul>
+        </div>
+      </div>
+      <div class="pill-row pill-row--4" data-reveal>
+        <span class="pill-row__lead">Как</span>
+        <button class="pill" type="button" aria-expanded="false" aria-controls="pill-4">обуздать эмоции и&nbsp;побеждать<i class="pm" aria-hidden="true"></i></button>
+        <div class="pill-row__body" id="pill-4">
+          <ul class="dots">
+            <li>Не&nbsp;поддаваться жадности и&nbsp;страху упустить прибыль</li>
+            <li>Следовать своей торговой системе, а&nbsp;не&nbsp;импульсам</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-row"><a class="btn btn--blue" href="#tariffs">Купить курс</a></div>
+  </div>
+</section>
+
+<!-- ============ PROGRAM ============ -->
+<section class="program" id="program">
+  <div class="program__deco" aria-hidden="true" data-parallax="-0.08"><i></i><i></i><i></i></div>
+  <div class="container">
+    <div class="split">
+      <p class="label" data-reveal>{ Что внутри курса }</p>
+      <img class="program__pill" src="assets/svg/pill.svg" alt="" aria-hidden="true" data-reveal="spin">
+      <p class="lead" data-reveal>Курс создал практикующий трейдер, а&nbsp;не&nbsp;продавец, поэтому здесь проверенные методы, а&nbsp;не&nbsp;«волшебные таблетки». Хотя одна всё-таки есть: придётся пахать.</p>
+    </div>
+
+    <div class="program__list-wrap" data-program>
+      <ol class="program__list" id="program-list">
+        <li class="lesson"><span class="lesson__num">[01]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">Введение в&nbsp;технический анализ</p><p class="lesson__desc">Ключевые понятия</p></div></li>
+        <li class="lesson"><span class="lesson__num">[02]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">Анализ цены</p><p class="lesson__desc">Как читать свечные графики и&nbsp;распознавать ключевые паттерны</p></div></li>
+        <li class="lesson"><span class="lesson__num">[03]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">Тренды, уровни, фракталы</p><p class="lesson__desc">Как находить ключевые точки разворота рынка</p></div></li>
+        <li class="lesson"><span class="lesson__num">[04]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">Управление рисками</p><p class="lesson__desc">Как ограничивать убытки и&nbsp;контролировать риск</p></div></li>
+        <li class="lesson"><span class="lesson__num">[05]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">Психология трейдера</p><p class="lesson__desc">Как контролировать эмоции и&nbsp;избегать импульсивных решений</p></div></li>
+        <li class="lesson lesson--more"><span class="lesson__num">[06]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">Mirror Impulse</p><p class="lesson__desc">Практический торговый паттерн</p></div></li>
+        <li class="lesson lesson--more"><span class="lesson__num">[07]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">Волны Вульфа</p><p class="lesson__desc">Метод поиска возможных разворотов рынка</p></div></li>
+        <li class="lesson lesson--more"><span class="lesson__num">[08]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">Динамические уровни</p><p class="lesson__desc">Скользящие средние в&nbsp;анализе графика</p></div></li>
+        <li class="lesson lesson--more"><span class="lesson__num">[09]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">Уровни Фибоначчи</p><p class="lesson__desc">Прогноз откатов и&nbsp;продолжения тренда</p></div></li>
+        <li class="lesson lesson--more"><span class="lesson__num">[10]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">MACD и&nbsp;облако Ишимоку</p><p class="lesson__desc">Работа с&nbsp;популярными трендовыми индикаторами</p></div></li>
+        <li class="lesson lesson--more"><span class="lesson__num">[11]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">Дивергенция</p><p class="lesson__desc">Как замечать расхождения между ценой и&nbsp;индикаторами</p></div></li>
+        <li class="lesson lesson--more"><span class="lesson__num">[12]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">Осцилляторы</p><p class="lesson__desc">Сигналы перекупленности и&nbsp;перепроданности (RSI, Stochastic)</p></div></li>
+        <li class="lesson lesson--more"><span class="lesson__num">[13]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">Аллигатор и&nbsp;стратегия «Хаос»</p><p class="lesson__desc">Готовый торговый алгоритм на&nbsp;основе стратегии «Хаос»</p></div></li>
+        <li class="lesson lesson--more"><span class="lesson__num">[14]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">Объёмы</p><p class="lesson__desc">Как крупные игроки влияют на&nbsp;движение цены</p></div></li>
+        <li class="lesson lesson--more"><span class="lesson__num">[15]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">Графические паттерны</p><p class="lesson__desc">Классические фигуры: «голова и&nbsp;плечи», треугольники, флаги, вымпелы</p></div></li>
+        <li class="lesson lesson--more"><span class="lesson__num">[16]</span><span class="lesson__line"></span><div class="lesson__text"><p class="lesson__title">Свой торговый алгоритм</p><p class="lesson__desc">Собираем все инструменты в&nbsp;единую систему</p></div></li>
+      </ol>
+    </div>
+    <div class="cta-row cta-row--program">
+      <button class="btn btn--blue" type="button" aria-expanded="false" aria-controls="program-list" data-program-toggle>
+        <span data-more>Посмотреть всю программу</span><span data-less hidden>Свернуть программу</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EXTRAS (slider) ============ -->
+<section class="extras" id="extras">
+  <div class="container">
+    <div class="split split--extras">
+      <p class="label" data-reveal>{ А ещё на курсе будет }</p>
+      <p class="lead" data-reveal>В курсе есть всё, чтобы спокойно учиться и&nbsp;получить первые результаты.</p>
+      <div class="slider-nav" data-reveal>
+        <button class="slider-nav__btn" type="button" aria-label="Назад" data-slider-prev><img src="assets/svg/arr-left.svg" alt=""></button>
+        <button class="slider-nav__btn" type="button" aria-label="Вперёд" data-slider-next><img src="assets/svg/arr-right.svg" alt=""></button>
+      </div>
+    </div>
+  </div>
+  <div class="slider" data-slider>
+    <ul class="slider__track" data-stagger>
+      <li class="extra">
+        <span class="extra__num">01</span>
+        <div class="extra__text"><p class="extra__title">Печатная авторская книга</p><p class="extra__desc">336 страниц, ручка, рабочая тетрадь, стикеры</p></div>
+        <div class="extra__img"><img src="assets/img/extra-book.webp" alt="" loading="lazy"></div>
+      </li>
+      <li class="extra">
+        <span class="extra__num">02</span>
+        <div class="extra__text"><p class="extra__title">16 видеоуроков</p><p class="extra__desc">Пошаговые видео со&nbsp;стратегиями</p></div>
+        <div class="extra__img"><img src="assets/img/extra-video.webp" alt="" loading="lazy"></div>
+      </li>
+      <li class="extra">
+        <span class="extra__num">03</span>
+        <div class="extra__text"><p class="extra__title">Поддержка и&nbsp;чаты</p>
+          <ul class="extra__list"><li>Lite — чат с&nbsp;участниками</li><li>Plus — чат с&nbsp;участниками и&nbsp;Тиной</li></ul></div>
+        <div class="extra__img"><img src="assets/img/extra-chat.webp" alt="" loading="lazy"></div>
+      </li>
+      <li class="extra">
+        <span class="extra__num">04</span>
+        <div class="extra__text"><p class="extra__title">Практика и&nbsp;тесты</p><p class="extra__desc">Чтобы знания превратились в&nbsp;реальные навыки</p></div>
+        <div class="extra__img"><img src="assets/img/extra-practice.webp" alt="" loading="lazy"></div>
+      </li>
+      <li class="extra">
+        <span class="extra__num">05</span>
+        <div class="extra__text"><p class="extra__title">8 живых вебинаров</p><p class="extra__desc">Стратегии, которые можно сразу применить</p></div>
+        <div class="extra__img"><img src="assets/img/extra-webinar.webp" alt="" loading="lazy"></div>
+      </li>
+      <li class="extra">
+        <span class="extra__num">06</span>
+        <div class="extra__text"><p class="extra__title">Трейдинг-соревнование</p><p class="extra__desc">С&nbsp;денежными призами для участников тарифа Plus</p></div>
+        <div class="extra__img"><img src="assets/img/extra-contest.webp" alt="" loading="lazy"></div>
+      </li>
+      <li class="extra">
+        <span class="extra__num">07</span>
+        <div class="extra__text"><p class="extra__title">Доступ к&nbsp;трейдинг-каналу</p><p class="extra__desc">Для тарифа Plus: Тина показывает свои реальные сделки</p></div>
+        <div class="extra__img"><img src="assets/img/extra-channel.webp" alt="" loading="lazy"></div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ BONUSES ============ -->
+<section class="bonus" id="bonus">
+  <div class="container">
+    <div class="split">
+      <p class="label" data-reveal>{ А ещё, а ещё, а ещё... }</p>
+      <p class="lead" data-reveal>Курс «Трейдинг 101» одобрен Министерством образования&nbsp;РФ</p>
+    </div>
+    <ul class="bonus__cards" data-stagger>
+      <li class="bonus-card bonus-card--1">
+        <p class="bonus-card__title">Налоговый вычет (13% НДФЛ)</p>
+        <p class="bonus-card__text">Законный способ вернуть 13% стоимости курса в&nbsp;свой кошелёк.</p>
+      </li>
+      <li class="bonus-card bonus-card--2">
+        <p class="bonus-card__title">Официальный сертификат</p>
+        <p class="bonus-card__text">Подтверждает ваши знания и&nbsp;квалификацию. Пригодится, если хотите работать в&nbsp;финансовом секторе или показать уровень своей подготовки.*<br>* Выдаётся, если курс пройден на&nbsp;100%.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ WHY ============ -->
+<section class="why" id="why">
+  <div class="container">
+    <p class="label" data-reveal>{ Почему этот курс }</p>
+    <div class="why__headline" data-why>
+      <p class="why__line why__line--1"><span>Одно из лучших</span></p>
+      <p class="why__line why__line--2"><span>обучений</span><span class="why__gap"></span><span>только</span></p>
+      <p class="why__line why__line--3"><span>нужные знания, ничего</span></p>
+      <p class="why__line why__line--4"><span>лишнего</span></p>
+      <img class="why__dice why__dice--1" src="assets/img/dice-star.webp" alt="" loading="lazy" data-dice>
+      <img class="why__dice why__dice--2" src="assets/img/dice-drop.webp" alt="" loading="lazy" data-dice>
+      <img class="why__dice why__dice--3" src="assets/img/dice-bars.webp" alt="" loading="lazy" data-dice>
+    </div>
+    <ul class="why__cards" data-stagger>
+      <li class="why-card why-card--1"><p>Не обещаем миллион за&nbsp;месяц, но&nbsp;даём инструменты для заработка</p><span>[01]</span></li>
+      <li class="why-card why-card--2"><p>Не льём воду — только конкретные стратегии и&nbsp;практика</p><span>[02]</span></li>
+      <li class="why-card why-card--2"><p>Не продаём мечты — учим работать с&nbsp;реальностью</p><span>[03]</span></li>
+    </ul>
+    <div class="cta-row cta-row--center"><a class="btn btn--blue" href="#tariffs">Купить курс</a></div>
+  </div>
+</section>
+
+<!-- ============ REVIEWS ============ -->
+<section class="reviews" id="reviews">
+  <div class="container">
+    <div class="split">
+      <p class="label" data-reveal>{ Отзывы учеников }</p>
+      <p class="lead" data-reveal>Все отзывы о&nbsp;курсе можно прочитать <a class="link" href="#" target="_blank" rel="noopener">[на&nbsp;канале&nbsp;↗]</a></p>
+    </div>
+  </div>
+  <div class="reviews__wrap" data-reviews-slider>
+    <ul class="reviews__grid" data-stagger>
+      <li class="review review--1">
+        <div class="review__head"><img src="assets/img/avatar-natalia-t.webp" alt="" width="42" height="42" loading="lazy"><p class="review__name">Natalia Temnikova (@natalytem)</p></div>
+        <p class="review__plan">Тариф: Plus</p>
+        <div class="review__text" data-review-text>
+          <p>Курс превосходен! Если вы ищете структурированные знания по&nbsp;трейдингу — это то, что вам нужно. Я&nbsp;искала курс без лишнего, только с&nbsp;чёткой, хорошо организованной информацией.</p>
+          <p>Для меня было особенно важно научиться использовать и&nbsp;комбинировать разные инструменты в&nbsp;TradingView, и&nbsp;курс это дал.</p>
+          <p>А&nbsp;самое интересное — создать собственную торговую стратегию. Это потрясающе: её можно встроить в&nbsp;свою торговую систему и&nbsp;пользоваться всю жизнь.</p>
+          <p>Спасибо за&nbsp;знания! 🤝🤗💖</p>
+        </div>
+        <button class="review__more" type="button" data-review-open>Читать полностью</button>
+      </li>
+      <li class="review-deco review-deco--star" aria-hidden="true"><img src="assets/svg/deco-star.svg" alt=""></li>
+      <li class="review review--2">
+        <div class="review__head"><img src="assets/img/avatar-natalia.webp" alt="" width="42" height="42" loading="lazy"><p class="review__name">Natalia (@Natalka_369)</p></div>
+        <p class="review__plan">Тариф: Lite</p>
+        <div class="review__text" data-review-text>
+          <p>Огромное спасибо за&nbsp;курс. Столько ценной информации — всё изложено чётко, без утайки, только реальные примеры. Я&nbsp;узнала много нового. Теперь главное — практиковаться, практиковаться и&nbsp;ещё раз практиковаться. Шаг за&nbsp;шагом начну применять инструменты и&nbsp;выберу свои любимые. Сразу всё запомнить непросто, но&nbsp;я&nbsp;очень стараюсь.</p>
+        </div>
+        <button class="review__more" type="button" data-review-open>Читать полностью</button>
+      </li>
+      <li class="review review--3">
+        <div class="review__head"><img src="assets/img/avatar-olga.webp" alt="" width="42" height="42" loading="lazy"><p class="review__name">Olga (@Saratova_O)</p></div>
+        <p class="review__plan">Тариф: Lite</p>
+        <div class="review__text" data-review-text>
+          <p>Мне очень понравился курс. Объяснения понятные, и&nbsp;в&nbsp;них много ценной информации. Усвоить всё сразу непросто, но&nbsp;тесты и&nbsp;домашние задания очень помогают.</p>
+          <p>Большое вам спасибо! ❤️</p>
+        </div>
+        <button class="review__more" type="button" data-review-open>Читать полностью</button>
+      </li>
+      <li class="review-deco review-deco--chat" aria-hidden="true"><img src="assets/svg/deco-chat.svg" alt=""></li>
+      <li class="review review--4">
+        <div class="review__head"><img src="assets/img/avatar-svetlana.webp" alt="" width="42" height="42" loading="lazy"><p class="review__name">Svetlana Sh (@Roxuly)</p></div>
+        <p class="review__plan">Тариф: Lite</p>
+        <div class="review__text" data-review-text>
+          <p>Курс полностью оправдал мои ожидания. До&nbsp;него мои знания о&nbsp;техническом анализе были разрозненными и&nbsp;неполными. Мне не&nbsp;хватало прочной основы и&nbsp;чёткой структуры — именно это я&nbsp;и&nbsp;получила на&nbsp;курсе.</p>
+          <p>Спасибо тебе, Тина! Особая благодарность за&nbsp;продуманную структуру и&nbsp;чёткие, доступные объяснения!</p>
+        </div>
+        <button class="review__more" type="button" data-review-open>Читать полностью</button>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- review modal -->
+<dialog class="modal" data-modal aria-labelledby="modal-name">
+  <div class="modal__box">
+    <button class="modal__close" type="button" aria-label="Закрыть" data-modal-close></button>
+    <div class="modal__head"><img alt="" width="42" height="42" data-modal-avatar><p class="review__name" id="modal-name" data-modal-name></p></div>
+    <p class="review__plan" data-modal-plan></p>
+    <div class="modal__text" data-modal-text></div>
+  </div>
+</dialog>
+
+<!-- ============ HOW ============ -->
+<section class="how" id="how">
+  <div class="container">
+    <div class="how__head">
+      <p class="how__side how__side--l" data-reveal>Учёба проходит онлайн в&nbsp;Telegram: смотрите видеоуроки и&nbsp;задавайте вопросы в&nbsp;чате в&nbsp;любое время.</p>
+      <h2 class="how__title" data-split-lines>
+        <span class="line"><span>Как</span></span>
+        <span class="line"><span>проходит</span></span>
+        <span class="line"><span>обучение</span></span>
+      </h2>
+      <p class="how__side how__side--r" data-reveal>Выполняйте задания и&nbsp;сразу получайте обратную связь — с&nbsp;телефона или компьютера.</p>
+    </div>
+  </div>
+  <div class="how__scroller">
+    <ul class="how__cards" data-stagger>
+      <li class="step step--1"><div class="step__card"><i class="step__ray"></i></div><div class="step__text"><p class="step__title">Подготовка</p><p class="step__desc">Перед стартом вы&nbsp;проходите вводные видеоуроки по&nbsp;платформе TradingView.</p></div></li>
+      <li class="step step--2"><div class="step__card"><i class="step__ray"></i></div><div class="step__text"><p class="step__title">Учебник в&nbsp;комплекте</p><p class="step__desc">Ещё до&nbsp;старта вы&nbsp;получаете авторский учебник — основу всей программы.</p></div></li>
+      <li class="step step--3"><div class="step__card"><i class="step__ray"></i></div><div class="step__text"><p class="step__title">Гибкий график</p><p class="step__desc">Расписание можно добавить в&nbsp;Яндекс или Google Календарь. Вы&nbsp;сами решаете, когда смотреть уроки и&nbsp;делать задания.</p></div></li>
+      <li class="step step--4"><div class="step__card"><i class="step__ray"></i></div><div class="step__text"><p class="step__title">Обучение через практику</p><p class="step__desc">Почти в&nbsp;каждом уроке есть задания и&nbsp;тесты: так знания закрепляются и&nbsp;становятся навыками.</p></div></li>
+      <li class="step step--5"><div class="step__card"><i class="step__ray"></i></div><div class="step__text"><p class="step__title">Поддержка и&nbsp;обратная связь</p><p class="step__desc">В&nbsp;тарифе Plus есть чат: задавайте вопросы, разбирайте ошибки и&nbsp;получайте обратную связь от&nbsp;Тины.</p></div></li>
+      <li class="step step--6"><div class="step__card"><i class="step__ray"></i></div><div class="step__text"><p class="step__title">Уверенность на&nbsp;рынке</p><p class="step__desc">Никакой паники при просадках: вы&nbsp;знаете, что делать.</p></div></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ TARIFFS ============ -->
+<section class="tariffs" id="tariffs">
+  <div class="container">
+    <div class="tariffs__head">
+      <p class="label" data-reveal>{ Тарифы и&nbsp;стоимость }</p>
+      <h2 class="tariffs__title" data-reveal>Выберите уровень погружения</h2>
+    </div>
+    <div class="tariffs__grid" data-stagger>
+      <article class="ticket">
+        <div class="ticket__part ticket__part--top">
+          <h3 class="ticket__name">Тариф «Lite»</h3>
+          <p class="ticket__desc">Для тех, кто готов учиться самостоятельно, но&nbsp;с&nbsp;базовой поддержкой: чат с&nbsp;участниками и&nbsp;вопросы на&nbsp;вебинарах.</p>
+        </div>
+        <div class="ticket__part ticket__part--mid">
+          <p class="ticket__badge">Что включено</p>
+          <ul class="checks">
+            <li>Печатный учебник с&nbsp;подробной теорией</li>
+            <li>Доступ ко&nbsp;всем видеоурокам и&nbsp;материалам во&nbsp;время курса + 30&nbsp;дней после</li>
+            <li>Практические задания с&nbsp;готовыми ответами для самопроверки</li>
+            <li>Тесты для закрепления знаний</li>
+            <li>Общий чат с&nbsp;другими участниками</li>
+            <li>Вебинары с&nbsp;Тиной, где можно задать вопрос</li>
+          </ul>
+        </div>
+        <div class="ticket__part ticket__part--bottom">
+          <p class="ticket__price">17&nbsp;990&nbsp;₽</p>
+          <a class="btn btn--blue btn--wide" href="#signup" data-plan="Lite">Записаться на&nbsp;Lite</a>
+        </div>
+      </article>
+      <article class="ticket">
+        <div class="ticket__part ticket__part--top">
+          <h3 class="ticket__name">Тариф «Plus»</h3>
+          <p class="ticket__desc">Для тех, кто хочет взять от&nbsp;обучения максимум: быстрая обратная связь, закрытые сессии и&nbsp;соревнование.</p>
+        </div>
+        <div class="ticket__part ticket__part--mid">
+          <p class="ticket__badge">Что включено</p>
+          <ul class="checks">
+            <li>Печатный учебник с&nbsp;подробной теорией</li>
+            <li>Доступ ко&nbsp;всем видеоурокам и&nbsp;материалам во&nbsp;время курса + 30&nbsp;дней после</li>
+            <li>Тина лично проверяет практические задания и&nbsp;даёт подробную обратную связь</li>
+            <li>Тесты для закрепления знаний</li>
+            <li>Расширенный чат с&nbsp;быстрыми ответами и&nbsp;консультациями</li>
+            <li>Вебинары с&nbsp;Тиной, где можно задать вопрос</li>
+            <li>Закрытый трейдинг-канал на&nbsp;время курса: Тина показывает свои сделки в&nbsp;прямом эфире</li>
+            <li>Торговый конкурс с&nbsp;денежными призами — для мотивации и&nbsp;практики</li>
+          </ul>
+        </div>
+        <div class="ticket__part ticket__part--bottom">
+          <p class="ticket__price">29&nbsp;990&nbsp;₽</p>
+          <a class="btn btn--blue btn--wide" href="#signup" data-plan="Plus">Записаться на&nbsp;Plus</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="faq" id="faq">
+  <div class="container faq__grid">
+    <div class="faq__head">
+      <p class="label" data-reveal>{ Ответы на&nbsp;вопросы, которые задают чаще всего }</p>
+      <h2 class="faq__title" data-reveal>ЧАстые ВОпросы</h2>
+    </div>
+    <div class="faq__list" data-faq>
+      <div class="qa is-open" data-reveal>
+        <button class="qa__q" type="button" aria-expanded="true"><span>Сколько времени нужно выделять на&nbsp;обучение каждую неделю?</span><i class="qa__icon" aria-hidden="true"></i></button>
+        <div class="qa__a"><p>В&nbsp;среднем 5–7 часов в&nbsp;неделю: на&nbsp;учебник, видео, задания и&nbsp;общение в&nbsp;чате. Курс длится 7&nbsp;недель, а&nbsp;в&nbsp;середине есть неделя перерыва — чтобы закрепить материал или догнать программу.</p></div>
+      </div>
+      <div class="qa" data-reveal>
+        <button class="qa__q" type="button" aria-expanded="false"><span>Нужно ли покупать дорогие программы или сервисы?</span><i class="qa__icon" aria-hidden="true"></i></button>
+        <div class="qa__a"><p>Нет. Для курса достаточно бесплатной версии TradingView — в&nbsp;ней есть все нужные инструменты.</p></div>
+      </div>
+      <div class="qa" data-reveal>
+        <button class="qa__q" type="button" aria-expanded="false"><span>Я&nbsp;новичок и&nbsp;почти не&nbsp;разбираюсь в&nbsp;трейдинге. Подойдёт ли мне курс?</span><i class="qa__icon" aria-hidden="true"></i></button>
+        <div class="qa__a"><p>Да. Курс начинается с&nbsp;основ: ключевые понятия, свечные графики, тренды и&nbsp;уровни. Сложные темы идут постепенно, когда база уже есть.</p></div>
+      </div>
+      <div class="qa" data-reveal>
+        <button class="qa__q" type="button" aria-expanded="false"><span>Будет ли у&nbsp;меня поддержка после окончания курса?</span><i class="qa__icon" aria-hidden="true"></i></button>
+        <div class="qa__a"><p>Доступ ко&nbsp;всем видеоурокам и&nbsp;материалам сохраняется ещё 30&nbsp;дней после окончания курса. Учебник остаётся у&nbsp;вас навсегда.</p></div>
+      </div>
+      <div class="qa" data-reveal>
+        <button class="qa__q" type="button" aria-expanded="false"><span>У&nbsp;меня уже есть опыт торговли. Будет ли курс полезен?</span><i class="qa__icon" aria-hidden="true"></i></button>
+        <div class="qa__a"><p>Да. Во&nbsp;второй половине программы — продвинутые темы: волны Вульфа, уровни Фибоначчи, Ишимоку, дивергенции, объёмы и&nbsp;сборка собственного торгового алгоритма.</p></div>
+      </div>
+      <div class="qa" data-reveal>
+        <button class="qa__q" type="button" aria-expanded="false"><span>Могу&nbsp;ли я&nbsp;вернуть деньги, если пойму, что курс мне не&nbsp;подходит?</span><i class="qa__icon" aria-hidden="true"></i></button>
+        <div class="qa__a"><p>Условия возврата описаны в&nbsp;оферте. Если что-то пошло не&nbsp;так, напишите на&nbsp;<a class="link" href="mailto:tinastrades@yandex.ru">tinastrades@yandex.ru</a> — разберёмся.</p></div>
+      </div>
+      <div class="qa" data-reveal>
+        <button class="qa__q" type="button" aria-expanded="false"><span>Можно ли оплатить курс в&nbsp;рассрочку?</span><i class="qa__icon" aria-hidden="true"></i></button>
+        <div class="qa__a"><p>Напишите нам на&nbsp;почту или чат-боту — подскажем, какие способы оплаты доступны сейчас.</p></div>
+      </div>
+      <div class="qa" data-reveal>
+        <button class="qa__q" type="button" aria-expanded="false"><span>Что делать, если у&nbsp;меня не&nbsp;получится?</span><i class="qa__icon" aria-hidden="true"></i></button>
+        <div class="qa__a"><p>Задавайте вопросы в&nbsp;чате и&nbsp;на&nbsp;вебинарах — вам помогут разобраться. В&nbsp;тарифе Plus Тина лично проверяет задания и&nbsp;подсказывает, что поправить.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SIGNUP ============ -->
+<section class="signup" id="signup">
+  <div class="container signup__grid">
+    <p class="label" data-reveal>{ Хочу на&nbsp;курс }</p>
+    <div class="signup__body">
+      <p class="signup__lead" data-reveal>Выбор за&nbsp;тобой: оставить всё как есть или начать менять ситуацию прямо сейчас.<br>Не&nbsp;жди подходящего момента. Создай его сам.</p>
+      <p class="signup__note" data-reveal>«Трейдинг 101» не&nbsp;гарантирует лёгких побед и&nbsp;мгновенных результатов. Это инструмент: он работает, если вы&nbsp;готовы трудиться и&nbsp;применять знания на&nbsp;практике. Курс не&nbsp;сделает работу за&nbsp;вас, но&nbsp;покажет путь и&nbsp;поддержит на&nbsp;нём.</p>
+      <form class="form" novalidate data-form data-reveal>
+        <input type="hidden" name="plan" value="" data-plan-input>
+        <label class="field">
+          <span class="visually-hidden">Имя</span>
+          <input type="text" name="name" placeholder="Имя" autocomplete="name" required minlength="2" maxlength="60">
+          <span class="field__error" aria-live="polite"></span>
+        </label>
+        <label class="field field--2">
+          <span class="visually-hidden">Телефон</span>
+          <input type="tel" name="phone" placeholder="Телефон" autocomplete="tel" inputmode="tel" required data-phone>
+          <span class="field__error" aria-live="polite"></span>
+        </label>
+        <label class="consent">
+          <input type="checkbox" name="consent" checked required>
+          <span class="consent__box" aria-hidden="true"></span>
+          <span class="consent__text">Я&nbsp;даю согласие на&nbsp;обработку <a class="link" href="#" target="_blank" rel="noopener">персональных данных</a></span>
+        </label>
+        <button class="btn btn--blue btn--wide form__submit" type="submit">Отправить заявку</button>
+        <p class="form__success" role="status" hidden>Заявка отправлена! Мы&nbsp;свяжемся с&nbsp;вами в&nbsp;ближайшее время.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__box" data-reveal>
+      <div class="footer__brand">
+        <p class="footer__logo">Трейдинг 101</p>
+        <p class="footer__copy">© 2026 ИП Армстронг Т.В.<br>Все права защищены</p>
+        <p class="footer__ids">ОГРНИП 323265100115742<br>ИНН 261506683124</p>
+      </div>
+      <div class="footer__panel footer__panel--help">
+        <p class="footer__h">Помощь</p>
+        <a class="footer__mail" href="mailto:tinastrades@yandex.ru">tinastrades@yandex.ru</a>
+        <a class="btn btn--blue btn--wide footer__bot" href="#" target="_blank" rel="noopener">Задать вопрос чат-боту</a>
+        <div class="footer__docs">
+          <a href="#" target="_blank" rel="noopener">Политика конфиденциальности</a>
+          <a href="#" target="_blank" rel="noopener">Оферта</a>
+        </div>
+      </div>
+      <div class="footer__panel footer__panel--social">
+        <ul class="socials">
+          <li><a href="#" target="_blank" rel="noopener"><img src="assets/svg/ic-telegram.svg" alt="">Telegram</a></li>
+          <li><a href="#" target="_blank" rel="noopener"><span class="socials__ic"><img src="assets/svg/ic-vk.svg" alt=""></span>VK</a></li>
+          <li><a href="#" target="_blank" rel="noopener"><span class="socials__ic"><img src="assets/svg/ic-youtube.svg" alt=""></span>YouTube</a></li>
+          <li><a href="#" target="_blank" rel="noopener"><span class="socials__ic"><img src="assets/svg/ic-instagram.svg" alt=""></span>Instagram*</a></li>
+        </ul>
+        <p class="footer__meta">*Instagram принадлежит компании Meta Platforms Inc., деятельность которой запрещена в&nbsp;РФ</p>
+      </div>
+      <a class="footer__panel footer__panel--license" href="#" target="_blank" rel="noopener">
+        <span><b>Образовательная лицензия</b><br>№&nbsp;L035-01217-26/01524097</span>
+        <img src="assets/svg/arrow-ur.svg" alt="">
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js" defer></script>
+</body>
+</html>

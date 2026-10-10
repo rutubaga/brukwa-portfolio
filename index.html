@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BRUKWA — портфолио</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter+Tight:wght@300;400;500&family=Manrope:wght@300;400&family=Onest:wght@300;400&family=Geologica:wght@200;300&family=Golos+Text:wght@400&display=swap&subset=cyrillic" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ECECEA;
+    --ink:#141414;
+    --mute:#8A8A86;
+    --accent:#2C47F5;
+    --radius:44px;
+    --ease:cubic-bezier(.2,.8,.2,1);
+    --title-font:"Manrope";
+    --title-weight:300;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:"Inter Tight",system-ui,sans-serif;
+    overflow:hidden;-webkit-font-smoothing:antialiased;
+  }
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  a{color:inherit;text-decoration:none}
+
+  /* ---------- шапка ---------- */
+  .top{
+    position:fixed;inset:0 0 auto 0;z-index:10;
+    display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+    padding:34px 32px 0;
+  }
+  .nav{display:flex;gap:30px;font-size:15px;color:var(--ink);letter-spacing:-.01em}
+  .nav.left{justify-content:flex-end;padding-right:64px}
+  .nav.right{justify-content:flex-start;padding-left:64px}
+  .nav button,.nav a{position:relative;padding:4px 0;transition:opacity .3s}
+  .nav sup{font-size:9px;margin-left:2px;opacity:.7}
+  .nav button::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;
+    transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease);
+  }
+  .nav button.is-active::after{transform:scaleX(1)}
+  .nav:hover > *:not(:hover){opacity:.45}
+
+  .logo{
+    font-family:Anton,Impact,sans-serif;font-size:clamp(44px,5.4vw,78px);line-height:.9;
+    letter-spacing:-.01em;color:var(--ink);
+    display:flex;filter:url(#wobble);cursor:pointer;user-select:none;
+  }
+  .logo span{display:inline-block;transform-origin:50% 100%}
+  .logo.enter span{animation:stretch 1.1s var(--ease) both}
+  @keyframes stretch{
+    0%{transform:scale(1.9,.05);opacity:0}
+    45%{transform:scale(.8,1.3);opacity:1}
+    70%{transform:scale(1.08,.92)}
+    100%{transform:scale(1,1)}
+  }
+  .top .nav{opacity:0;transition:opacity .8s .35s}
+  .ready .top .nav{opacity:1}
+
+  /* ---------- колода ---------- */
+  .deck{position:fixed;inset:0;pointer-events:none}
+  .card{
+    position:absolute;left:50%;top:0;
+    width:var(--w);height:var(--h);margin-left:calc(var(--w) / -2);
+    pointer-events:auto;cursor:pointer;
+    transform:translate3d(0,110vh,0);transform-origin:50% 0;will-change:transform;
+  }
+  /* «тело» карточки: только оно наклоняется в перспективе, название и кнопки лежат поверх ровно */
+  .skin{
+    position:absolute;inset:0;border-radius:var(--radius);overflow:hidden;
+    transform-origin:50% 0;will-change:transform;
+    box-shadow:0 -10px 40px rgba(0,0,0,.10);
+    background:#ccc;
+  }
+  .media{position:absolute;inset:-40px;filter:blur(22px) saturate(1.25);transform:scale(1.04);
+    transition:filter .7s var(--ease), transform .9s var(--ease)}
+  .card:hover .media{filter:blur(0) saturate(1);transform:scale(1)}
+  /* карточки — чистый цвет проекта (CASES.color), без размытия */
+  .media.live{inset:0;filter:none !important;transform:none !important}
+  .card:has(.media.live) .scrim{display:none}
+  .solid{position:absolute;inset:0}
+  .media img{position:absolute;inset:40px;width:calc(100% - 80px);height:calc(100% - 80px);object-fit:cover}
+  .media .phone{
+    position:absolute;top:96px;left:58%;width:260px;height:auto;inset:auto;
+    border-radius:26px;box-shadow:0 30px 60px rgba(60,40,20,.25);transform:rotate(-4deg);
+  }
+  .scrim{position:absolute;inset:0 0 auto 0;height:180px;pointer-events:none}
+  .t-light{color:var(--ink)}
+  .t-light .scrim{background:linear-gradient(rgba(236,236,234,.82),rgba(236,236,234,0))}
+  .t-dark{color:#fff}
+  .t-dark .scrim{background:linear-gradient(rgba(10,10,12,.6),rgba(10,10,12,0))}
+
+  .label{position:absolute;left:clamp(30px,16%,240px);top:calc(var(--peek,96px)/2 - .62em - 2px);right:30px;font-size:clamp(17px,1.6vw,26px)}
+  .label .word{font-size:1em;display:inline-block}
+  /* вариант: названия по центру карточек */
+  .titles-center .label{left:30px;right:30px;text-align:center}
+  .word{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);font-size:clamp(22px,2.4vw,38px);letter-spacing:0;line-height:1.05}
+  .meta{font-size:13px;margin-top:6px;opacity:.75}
+  .meta b{font-weight:500}
+  .side{position:absolute;right:calc(26px + var(--inset,0px));top:24px;display:flex;align-items:center;gap:14px;font-size:12px}
+  .chip{padding:5px 11px;border-radius:99px;border:1px solid currentColor;opacity:.75}
+  .arrow{
+    width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:17px;
+    background:currentColor;transition:transform .5s var(--ease);
+  }
+  .arrow i{font-style:normal;color:var(--bg)}
+  .t-dark .arrow i{color:#111}
+  /* кнопки появляются, только когда наводим на карточку */
+  .side > *{opacity:0;transform:translateY(-6px);transition:opacity .35s, transform .45s var(--ease)}
+  .card:hover .side > *,.card:focus-visible .side > *{opacity:1;transform:none}
+  .card:hover .side > :nth-child(2){transition-delay:.04s}
+  .card:hover .side > :nth-child(3){transition-delay:.08s}
+  .card:hover .arrow{transform:rotate(45deg)}
+  .site{padding:5px 11px;border-radius:99px;background:currentColor;transition:opacity .3s}
+  .site i{font-style:normal;color:var(--bg)}
+  .t-dark .site i{color:#111}
+  .site:hover{opacity:.8}
+
+  .hint{position:fixed;bottom:20px;z-index:20;font-size:12px;color:var(--mute);
+    padding:6px 12px;border-radius:99px;background:rgba(236,236,234,.75);backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);transition:opacity .6s}
+  .hint{left:50%;transform:translateX(-50%)}
+
+  /* временный переключатель шрифтов названий — убрать, когда выберем */
+  .fonts{position:fixed;left:20px;bottom:18px;z-index:25;display:flex;padding:3px;border-radius:99px;
+    background:rgba(20,20,20,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:12px}
+  .fonts button{padding:7px 13px;border-radius:99px;color:rgba(255,255,255,.65);transition:background .3s,color .3s}
+  .fonts button.is-active{background:#fff;color:#111}
+  body:not(.ready) .fonts{opacity:0}
+  .fonts .sep{width:1px;margin:6px 4px;background:rgba(255,255,255,.25)}
+
+  .hint.is-hidden{opacity:0;pointer-events:none}
+  body:not(.ready) .hint{opacity:0}
+
+  /* ---------- раскрытый кейс ---------- */
+  .case{
+    position:fixed;inset:0;z-index:30;color:#fff;
+    clip-path:inset(var(--ct,100%) var(--cr,0) var(--cb,0) var(--cl,0) round var(--cround,44px));
+    transition:clip-path .85s var(--ease);
+    visibility:hidden;
+  }
+  .case.is-open,.case.is-anim{visibility:visible}
+  .case-media{position:absolute;inset:0;background:#222}
+  .case-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s}
+  .case-media .phone{position:absolute;left:50%;top:50%;width:min(360px,62vw);height:auto;inset:auto;
+    transform:translate(-50%,-46%) rotate(-4deg);border-radius:34px;box-shadow:0 40px 90px rgba(60,40,20,.3)}
+  .case-shade{position:absolute;inset:0;background:
+    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,0) 22%),
+    linear-gradient(0deg,rgba(0,0,0,.78),rgba(0,0,0,.1) 55%,rgba(0,0,0,0))}
+  .case-top{
+    position:absolute;inset:0 0 auto 0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+    padding:26px 32px 0;font-size:13px;
+  }
+  .case-top .logo{color:#fff;filter:url(#wobble)}
+  .case-top .back{justify-self:start}
+  .case-top .next{justify-self:end}
+  .case-top button{padding:6px 0;opacity:.85;transition:opacity .3s}
+  .case-top button:hover{opacity:1}
+  .case-body{
+    position:absolute;left:32px;right:32px;bottom:34px;
+    display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:40px;align-items:end;
+  }
+  .case-body > *{opacity:0;transform:translateY(16px);transition:opacity .6s, transform .7s var(--ease)}
+  .case.is-open .case-body > *{opacity:1;transform:none;transition-delay:.45s}
+  .case.is-open .case-body > *:nth-child(2){transition-delay:.55s}
+  .case-word{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);font-size:clamp(48px,8vw,124px);letter-spacing:-.04em;line-height:.95}
+  .case-line{font-size:clamp(16px,1.5vw,21px);line-height:1.35;margin-top:16px;max-width:30ch;opacity:.9}
+  .facts{display:grid;gap:12px;font-size:13px}
+  .facts div{display:grid;grid-template-columns:110px 1fr;gap:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.25)}
+  .facts dt{opacity:.6}
+  .cta{display:inline-flex;align-items:center;gap:10px;margin-top:8px;justify-self:start;
+    padding:13px 20px;border-radius:99px;background:#fff;color:#111;font-size:13px;font-weight:500}
+  .cta.muted{background:rgba(255,255,255,.14);color:#fff;font-weight:400;cursor:default}
+
+  /* ---------- мобильная ---------- */
+  @media (max-width:760px){
+    :root{--radius:30px}
+    .top{grid-template-columns:1fr;justify-items:center;row-gap:14px;padding:20px 16px 0}
+    .top .logo{order:-1}
+    .nav{gap:20px}
+    .nav.left,.nav.right{padding:0;justify-content:center}
+    .nav.right{display:none}
+    .label{left:18px;top:14px;right:18px}
+    .side{display:none}
+    .meta{font-size:12px}
+    .media .phone{left:auto;right:8%;top:84px;width:170px}
+    .case-top{padding:18px 16px 0;grid-template-columns:auto 1fr auto}
+    .case-top .logo{font-size:36px;justify-self:center}
+    .case-body{left:16px;right:16px;bottom:22px;grid-template-columns:1fr;gap:22px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition-duration:.01s !important;animation-duration:.01s !important}
+  }
+</style>
+</head>
+<body>
+
+<!-- «дыхание» логотипа: шум, сила которого анимируется из JS -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="wobble" x="-10%" y="-30%" width="120%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.012 0.09" numOctaves="2" seed="3" result="n"/>
+    <feDisplacementMap id="wobbleMap" in="SourceGraphic" in2="n" scale="0" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
+<header class="top">
+  <nav class="nav left" aria-label="Разделы">
+    <button data-filter="apps">Приложения<sup></sup></button>
+    <button data-filter="landings">Лендинги<sup></sup></button>
+  </nav>
+  <div class="logo enter" id="logo" role="button" tabindex="0" aria-label="Все работы"></div>
+  <nav class="nav right">
+    <a href="#">Обо мне</a>
+    <a href="#">Контакты</a>
+  </nav>
+</header>
+
+<main class="deck" id="deck"></main>
+<p class="hint" id="hint">Листайте вниз ↓</p>
+<div class="fonts" id="fonts" role="group" aria-label="Шрифт названий">
+  <button data-font="Manrope" data-w="300" style="font-family:Manrope">Manrope</button>
+  <button data-font="Onest" data-w="300" style="font-family:Onest">Onest</button>
+  <button data-font="Geologica" data-w="200" style="font-family:Geologica">Geologica</button>
+  <button data-font="Golos Text" data-w="400" style="font-family:'Golos Text'">Golos</button>
+  <span class="sep"></span>
+  <button data-align="left">Слева</button>
+  <button data-align="center">По центру</button>
+</div>
+
+<section class="case" id="case" aria-hidden="true">
+  <div class="case-media" id="caseMedia"></div>
+  <div class="case-shade"></div>
+  <div class="case-top">
+    <button class="back" id="back">← Все работы</button>
+    <div class="logo" id="caseLogo"></div>
+    <button class="next" id="next">Следующий →</button>
+  </div>
+  <div class="case-body">
+    <div>
+      <h1 class="case-word" id="caseWord"></h1>
+      <p class="case-line" id="caseLine"></p>
+    </div>
+    <div class="facts" id="caseFacts"></div>
+  </div>
+</section>
+
+<script>
+/* Кейсы. Порядок = сверху вниз в колоде; последняя карточка лежит впереди и видна целиком. Тексты черновые. */
+const CASES = [
+  { id:'trading', type:'landings', name:'Трейдинг 101', kind:'лендинг курса',
+    status:'Концепт', theme:'dark', img:'assets/trading.jpg', pos:'center 30%',
+    color:'#0e0f13',
+    line:'Сложная и пугающая тема, поданная так, чтобы новичок решился начать.',
+    role:'Дизайн, адаптивы, 3D в первом экране', short:'TRADING',
+    url:'projects/trading-101/index.html', urlLabel:'Открыть сайт' },
+  { id:'store', type:'apps', name:'Магазин одежды', kind:'мобильное приложение',
+    status:'В работе', theme:'light', wire:'assets/store-wire.png', bg:'#CDBFAF',
+    color:'#d9cdbd',
+    line:'Лента или каталог на главной: ресёрч Lamoda, ЦУМа и Ultima и выбор модели.',
+    role:'Ресёрч, гипотезы, вайрфрейм', short:'STORE' },
+  { id:'revnikoff', type:'landings', name:'Revnikoff', kind:'сайт мастерской',
+    status:'Запущен', theme:'dark', img:'assets/revnikoff.jpg', pos:'center top',
+    color:'#ff6a13',
+    line:'Как доверить дорогую и памятную вещь незнакомой мастерской.',
+    role:'Структура, путь клиента, визуал, вёрстка', short:'REVNIKOFF',
+    url:'https://revnikoff.ru/', urlLabel:'Открыть сайт' },
+  { id:'impre', type:'apps', name:'Impre', kind:'приложение о здоровье',
+    status:'Концепт', theme:'dark', img:'assets/impre.jpg', pos:'center center',
+    // в карточке — чистый цвет проекта; в раскрытом кейсе — экран приложения
+    color:'#2f5bea',
+    line:'Состояние организма без медицинской тревоги: живая капсула вместо дашборда.',
+    role:'Концепция, интерфейс, моушн, прототип', short:'IMPRE',
+    url:'projects/impre/landing.html', urlLabel:'Открыть прототип' },
+];
+
+const $ = s => document.querySelector(s);
+const deck = $('#deck'), logo = $('#logo'), caseEl = $('#case');
+let filter = 'all', cards = [], openIdx = -1, busy = false;
+
+/* ---------- логотип ---------- */
+function setLetters(el, text){ el.innerHTML = [...text].map((c,i)=>`<span style="animation-delay:${i*55}ms">${c}</span>`).join(''); }
+setLetters(logo, 'BRUKWA');
+
+const wobbleMap = document.getElementById('wobbleMap');
+function wobble(from, dur){
+  const t0 = performance.now();
+  (function step(t){
+    const k = Math.min(1,(t-t0)/dur);
+    wobbleMap.setAttribute('scale', (from*(1-k)*(1-k)*Math.abs(Math.sin(k*9)+.35)).toFixed(2));
+    if(k<1) requestAnimationFrame(step); else wobbleMap.setAttribute('scale','0');
+  })(t0);
+}
+function scramble(el, text, dur=520){
+  const abc='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const t0 = performance.now();
+  (function step(t){
+    const k = Math.min(1,(t-t0)/dur), fixed = Math.floor(k*text.length);
+    el.textContent = [...text].map((c,i)=> i<fixed||c===' ' ? c : abc[Math.random()*abc.length|0]).join('');
+    if(k<1) requestAnimationFrame(step);
+  })(t0);
+  wobble(26, dur+200);
+}
+
+/* ---------- колода ---------- */
+function visible(){ return CASES.filter(c => filter==='all' || c.type===filter); }
+
+function mediaHTML(c, inCase){
+  if(c.color && !inCase) return `<div class="solid" style="background:${c.color}"></div>`;
+  return c.img
+    ? `<img src="${c.img}" alt="" style="object-position:${c.pos}">`
+    : `<div style="position:absolute;inset:0;background:${c.bg}"></div><img class="phone" src="${c.wire}" alt="">`;
+}
+function linkAttrs(c){ return /^https?:/.test(c.url) ? 'target="_blank" rel="noopener"' : 'target="_blank"'; }
+
+function cardHTML(c){
+  return `<article class="card t-${c.theme}" data-id="${c.id}" tabindex="0" aria-label="${c.name}">
+    <div class="skin">
+      <div class="media${c.color ? ' live' : ''}">${mediaHTML(c)}</div>
+      <div class="scrim"></div>
+    </div>
+    <div class="label"><h2 class="word">${c.name}</h2></div>
+    <div class="side">
+      <span class="chip">${c.status}</span>
+      ${c.url ? `<a class="site" href="${c.url}" ${linkAttrs(c)}><i>Сайт ↗</i></a>` : ''}
+      <span class="arrow"><i>↗</i></span>
+    </div>
+  </article>`;
+}
+
+/* Всё движение колоды считается в одном цикле:
+   pos — сколько карточек пролистано (плавно догоняет target),
+   у каждой карточки свои enter (подъём при появлении) и spread (раздвигание при наведении). */
+let pos = 0, target = 0, hovered = -1, state = [], vel = 0, wCur = 0;
+// у каждой карточки свой лёгкий поворот, как в референсе
+const TILT = [-1.6, 1.1, -0.7, 1.4, -1.2, 0.8];
+
+function geometry(){
+  const vw = innerWidth, vh = innerHeight, mobile = vw <= 760;
+  const few = Math.max(0, 4 - cards.length);   // 0 при 4+ карточках, 2 при двух
+  return {
+    vw, vh, mobile,
+    // чуть шире экрана, чтобы и задние, уменьшенные и наклонённые карточки доходили до краёв
+    w: vw*1.1,
+    h: vh*.86,
+    // чем меньше карточек, тем ниже начинается колода и тем шире полоса у каждой
+    peek: (mobile ? 74 : Math.max(82, Math.min(112, vh*.11))) * (1 + few*.4),
+    top: mobile ? Math.max(170, vh*(.30 + few*.05)) : Math.max(260, vh*(.42 + few*.06)),
+    few,
+  };
+}
+const easeOut = k => 1 - Math.pow(1-k, 3);
+
+/* ---------- рыбий глаз на логотипе ----------
+   Круглая линза ездит за курсором. Внутри радиуса R точка берёт картинку из c + (p − c)·(1 − k·(1 − r²)):
+   у центра линзы буквы раздуваются, к её краю искажение плавно сходит на нет.
+   Карта линзы рисуется один раз, а при движении мыши сдвигается только её позиция. */
+const SVGNS = 'http://www.w3.org/2000/svg';
+function fisheye(el, id, k){
+  const svg = document.querySelector('svg');
+  const f = document.createElementNS(SVGNS, 'filter');
+  f.id = id;
+  ['filterUnits','primitiveUnits'].forEach(a=>f.setAttribute(a, 'userSpaceOnUse'));
+  f.setAttribute('color-interpolation-filters', 'sRGB');
+  // нейтральный серый = «без смещения» везде, где линзы нет
+  f.innerHTML = `<feFlood flood-color="rgb(128,128,128)" result="zero"/>
+    <feImage preserveAspectRatio="none" result="lens"/>
+    <feMerge result="map"><feMergeNode in="zero"/><feMergeNode in="lens"/></feMerge>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="0" xChannelSelector="R" yChannelSelector="G"/>`;
+  svg.append(f);
+  const m = f.querySelector('feImage'), d = f.querySelector('feDisplacementMap');
+
+  let R = 60, S = 0, amt = 0, goal = 0, mx = 0, my = 0, tx = 0, ty = 0, raf = 0;
+  function build(){
+    const W = el.offsetWidth, H = el.offsetHeight;
+    if(!W || !H) return;
+    R = H*1.05;
+    const n = 128, cv = document.createElement('canvas'); cv.width = cv.height = n;
+    const ctx = cv.getContext('2d'), img = ctx.createImageData(n, n);
+    S = 2*R*k*.385 + 2;
+    for(let y=0; y<n; y++) for(let x=0; x<n; x++){
+      const px = ((x+.5)/n*2 - 1)*R, py = ((y+.5)/n*2 - 1)*R;
+      const r2 = (px*px + py*py)/(R*R), g = r2 < 1 ? -k*(1 - r2) : 0, o = (y*n + x)*4;
+      img.data[o]   = Math.round((.5 + px*g/S)*255);
+      img.data[o+1] = Math.round((.5 + py*g/S)*255);
+      img.data[o+2] = 128; img.data[o+3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    m.setAttribute('href', cv.toDataURL());
+    m.setAttribute('width', R*2); m.setAttribute('height', R*2);
+    const pad = Math.round(H*.3);
+    f.setAttribute('x', -pad); f.setAttribute('y', -pad);
+    f.setAttribute('width', W + pad*2); f.setAttribute('height', H + pad*2);
+    place();
+  }
+  function place(){
+    m.setAttribute('x', (mx - R).toFixed(1)); m.setAttribute('y', (my - R).toFixed(1));
+    d.setAttribute('scale', (S*amt).toFixed(1));
+  }
+  // линза догоняет курсор с лёгкой задержкой и плавно появляется / исчезает
+  function tick(){
+    amt += (goal - amt) * .12;
+    mx += (tx - mx) * .25; my += (ty - my) * .25;
+    place();
+    const still = Math.abs(goal-amt) < .003 && Math.abs(tx-mx) < .2 && Math.abs(ty-my) < .2;
+    if(still){ amt = goal; mx = tx; my = ty; place(); raf = 0; }
+    else raf = requestAnimationFrame(tick);
+  }
+  const run = ()=>{ if(!raf) raf = requestAnimationFrame(tick); };
+  function aim(e, jump){
+    const r = el.getBoundingClientRect();
+    tx = e.clientX - r.left; ty = e.clientY - r.top;
+    if(jump){ mx = tx; my = ty; }
+  }
+  el.addEventListener('mouseenter', e=>{ aim(e, amt < .05); goal = 1; run(); });
+  el.addEventListener('mousemove', e=>{ aim(e); run(); });
+  el.addEventListener('mouseleave', ()=>{ goal = 0; run(); });
+  new ResizeObserver(build).observe(el);
+  build();
+  el.style.filter = `url(#${id}) url(#wobble)`;
+}
+
+function frame(now){
+  const g = geometry();
+  wCur = wCur ? wCur + (g.w - wCur)*.14 : g.w;
+  deck.style.setProperty('--w', wCur.toFixed(1)+'px');
+  deck.style.setProperty('--inset', Math.max(0, (wCur - g.vw)/2).toFixed(1)+'px');
+  deck.style.setProperty('--h', g.h+'px');
+  deck.style.setProperty('--peek', g.peek.toFixed(1)+'px');
+  const prev = pos;
+  pos += (target - pos) * .12;
+  vel += ((pos - prev) - vel) * .2;
+  if(Math.abs(target-pos) < .001) pos = target;
+
+  cards.forEach((el,i)=>{
+    const st = state[i];
+    // появление / уход
+    const k = Math.min(1, Math.max(0, (now - st.t0) / 900));
+    const e = st.dir > 0 ? easeOut(k) : 1 - easeOut(k);
+    // наведение
+    const want = (hovered > -1 && i > hovered) ? 1 : 0;
+    st.spread += (want - st.spread) * .14;
+    st.lift += ((i===hovered ? 1 : 0) - st.lift) * .14;
+
+    const d = i - pos;
+    let y, s, o = 1;
+    if(d >= 0){
+      y = g.top + d*g.peek;
+      // задние карточки чуть уже передних; когда карточек мало, почти не сужаются
+      s = 1 - (.05 - g.few*.02) * Math.max(0, 1 - d/2);
+    } else {
+      // пролистанные уходят назад и вверх, в стопку под логотипом
+      y = g.top + d*16;
+      s = .95 + d*.04;
+      o = Math.max(0, 1 + d*.45);
+    }
+    // положение без раздвигания при наведении — по нему ставим названия, чтобы они не уезжали
+    st.by = y + (1 - e) * g.vh * 1.1;
+    st.d = d;
+    y += st.spread * g.peek * 1.6 - st.lift * 14;
+    y += (1 - e) * g.vh * 1.1;
+    // перспектива: низ карточки ближе к зрителю; при наведении выпрямляется, при прокрутке гнётся
+    const rx = -11 + st.lift*7 - vel*60;
+    const rz = TILT[i % TILT.length]*(1 - st.lift*.8) + vel*18*(i%2 ? 1 : -1);
+    // сдвиг — у всей карточки; наклон и уменьшение — только у фона, чтобы названия стояли ровно и на одной линии
+    const tf = `translate3d(0,${y.toFixed(1)}px,0)`;
+    const sk = `perspective(1500px) rotateX(${rx.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg) scale(${s.toFixed(4)})`;
+    if(sk !== st.sk){ (st.skin ||= el.querySelector('.skin')).style.transform = sk; st.sk = sk; }
+    st.rz = rz; st.y = y;
+    // пишем стиль только при изменении: фильтр перерисовывается от каждой правки
+    if(tf !== st.tf){ el.style.transform = tf; st.tf = tf; }
+    const op = o.toFixed(3);
+    if(op !== st.op){ el.style.opacity = op; st.op = op; }
+    el.style.pointerEvents = o < .5 ? 'none' : '';
+  });
+
+  // наклоны разные, поэтому у края с названием полоска то шире, то уже:
+  // ставим название по центру настоящего зазора между верхом своей карточки и верхом следующей
+  cards.forEach((el,i)=>{
+    const st = state[i], nx = state[i+1];
+    // lx — горизонтальное расстояние от центра карточки (оси поворота) до середины названия
+    const lab = (st.label ||= el.querySelector('.label')), w = (st.word ||= el.querySelector('.word'));
+    const lx = lab.offsetLeft + w.offsetLeft + w.offsetWidth/2 - wCur/2;
+    const own = lx*Math.sin(st.rz*Math.PI/180);
+    const next = nx ? Math.min(g.peek, nx.by - st.by) + lx*Math.sin(nx.rz*Math.PI/180) : g.peek + own;
+    const off = ((own + next)/2 - g.peek/2).toFixed(1);
+    if(off !== st.lo){ lab.style.transform = `translateY(${off}px)`; st.lo = off; }
+    // у пролистанной карточки название сразу гаснет, чтобы не висело поверх следующей
+    const lop = (st.d >= 0 ? 1 : Math.max(0, 1 + st.d*3)).toFixed(3);
+    if(lop !== st.lop){ lab.style.opacity = lop; st.lop = lop; }
+  });
+  requestAnimationFrame(frame);
+}
+
+function render(){
+  deck.innerHTML = visible().map(cardHTML).join('');
+  cards = [...deck.querySelectorAll('.card')];
+  const now = performance.now();
+  state = cards.map((_,i)=>({ t0: now + i*90, dir: 1, spread: 0, lift: 0 }));
+  pos = target = 0; hovered = -1;
+  cards.forEach((el,i)=>{
+    el.addEventListener('mouseenter', ()=>{ if(!geometry().mobile) hovered = i; });
+    el.addEventListener('click', e=>{ if(!e.target.closest('a')) openCase(i); });
+    el.addEventListener('keydown', e=>{ if(e.key==='Enter') openCase(i); });
+  });
+}
+deck.addEventListener('mouseleave', ()=>{ hovered = -1; });
+
+/* прокрутка: колесо, тач, стрелки */
+function scrollBy(dy){
+  if(openIdx > -1 || busy || !cards.length) return;
+  target = Math.min(cards.length-1, Math.max(0, target + dy));
+  if(target > .3) $('#hint').classList.add('is-hidden');
+}
+addEventListener('wheel', e=>{ scrollBy(e.deltaY / (geometry().peek*3.2)); }, { passive:true });
+let touchY = null, touchT = 0;
+addEventListener('touchstart', e=>{ touchY = e.touches[0].clientY; touchT = target; }, { passive:true });
+addEventListener('touchmove', e=>{
+  if(touchY===null || openIdx>-1) return;
+  target = touchT;
+  scrollBy((touchY - e.touches[0].clientY) / (geometry().peek*1.8));
+}, { passive:true });
+addEventListener('touchend', ()=>{ touchY = null; target = Math.round(target); });
+addEventListener('keydown', e=>{
+  if(e.key==='ArrowDown' || e.key==='PageDown'){ scrollBy(1); target = Math.round(target); }
+  if(e.key==='ArrowUp' || e.key==='PageUp'){ scrollBy(-1); target = Math.round(target); }
+});
+// клик по пустому месту — колода плавно возвращается в исходное положение
+addEventListener('click', e=>{
+  if(openIdx > -1 || busy) return;
+  if(e.target.closest('.card, .top, .fonts, .case, a, button')) return;
+  target = 0; hovered = -1;
+});
+// после колеса докатываем до ближайшей карточки
+let snapTimer;
+addEventListener('wheel', ()=>{ clearTimeout(snapTimer); snapTimer = setTimeout(()=>{ target = Math.round(target); }, 160); }, { passive:true });
+
+function setFilter(f){
+  if(busy || openIdx > -1) return;
+  if(f===filter) f = 'all';
+  filter = f;
+  document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('is-active', b.dataset.filter===filter));
+  busy = true;
+  const now = performance.now();
+  state.forEach((st,i)=>{ st.t0 = now + (cards.length-1-i)*50; st.dir = -1; });
+  scramble(logo, 'BRUKWA');
+  setTimeout(()=>{ render(); busy = false; }, 650);
+}
+document.querySelectorAll('[data-filter]').forEach(b=>{
+  b.querySelector('sup').textContent = CASES.filter(c=>c.type===b.dataset.filter).length;
+  b.addEventListener('click', ()=>setFilter(b.dataset.filter));
+});
+logo.addEventListener('click', ()=>{ if(filter!=='all') setFilter('all'); else wobble(22, 800); });
+logo.addEventListener('keydown', e=>{ if(e.key==='Enter') logo.click(); });
+
+/* ---------- раскрытие кейса ---------- */
+function fillCase(c){
+  $('#caseMedia').innerHTML = mediaHTML(c, true).replace('alt=""', `alt="${c.name}"`);
+  $('#caseWord').textContent = c.name;
+  $('#caseLine').textContent = c.line;
+  $('#caseFacts').innerHTML = `
+    <div><dt>Тип</dt><dd>${c.kind[0].toUpperCase() + c.kind.slice(1)}</dd></div>
+    <div><dt>Что делала</dt><dd>${c.role}</dd></div>
+    <div><dt>Статус</dt><dd>${c.status}</dd></div>
+    ${c.url ? `<a class="cta" href="${c.url}" ${linkAttrs(c)}>${c.urlLabel} ↗</a>`
+            : `<span class="cta muted">Кейс скоро</span>`}`;
+  scramble($('#caseLogo'), c.short);
+}
+
+function clipFrom(el){
+  const r = el.getBoundingClientRect();
+  caseEl.style.setProperty('--ct', Math.max(0,r.top)+'px');
+  caseEl.style.setProperty('--cl', Math.max(0,r.left)+'px');
+  caseEl.style.setProperty('--cr', Math.max(0,innerWidth-r.right)+'px');
+  caseEl.style.setProperty('--cb', Math.max(0,innerHeight-r.bottom)+'px');
+  caseEl.style.setProperty('--cround', getComputedStyle(document.documentElement).getPropertyValue('--radius'));
+}
+function clipFull(){ ['--ct','--cl','--cr','--cb','--cround'].forEach(p=>caseEl.style.setProperty(p,'0px')); }
+
+function openCase(i){
+  if(busy || openIdx > -1) return;
+  openIdx = i;
+  fillCase(visible()[i]);
+  caseEl.style.transition = 'none';
+  clipFrom(cards[i]);
+  caseEl.classList.add('is-anim');
+  caseEl.offsetHeight;
+  caseEl.style.transition = '';
+  clipFull();
+  caseEl.classList.add('is-open');
+  caseEl.setAttribute('aria-hidden','false');
+}
+function closeCase(){
+  if(openIdx < 0) return;
+  // возвращаемся в колоду на той карточке, которую смотрели
+  target = pos = openIdx;
+  caseEl.classList.remove('is-open');
+  const i = openIdx;
+  openIdx = -1;
+  requestAnimationFrame(()=>clipFrom(cards[i]));
+  caseEl.setAttribute('aria-hidden','true');
+  setTimeout(()=>{ if(openIdx < 0) caseEl.classList.remove('is-anim'); }, 850);
+}
+$('#back').addEventListener('click', closeCase);
+$('#next').addEventListener('click', ()=>{
+  const list = visible();
+  openIdx = (openIdx+1) % list.length;
+  caseEl.classList.remove('is-open');
+  setTimeout(()=>{ fillCase(list[openIdx]); caseEl.classList.add('is-open'); }, 280);
+});
+addEventListener('keydown', e=>{ if(e.key==='Escape') closeCase(); });
+
+/* ---------- временный выбор шрифта названий ---------- */
+function setFont(b){
+  document.documentElement.style.setProperty('--title-font', `"${b.dataset.font}"`);
+  document.documentElement.style.setProperty('--title-weight', b.dataset.w);
+  document.querySelectorAll('#fonts [data-font]').forEach(x=>x.classList.toggle('is-active', x===b));
+  try { localStorage.setItem('brukwa-font', b.dataset.font); } catch(e) {}
+}
+{
+  let saved = null;
+  try { saved = localStorage.getItem('brukwa-font'); } catch(e) {}
+  const btns = [...document.querySelectorAll('#fonts [data-font]')];
+  btns.forEach(b=>b.addEventListener('click', ()=>setFont(b)));
+  setFont(btns.find(b=>b.dataset.font===saved) || btns[0]);
+}
+function setAlign(v){
+  document.body.classList.toggle('titles-center', v==='center');
+  document.querySelectorAll('#fonts [data-align]').forEach(x=>x.classList.toggle('is-active', x.dataset.align===v));
+  try { localStorage.setItem('brukwa-align', v); } catch(e) {}
+}
+{
+  let saved = 'left';
+  try { saved = localStorage.getItem('brukwa-align') || 'left'; } catch(e) {}
+  document.querySelectorAll('#fonts [data-align]').forEach(b=>b.addEventListener('click', ()=>setAlign(b.dataset.align)));
+  setAlign(saved);
+}
+
+/* ---------- старт ---------- */
+document.fonts.ready.then(()=>{
+  wobble(34, 1300);
+  fisheye(logo, 'fishLogo', .5);
+  fisheye($('#caseLogo'), 'fishCase', .5);
+  setTimeout(()=>{ document.body.classList.add('ready'); render(); requestAnimationFrame(frame); }, 450);
+});
+</script>
+</body>
+</html>

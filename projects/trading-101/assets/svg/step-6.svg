@@ -1,0 +1,18 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="187" height="284" viewBox="0 0 187 284" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame 1410080126">
+<g clip-path="url(#clip0_2016_713)">
+<rect id="Rectangle 32126" width="187" height="284" fill="#15171D"/>
+<path id="Union" d="M412 178L69.0498 -101.068L68.6113 -101.607L68.5 -101.517L68.3887 -101.607L67.9492 -101.068L-275 178L-213.695 253.171L68.5 23.541L350.695 253.171L412 178Z" fill="url(#paint0_linear_2016_713)"/>
+</g>
+<rect x="0.5" y="0.5" width="186" height="283" stroke="white" stroke-opacity="0.15"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_2016_713" x1="61.4465" y1="236.04" x2="68.9287" y2="-81.5581" gradientUnits="userSpaceOnUse">
+<stop stop-color="#228EF5"/>
+<stop offset="0.846154" stop-color="#161618"/>
+</linearGradient>
+<clipPath id="clip0_2016_713">
+<rect width="187" height="284" fill="white"/>
+</clipPath>
+</defs>
+</svg>

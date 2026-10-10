@@ -1,0 +1,18 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="187" height="320" viewBox="0 0 187 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame 1410080122">
+<g clip-path="url(#clip0_2016_723)">
+<rect id="Rectangle 32091" width="187" height="320" fill="#15171D"/>
+<path id="Rectangle 32168" d="M372.364 -124.408L286.42 -241.419L-128.158 96.31L-42.2148 213.321L372.364 -124.408Z" fill="url(#paint0_linear_2016_723)"/>
+</g>
+<rect x="0.5" y="0.5" width="186" height="319" stroke="white" stroke-opacity="0.15"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_2016_723" x1="-23.8488" y1="182.119" x2="202.143" y2="-39.1018" gradientUnits="userSpaceOnUse">
+<stop stop-color="#228EF5"/>
+<stop offset="0.846154" stop-color="#161618"/>
+</linearGradient>
+<clipPath id="clip0_2016_723">
+<rect width="187" height="320" fill="white"/>
+</clipPath>
+</defs>
+</svg>
