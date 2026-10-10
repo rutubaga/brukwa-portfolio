@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BRUKWA — портфолио</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter+Tight:wght@300;400;500&family=Manrope:wght@300;400&family=Onest:wght@300;400&family=Geologica:wght@200;300&family=Golos+Text:wght@400&display=swap&subset=cyrillic" rel="stylesheet">
@@ -33,20 +35,9 @@
   /* ---------- шапка ---------- */
   .top{
     position:fixed;inset:0 0 auto 0;z-index:10;
-    display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+    display:flex;justify-content:center;
     padding:34px 32px 0;
   }
-  .nav{display:flex;gap:30px;font-size:15px;color:var(--ink);letter-spacing:-.01em}
-  .nav.left{justify-content:flex-end;padding-right:64px}
-  .nav.right{justify-content:flex-start;padding-left:64px}
-  .nav button,.nav a{position:relative;padding:4px 0;transition:opacity .3s}
-  .nav sup{font-size:9px;margin-left:2px;opacity:.7}
-  .nav button::after{
-    content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;
-    transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease);
-  }
-  .nav button.is-active::after{transform:scaleX(1)}
-  .nav:hover > *:not(:hover){opacity:.45}
 
   .logo{
     font-family:Anton,Impact,sans-serif;font-size:clamp(44px,5.4vw,78px);line-height:.9;
@@ -63,223 +54,210 @@
     70%{transform:scale(1.08,.92)}
     100%{transform:scale(1,1)}
   }
-  .top .nav{opacity:0;transition:opacity .8s .35s}
-  .ready .top .nav{opacity:1}
 
-  /* ---------- колода ---------- */
-  .deck{position:fixed;inset:0;pointer-events:none}
-  .card{
-    position:absolute;left:50%;top:0;
-    width:var(--w);height:var(--h);margin-left:calc(var(--w) / -2);
-    pointer-events:auto;cursor:pointer;
-    transform:translate3d(0,110vh,0);transform-origin:50% 0;will-change:transform;
-  }
-  /* «тело» карточки: только оно наклоняется в перспективе, название и кнопки лежат поверх ровно */
-  .skin{
-    position:absolute;inset:0;border-radius:var(--radius);overflow:hidden;
-    transform-origin:50% 0;will-change:transform;contain:paint;backface-visibility:hidden;
-    background:#ccc;
-  }
-  .media{position:absolute;inset:-40px;filter:blur(22px) saturate(1.25);transform:scale(1.04);
-    transition:filter .7s var(--ease), transform .9s var(--ease)}
-  .card:hover .media{filter:blur(0) saturate(1);transform:scale(1)}
-  /* карточки — чистый цвет проекта (CASES.color), без размытия */
-  .media.live{inset:0;filter:none !important;transform:none !important}
-  .card:has(.media.live) .scrim{display:none}
-  .solid{position:absolute;inset:0}
-  .media img{position:absolute;inset:40px;width:calc(100% - 80px);height:calc(100% - 80px);object-fit:cover}
-  .media .phone{
-    position:absolute;top:96px;left:58%;width:260px;height:auto;inset:auto;
-    border-radius:26px;box-shadow:0 30px 60px rgba(60,40,20,.25);transform:rotate(-4deg);
-  }
-  .scrim{position:absolute;inset:0 0 auto 0;height:180px;pointer-events:none}
-  .t-light{color:var(--ink)}
-  .t-light .scrim{background:linear-gradient(rgba(236,236,234,.82),rgba(236,236,234,0))}
-  .t-dark{color:#fff}
-  .t-dark .scrim{background:linear-gradient(rgba(10,10,12,.6),rgba(10,10,12,0))}
-
-  .label{position:absolute;left:calc(var(--inset,0px) + clamp(20px,14vw,240px));top:calc(var(--peek,96px)*.17);right:calc(var(--inset,0px) + 20px);font-size:clamp(17px,1.6vw,26px)}
-  .label .word{font-size:1em;display:inline-block}
-  /* вариант: названия по центру карточек */
-  .titles-center .label{left:calc(var(--inset,0px) + 20px);right:calc(var(--inset,0px) + 20px);text-align:center}
-  .word{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);font-size:clamp(22px,2.4vw,38px);letter-spacing:0;line-height:1.05}
-  .meta{font-size:13px;margin-top:6px;opacity:.75}
-  .meta b{font-weight:500}
-  .side{position:absolute;right:calc(26px + var(--inset,0px));top:24px;display:flex;align-items:center;gap:14px;font-size:12px}
-  .chip{padding:5px 11px;border-radius:99px;border:1px solid currentColor;opacity:.75}
-  .arrow{
-    width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:17px;
-    background:currentColor;transition:transform .5s var(--ease);
-  }
-  .arrow i{font-style:normal;color:var(--bg)}
-  .t-dark .arrow i{color:#111}
-  /* визуалы проекта: при наведении заполняют карточку и по очереди проявляются из размытия */
-  .slides{position:absolute;inset:0;pointer-events:none}
-  .slides img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;
-    opacity:0;filter:blur(28px);transform:scale(1.08);
-    transition:opacity .7s, filter 1s var(--ease), transform 1.4s var(--ease)}
-  .slides img.on{opacity:1;filter:blur(0);transform:scale(1)}
-  .slides::after{content:"";position:absolute;inset:0 0 auto 0;height:45%;z-index:999;opacity:0;
-    background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,0));transition:opacity .5s}
-  .card.has-slides:hover .slides::after{opacity:1}
-  /* поверх картинок название и кнопки белые */
-  .card.has-slides:hover{color:#fff}
-  .card.has-slides:hover .label{text-shadow:0 1px 18px rgba(0,0,0,.35)}
-  .card.has-slides:hover .site i,.card.has-slides:hover .arrow i{color:#111}
-  .card.expanding .label,.card.expanding .side{opacity:0 !important;transition:opacity .2s}
-  /* проект в разработке: замок вместо стрелки, карточка не открывается — замок вздрагивает */
-  .arrow.lock svg{stroke:var(--bg)}
-  .card:hover .arrow.lock{transform:none}
-  .arrow.lock.shake{animation:shake .45s var(--ease)}
-  @keyframes shake{20%{transform:rotate(-14deg)}45%{transform:rotate(11deg)}70%{transform:rotate(-6deg)}100%{transform:none}}
-  /* проект в разработке */
-  .label .wip{display:inline-block;margin-left:.8em;font-size:13px;opacity:.55;vertical-align:middle}
-  .wip-cover{position:absolute;inset:0;display:grid;place-items:center;color:var(--ink)}
-  .wip-cover span{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);
-    font-size:clamp(28px,3vw,48px);opacity:.6}
-  .case.is-wip{color:var(--ink)}
-  .case.is-wip .case-shade{display:none}
-  .case.is-wip .facts div{border-top-color:rgba(20,20,20,.18)}
-  /* кнопки появляются, только когда наводим на карточку */
-  .side > *{opacity:0;transform:translateY(-6px);transition:opacity .35s, transform .45s var(--ease)}
-  .card:hover .side > *,.card:focus-visible .side > *{opacity:1;transform:none}
-  .card:hover .side > :nth-child(2){transition-delay:.04s}
-  .card:hover .side > :nth-child(3){transition-delay:.08s}
-  .card:hover .arrow{transform:rotate(45deg)}
-  .site{padding:5px 11px;border-radius:99px;background:currentColor;transition:opacity .3s}
-  .site i{font-style:normal;color:var(--bg)}
-  .t-dark .site i{color:#111}
-  .site:hover{opacity:.8}
-
-  .hint{position:fixed;bottom:20px;z-index:20;font-size:12px;color:var(--mute);
-    padding:6px 12px;border-radius:99px;background:rgba(236,236,234,.75);backdrop-filter:blur(8px);
-    -webkit-backdrop-filter:blur(8px);transition:opacity .6s}
-  .hint{left:50%;transform:translateX(-50%)}
-  /* подпись: дизайн сайта мой */
-  .credit{position:fixed;right:24px;bottom:24px;z-index:20;font-size:12px;color:var(--mute);transition:opacity .6s}
-  body:not(.ready) .credit,body.about-on .credit{opacity:0}
-
-  /* временный переключатель шрифтов названий — убрать, когда выберем */
+  /* временный переключатель шрифтов — убрать, когда выберем */
   .fonts{position:fixed;left:20px;bottom:18px;z-index:25;display:flex;padding:3px;border-radius:99px;
     background:rgba(20,20,20,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:12px}
   .fonts button{padding:7px 13px;border-radius:99px;color:rgba(255,255,255,.65);transition:background .3s,color .3s}
   .fonts button.is-active{background:#fff;color:#111}
   body:not(.ready) .fonts{opacity:0}
-  .fonts .sep{width:1px;margin:6px 4px;background:rgba(255,255,255,.25)}
 
-  .hint.is-hidden{opacity:0;pointer-events:none}
-  body:not(.ready) .hint{opacity:0}
+  /* проект в разработке */
+  .wip-cover{position:absolute;inset:0;display:grid;place-items:center;color:var(--ink)}
+  .wip-cover span{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);
+    font-size:clamp(28px,3vw,48px);opacity:.6}
 
-  /* ---------- раскрытый кейс ---------- */
-  /* кейс проявляется поверх карточки, которая уже раскрылась на весь экран */
-  .case{
-    position:fixed;inset:0;z-index:30;color:#fff;
-    opacity:0;visibility:hidden;transition:opacity .4s, visibility 0s .4s;
-  }
-  .case.is-open{opacity:1;visibility:visible;transition:opacity .45s}
-  .case-media > *{filter:blur(24px);transform:scale(1.05);transition:filter .9s var(--ease), transform 1.2s var(--ease)}
-  .case.is-open .case-media > *{filter:none;transform:none}
-  .case-media .phone{transform:translate(-50%,-46%) rotate(-4deg)}
-  .case.is-open .case-media .phone{transform:translate(-50%,-46%) rotate(-4deg)}
-  .case-media{position:absolute;inset:0;background:#222}
-  .case-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s}
-  .case-media .phone{position:absolute;left:50%;top:50%;width:min(360px,62vw);height:auto;inset:auto;
-    transform:translate(-50%,-46%) rotate(-4deg);border-radius:34px;box-shadow:0 40px 90px rgba(60,40,20,.3)}
-  .case-shade{position:absolute;inset:0;background:
-    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,0) 22%),
-    linear-gradient(0deg,rgba(0,0,0,.78),rgba(0,0,0,.1) 55%,rgba(0,0,0,0))}
-  .case-top{
-    position:absolute;inset:0 0 auto 0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
-    padding:26px 32px 0;font-size:13px;
-  }
-  .case-top .logo{color:#fff}
+  /* ---------- экран проекта: одно тёмное полотно — слева колонкой надписи, справа на всю высоту обложка ---------- */
+  .pv-hero{position:absolute;left:0;top:0;bottom:0;width:40%;z-index:2;color:#fff;
+    display:flex;flex-direction:column;justify-content:space-between;padding:clamp(84px,12vh,112px) 36px 120px}
+  .pv-title{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);
+    font-size:clamp(52px,6.4vw,120px);line-height:.94;letter-spacing:-.03em}
+  .pv-facts{display:grid;gap:16px;font-size:15px;line-height:1.35;max-width:34ch}
+  .pv-facts b{display:block;font-weight:400}
+  .pv-facts span{display:block;color:rgba(255,255,255,.5)}
+  /* обложка справа на всю высоту, чёткая граница с колонкой надписей */
+  .pv-slide:not(.intro) > .pv-pic,.case-cover{left:40%;top:0;right:0;bottom:0}
+  .pv-hero > *{opacity:0;transform:translateY(18px);transition:opacity .7s, transform .9s var(--ease)}
+  .pv-slide.cur .pv-hero > *{opacity:1;transform:none}
+  .pv-slide.cur .pv-hero > :nth-child(2){transition-delay:.12s}
+
+  /* ---------- открытый кейс: тот же верх, ниже подзаголовки и галерея; листается ---------- */
+  .case{position:fixed;inset:0;z-index:30;background:#0d0d0e;color:#fff;
+    opacity:0;visibility:hidden;transition:opacity .4s, visibility 0s .4s}
+  .case.is-open{opacity:1;visibility:visible;transition:opacity .4s}
+  .case-scroll{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain}
+  .case-first{position:relative;height:100vh}
+  .case-cover{position:absolute;overflow:hidden}
+  .case .pv-hero > *{opacity:1;transform:none}
+  .case-content{padding:110px 36px 120px;display:grid;gap:96px}
+  .cs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:40px;align-items:start}
+  .cs h3{font-weight:400;font-size:14px;color:rgba(255,255,255,.5);padding-top:.6em}
+  .cs p{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);
+    font-size:clamp(22px,2.3vw,38px);line-height:1.22;letter-spacing:-.01em;max-width:28ch}
+  .cs-gallery{display:grid;gap:16px}
+  .cs-gallery img{display:block;width:100%;border-radius:24px}
+  /* в конце кейса — карточки других проектов */
+  .cs-more{padding-top:34px;border-top:1px solid rgba(255,255,255,.14)}
+  .cs-more h3{font-weight:400;font-size:14px;color:rgba(255,255,255,.5);margin-bottom:22px}
+  .cs-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+  .cs-card{display:block;text-align:left;color:#fff}
+  .cs-card .ph{position:relative;display:block;aspect-ratio:16/10;border-radius:22px;overflow:hidden;background:var(--c)}
+  .cs-card .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
+  .cs-card .ph svg{position:absolute;inset:0;margin:auto;stroke:var(--ink);opacity:.55}
+  .cs-card:hover .ph img{transform:scale(1.04)}
+  .cs-card b{display:block;margin-top:14px;font-weight:400;font-family:var(--title-font),"Inter Tight",sans-serif;font-size:clamp(20px,1.8vw,28px)}
+  .cs-card i{display:block;margin-top:4px;font-style:normal;font-size:13px;color:rgba(255,255,255,.5)}
+  .cs-card.wip{cursor:default}
+  /* подзаголовки и блоки проявляются по мере прокрутки */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .8s, transform 1s var(--ease)}
+  .reveal.in{opacity:1;transform:none}
+  .case-top{position:absolute;inset:0 0 auto 0;z-index:5;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+    padding:16px 36px 0;font-size:13px;pointer-events:none}
+  .case-top > *{pointer-events:auto}
+  .case-top .logo{color:#fff;font-size:25px}
   .case-top .back{justify-self:start}
   .case-top .next{justify-self:end}
   .case-top button{padding:6px 0;opacity:.85;transition:opacity .3s}
   .case-top button:hover{opacity:1}
-  .case-body{
-    position:absolute;left:32px;right:32px;bottom:34px;
-    display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:40px;align-items:end;
-  }
-  .case-body > *{opacity:0;transform:translateY(16px);transition:opacity .6s, transform .7s var(--ease)}
-  .case.is-open .case-body > *{opacity:1;transform:none;transition-delay:.45s}
-  .case.is-open .case-body > *:nth-child(2){transition-delay:.55s}
-  /* крупный заголовок и подзаголовок кейса пока скрыты */
-  .case-word,.case-line{display:none !important}
-  .case-word{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);font-size:clamp(48px,8vw,124px);letter-spacing:-.04em;line-height:.95}
-  .case-line{font-size:clamp(16px,1.5vw,21px);line-height:1.35;margin-top:16px;max-width:30ch;opacity:.9}
-  .facts{display:grid;gap:12px;font-size:13px}
-  .facts div{display:grid;grid-template-columns:110px 1fr;gap:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.25)}
-  .facts dt{opacity:.6}
-  .cta{display:inline-flex;align-items:center;gap:10px;margin-top:8px;justify-self:start;
-    padding:13px 20px;border-radius:99px;background:#fff;color:#111;font-size:13px;font-weight:500}
-  .cta.muted{background:rgba(255,255,255,.14);color:#fff;font-weight:400;cursor:default}
+  .cta{display:inline-flex;align-items:center;gap:10px;justify-self:start;
+    padding:14px 22px;border-radius:99px;background:#fff;color:#111;font-size:14px;font-weight:500}
 
-  /* ---------- обо мне и контакты ---------- */
-  .about{position:fixed;inset:0;z-index:28;background:var(--bg);overflow-y:auto;
-    opacity:0;visibility:hidden;filter:blur(24px);transition:opacity .6s, filter .8s var(--ease), visibility 0s .8s}
-  .about.is-open{opacity:1;visibility:visible;filter:blur(0);transition:opacity .6s, filter .8s var(--ease)}
-  body.about-on .top{z-index:40}
-  body.about-on .hint,body.about-on .fonts{opacity:0;pointer-events:none}
-  /* та же центральная ось, что у шапки: портрет под логотипом, ниже текст, бренды и контакты */
-  .about-in{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    text-align:center;gap:30px;padding:140px 20px 56px}
-  /* фото — маленькое, в скруглённом квадрате */
-  .about-photo{order:-1;width:84px;height:84px;border-radius:20px;overflow:hidden;background:#dcd9d2;
-    display:flex;justify-content:center;align-items:flex-end;transform:rotate(-4deg)}
-  .about-photo img{height:94%;width:auto;display:block}
-  .about-text{display:flex;flex-direction:column;align-items:center}
-  .about-lead{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);
-    font-size:clamp(22px,2.2vw,36px);line-height:1.2;letter-spacing:-.01em;max-width:30ch}
-  .about-block{margin-top:26px;display:flex;flex-direction:column;align-items:center}
-  .about-cap{font-size:13px;color:var(--mute);margin-bottom:10px}
-  .brands{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
-  .brands li{padding:8px 16px;border-radius:99px;border:1px solid rgba(20,20,20,.18);font-size:15px}
-  .contacts{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
-  .contacts .about-cap{flex-basis:100%;margin:0}
+  /* ---------- надпись у курсора над проектом ---------- */
+  .ctag{position:fixed;left:0;top:0;z-index:26;pointer-events:none;padding:14px 22px;border-radius:12px;
+    background:rgba(14,17,26,.84);color:#fff;font-size:15px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);white-space:nowrap;
+    opacity:0;transform:translate(-50%,-50%) scale(.6);transition:opacity .25s, transform .35s var(--ease)}
+  .ctag.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  body.ctag-on .pv-stage{cursor:none}
+  @media (hover:none){ .ctag{display:none} }
+
+  /* ---------- контакты на первом экране ---------- */
   .contact{display:inline-flex;align-items:baseline;gap:10px;padding:14px 24px;border-radius:99px;
     background:var(--ink);color:#fff;font-size:clamp(17px,1.4vw,22px);transition:background .3s, transform .4s var(--ease)}
   .contact span{font-size:12px;color:rgba(255,255,255,.55)}
   .contact b{font-weight:400;font-family:var(--title-font),"Inter Tight",sans-serif}
   .contact:hover{background:var(--accent);transform:translateY(-2px)}
-  /* появление: блоки по очереди проявляются из размытия */
-  .about-in > *{opacity:0;filter:blur(14px);transform:translateY(18px);
-    transition:opacity .6s, filter .8s var(--ease), transform .8s var(--ease)}
-  .about.is-open .about-in > *{opacity:1;filter:blur(0);transform:none}
-  .about.is-open .about-text{transition-delay:.1s}
-  .about.is-open .contacts{transition-delay:.2s}
-  .about-in.pre > *{opacity:0 !important;filter:blur(14px) !important;transform:translateY(18px) !important;transition:none !important}
-  .about[data-page="about"] .contacts{display:none}
-  .about[data-page="contacts"] .about-text,.about[data-page="contacts"] .about-photo{display:none}
-  .about[data-page="contacts"] .contacts{gap:14px}
-  .about[data-page="contacts"] .contact{font-size:clamp(24px,2.6vw,42px);padding:20px 36px}
-  .about[data-page="contacts"] .contact span{font-size:14px}
-  .nav [data-page]{position:relative;padding:4px 0}
-  .nav [data-page]::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;
-    transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease)}
-  .nav [data-page].is-active::after{transform:scaleX(1)}
+  .intro-contacts{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+
+  /* ---------- лента проектов: каждый на весь экран, внизу плашка с миниатюрами ---------- */
+  .pv{position:fixed;inset:0;z-index:5;background:var(--bg);overflow:hidden;--gap:12px}
+  /* шапка поверх тёмного проекта — белая */
+  /* только пока виден сам проект; на светлых «Обо мне» и «Контактах» шапка снова чёрная */
+  /* на экранах проектов шапка уменьшается: маленький логотип, тонкая полоска */
+  .top .logo{transform-origin:50% 0;transition:transform .7s var(--ease), color .5s}
+  body.on-work .top .logo{color:#fff;transform:translateY(-16px) scale(.32)}
+
+  .pv-stage{position:absolute;inset:0;cursor:pointer}
+  /* смена проекта как сплошная лента: старый и новый едут вместе, новый прикреплён снизу (или сверху — назад) */
+  .pv-slide{position:absolute;inset:0;overflow:hidden;will-change:transform}
+  /* проект — во всю ширину и до низа экрана, скруглён только сверху: при смене следующий выезжает снизу скруглённым краем */
+  .pv-slide:not(.intro){inset:0;border-radius:var(--radius) var(--radius) 0 0;transition:border-radius .3s var(--ease)}
+  /* на странице проекта углы ровные: выпрямляются в самом конце въезда */
+  .pv-slide.cur:not(.intro),.pv-slide.flat{border-radius:0}
+  /* только сама картинка проекта; фото на первом экране не трогаем */
+  .pv-slide > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;
+    transform:scale(1.06);transition:transform 1.8s cubic-bezier(.2,.8,.2,1)}
+  .pv-slide.cur > img{transform:scale(1)}
+  /* обложка с устройством: картинка, экран и надписи — один слой, двигаются вместе */
+  .pv-pic{position:absolute;inset:0;transform:scale(1.06);transition:transform 1.8s cubic-bezier(.2,.8,.2,1)}
+  .pv-slide.cur > .pv-pic{transform:scale(1)}
+  .pv-pic > .cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+  /* CSS-экран ноутбука: тонкая рамка, «чёлка» с камерой, лёгкий блик; внутри — живой сайт */
+  .pv-device{position:absolute;overflow:hidden;background:#000;border-radius:var(--dr,10px);
+    box-shadow:inset 0 0 0 var(--bz,3px) #0a0a0b}
+  .pv-device iframe{position:absolute;left:var(--bz,3px);top:var(--bz,3px);border:0;transform-origin:0 0;background:#0b0d12}
+  .pv-device .cam{position:absolute;left:50%;top:0;width:8%;height:2.4%;transform:translateX(-50%);
+    background:#0a0a0b;border-radius:0 0 7px 7px;z-index:2}
+  .pv-device .glare{position:absolute;inset:0;z-index:2;pointer-events:none;
+    background:linear-gradient(118deg,rgba(255,255,255,.07),rgba(255,255,255,0) 38%)}
+  .pv-slide .wip-cover span{font-size:clamp(28px,3vw,48px)}
+  /* первый экран — чистая страница «кто я»; работы выезжают снизу по прокрутке */
+  .intro-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;gap:28px;padding:140px 20px 90px;color:var(--ink)}
+  /* маленькая голова над текстом, без подложки */
+  .intro-photo{height:92px}
+  .intro-photo img{height:100%;width:auto;display:block}
+  .intro-lead{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);
+    font-size:clamp(26px,3vw,48px);line-height:1.15;letter-spacing:-.01em;max-width:24ch}
+  .intro-go{margin-top:18px;font-size:13px;color:var(--mute);padding:8px 14px;border-radius:99px;
+    border:1px solid rgba(20,20,20,.15);animation:bob 2.4s ease-in-out infinite}
+  .intro-go:hover{color:var(--ink)}
+  @keyframes bob{50%{transform:translateY(5px)}}
+  .intro-in > *{opacity:0;filter:blur(14px);transform:translateY(16px);transition:opacity .7s, filter .9s var(--ease), transform .9s var(--ease)}
+  .intro-in > .intro-go{transition:opacity .7s .3s, filter .9s .3s var(--ease)}
+  .pv-slide.cur .intro-in > *{opacity:1;filter:none;transform:none}
+  .pv-slide.cur .intro-in > :nth-child(2){transition-delay:.1s}
+  .pv-slide.cur .intro-in > :nth-child(3){transition-delay:.18s}
+  .pv-slide.intro{cursor:default}
+  /* на первом экране плашки с миниатюрами нет — она выезжает вместе с работами */
+  .pv-bar{transition:opacity .6s, transform .8s var(--ease)}
+  body.on-intro .pv-bar{opacity:0;transform:translate(-50%,40px);pointer-events:none}
+  /* пока внизу временная панель шрифтов — плашка чуть выше, чтобы не наезжать */
+  body:has(.fonts) .pv-bar{bottom:72px}
+  .pv-bar{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:3;display:flex;align-items:center;gap:14px;
+    padding:8px 8px 8px 8px;border-radius:20px;background:rgba(18,18,18,.86);color:#fff;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:hidden}
+  .pv-bar{transition:opacity .6s, transform .8s var(--ease), padding .5s var(--ease), gap .5s var(--ease), border-radius .5s var(--ease)}
+  .pv-thumbs{display:flex;gap:6px;transition:gap .5s var(--ease)}
+  /* миниатюра; при наведении на плашку — мини-карточка проекта с подписью */
+  .pv-thumb{width:42px;display:flex;flex-direction:column;text-align:left;opacity:.45;
+    transition:width .55s var(--ease), opacity .3s, transform .4s var(--ease)}
+  .pv-thumb .ph{position:relative;width:100%;height:42px;border-radius:12px;overflow:hidden;background:var(--c);
+    transition:height .55s var(--ease), box-shadow .3s}
+  .pv-thumb .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .pv-thumb .ph svg{position:absolute;inset:0;margin:auto;stroke:var(--ink);opacity:.6}
+  .pv-thumb .cap{max-height:0;opacity:0;overflow:hidden;padding:0 2px;transition:max-height .5s var(--ease), opacity .35s, padding .5s var(--ease)}
+  .pv-thumb .cap b{display:block;font-weight:400;font-family:var(--title-font),"Inter Tight",sans-serif;font-size:13px;white-space:nowrap}
+  .pv-thumb .cap i{display:block;font-style:normal;font-size:10px;color:rgba(255,255,255,.55);margin-top:2px;white-space:nowrap}
+  .pv-thumb:hover{opacity:.85}
+  .pv-thumb.on{opacity:1;transform:scale(1.04)}
+  .pv-thumb.on .ph{box-shadow:0 0 0 2px rgba(18,18,18,1),0 0 0 3.5px rgba(255,255,255,.9)}
+  .pv-bar:hover{padding:12px;gap:16px;border-radius:24px}
+  .pv-bar:hover .pv-thumbs{gap:10px}
+  .pv-bar:hover .pv-thumb{width:150px;opacity:.75;transform:none}
+  .pv-bar:hover .pv-thumb:hover,.pv-bar:hover .pv-thumb.on{opacity:1}
+  .pv-bar:hover .pv-thumb .ph{height:92px}
+  .pv-bar:hover .pv-thumb .cap{max-height:44px;opacity:1;padding:8px 2px 0;transition-delay:0s,.12s,0s}
+  /* подпись текущего проекта на это время прячется — подписаны все карточки */
+  .pv-meta{transition:max-width .5s var(--ease), opacity .3s, padding .5s var(--ease);max-width:260px}
+  .pv-bar:hover .pv-meta{max-width:0;min-width:0 !important;opacity:0;padding:0}
+  .pv-meta{min-width:170px;padding-right:6px;overflow:hidden}
+  .pv-meta.roll > *{animation:pvroll .7s cubic-bezier(.2,.8,.2,1) both}
+  .pv-meta.roll > :nth-child(2){animation-delay:.05s}
+  @keyframes pvroll{from{transform:translateY(110%);opacity:0}to{transform:none;opacity:1}}
+  .pv-meta b{display:block;font-weight:400;font-family:var(--title-font),"Inter Tight",sans-serif;font-size:16px}
+  .pv-meta span{display:block;margin-top:2px;font-size:11px;color:rgba(255,255,255,.55)}
+  .pv-open{width:42px;height:42px;border-radius:12px;background:#fff;color:#111;display:grid;place-items:center;font-size:17px}
+  .pv-open svg{stroke:#111}
+  /* прогресс — приглушённый, едва заметный */
+  .pv-progress{position:absolute;left:14px;right:14px;bottom:3px;height:1.5px;border-radius:2px;background:rgba(255,255,255,.05)}
+  .pv-progress b{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:2px;background:rgba(255,255,255,.28)}
+  .pv-progress b.run{animation:pvrun var(--pvdur,6s) linear forwards}
+  .pv-bar:hover .pv-progress b.run{animation-play-state:paused}
+  @keyframes pvrun{to{width:100%}}
 
   /* ---------- мобильная ---------- */
   @media (max-width:760px){
     :root{--radius:30px}
-    .top{grid-template-columns:1fr;justify-items:center;row-gap:14px;padding:20px 16px 0}
-    .top .logo{order:-1}
-    .nav{gap:20px}
-    .nav.left,.nav.right{padding:0;justify-content:center}
-    .nav.right{display:none}
-    .slides{display:none}
-    .credit{display:none}
-    .nav.right{display:flex}
-    .about-in{padding:170px 20px 40px;gap:24px}
-    .about-photo{width:72px;height:72px;border-radius:18px}
+    .pv-bar{bottom:64px;gap:10px;max-width:calc(100vw - 20px)}
+    .pv-thumb{width:34px}
+    .pv-thumb .ph,.pv-open{width:34px;height:34px;border-radius:10px}
+    .pv-meta{min-width:0}
+    .pv-hero{width:auto;right:0;bottom:auto;height:50%;padding:96px 18px 20px}
+    .pv-facts{grid-template-columns:1fr 1fr;gap:12px;font-size:12px}
+    .pv-facts > :nth-child(3){grid-column:1/-1}
+    .pv-slide:not(.intro) > .pv-pic,.case-cover{left:0;top:50%}
+    .case-content{padding:70px 18px 90px;gap:64px}
+    .cs{grid-template-columns:1fr;gap:12px}
+    .case-top{padding:18px 16px 0}
+    .top{padding:20px 16px 0}
+    .intro-photo{height:76px}
+    .intro-in{padding:110px 20px 80px;gap:22px}
     .fonts{left:8px;right:8px;bottom:10px;overflow-x:auto;font-size:11px}
     .fonts button{padding:6px 9px;white-space:nowrap}
-    .side{display:none}
-    .meta{font-size:12px}
-    .media .phone{left:auto;right:8%;top:84px;width:170px}
     .case-top{padding:18px 16px 0;grid-template-columns:auto 1fr auto}
-    .case-top .logo{font-size:36px;justify-self:center}
-    .case-body{left:16px;right:16px;bottom:22px;grid-template-columns:1fr;gap:22px}
+    .case-top .logo{font-size:22px;justify-self:center}
+    body.on-work .top .logo{transform:translateY(-8px) scale(.5)}
   }
   @media (prefers-reduced-motion:reduce){
     *{transition-duration:.01s !important;animation-duration:.01s !important}
@@ -297,75 +275,53 @@
 </svg>
 
 <header class="top">
-  <nav class="nav left" aria-label="Разделы">
-    <button data-filter="apps">Приложения<sup></sup></button>
-    <button data-filter="landings">Лендинги<sup></sup></button>
-  </nav>
   <div class="logo enter" id="logo" role="button" tabindex="0" aria-label="Все работы"></div>
-  <nav class="nav right">
-    <button data-page="about">Обо мне</button>
-    <button data-page="contacts">Контакты</button>
-  </nav>
 </header>
 
-<main class="deck" id="deck"></main>
-<p class="hint" id="hint">Листайте вниз ↓</p>
-<p class="credit">Дизайн сайта — Алиса Брюква, 2026</p>
-<div class="fonts" id="fonts" role="group" aria-label="Шрифт названий">
+<div class="fonts" id="fonts" role="group" aria-label="Шрифт">
   <button data-font="Manrope" data-w="300" style="font-family:Manrope">Manrope</button>
   <button data-font="Onest" data-w="300" style="font-family:Onest">Onest</button>
   <button data-font="Geologica" data-w="200" style="font-family:Geologica">Geologica</button>
   <button data-font="Golos Text" data-w="400" style="font-family:'Golos Text'">Golos</button>
-  <span class="sep"></span>
-  <button data-align="left">Слева</button>
-  <button data-align="center">По центру</button>
 </div>
 
-<section class="about" id="about" aria-hidden="true">
-  <div class="about-in">
-    <div class="about-text">
-      <p class="about-lead">Привет! Меня зовут Алиса — я&nbsp;мультидисциплинарный дизайнер. Создаю фирменные стили, digital-интерфейсы и&nbsp;визуальные концепции.</p>
-      <div class="about-block">
-        <p class="about-cap">Работала с брендами</p>
-        <ul class="brands">
-          <li>НСПК — Мир и СБП</li><li>М.Видео и Эльдорадо</li><li>МузТорг</li>
-        </ul>
-      </div>
-      <div class="about-block">
-        <p class="about-cap">Преподавала</p>
-        <ul class="brands"><li>Granich School</li></ul>
-      </div>
-    </div>
-    <figure class="about-photo"><img src="assets/me.webp" alt="Алиса Брюква"></figure>
-    <div class="contacts" id="contacts">
-      <a class="contact" href="https://t.me/brukwa" target="_blank" rel="noopener"><span>Telegram</span><b>@brukwa ↗</b></a>
-      <a class="contact" href="https://himki.hh.ru/resume/be003531ff079394cd0039ed1f4b7554794a5a" target="_blank" rel="noopener"><span>Резюме</span><b>hh.ru ↗</b></a>
-    </div>
+<!-- лента проектов: каждый на весь экран, новый въезжает снизу; внизу плашка с миниатюрами и прогрессом -->
+<section class="pv" id="pv" aria-hidden="true">
+  <div class="pv-stage" id="pvStage"></div>
+  <div class="pv-bar" id="pvBar">
+    <div class="pv-thumbs" id="pvThumbs"></div>
+    <div class="pv-meta" id="pvMeta"></div>
+    <button class="pv-open" id="pvOpen" aria-label="Открыть кейс"></button>
+    <i class="pv-progress"><b id="pvProg"></b></i>
   </div>
 </section>
 
+<div class="ctag" id="ctag" aria-hidden="true">Смотреть</div>
+
 <section class="case" id="case" aria-hidden="true">
-  <div class="case-media" id="caseMedia"></div>
-  <div class="case-shade"></div>
+  <div class="case-scroll" id="caseScroll">
+    <div class="case-first">
+      <div class="pv-hero"><h1 class="pv-title" id="caseTitle"></h1><div class="pv-facts" id="caseFacts"></div></div>
+      <div class="case-cover" id="caseCover"></div>
+    </div>
+    <div class="case-content" id="caseContent"></div>
+  </div>
   <div class="case-top">
     <button class="back" id="back">← Все работы</button>
     <div class="logo" id="caseLogo"></div>
     <button class="next" id="next">Следующий →</button>
   </div>
-  <div class="case-body">
-    <div>
-      <h1 class="case-word" id="caseWord"></h1>
-      <p class="case-line" id="caseLine"></p>
-    </div>
-    <div class="facts" id="caseFacts"></div>
-  </div>
 </section>
 
 <script>
-/* Кейсы. Порядок = сверху вниз в колоде; последняя карточка лежит впереди и видна целиком. Тексты черновые. */
+/* Кейсы — в порядке ленты. Тексты черновые. */
 const CASES = [
     { id:'trading', type:'landings', name:'Трейдинг 101', kind:'лендинг курса',
-    status:'Концепт', theme:'light', img:'assets/trading.jpg', pos:'center 30%',
+    status:'Концепт', theme:'light', img:'assets/trading.jpg', pos:'center 30%', pvDark:true,
+    cover:'assets/trading-cover.jpg',   // обложка для ленты — из Figma
+    thumb:'assets/trading-thumb.jpg',   // для миниатюр и карточек: обложка с сайтом в экране
+    // в экран ноутбука на обложке встаёт CSS-экран с живым лендингом; координаты экрана — в пикселях обложки
+    device:{ src:'projects/trading-101/index.html', img:[2800,1877], rect:[784,546,1219,775] },
     color:'#5ab8ff',
     slides:['assets/slides/trading-1.jpg','assets/slides/trading-2.jpg','assets/slides/trading-3.jpg','assets/slides/trading-4.jpg'],
     line:'Сложная и пугающая тема, поданная так, чтобы новичок решился начать.',
@@ -380,7 +336,6 @@ const CASES = [
     url:'https://revnikoff.ru/', urlLabel:'Открыть сайт' },
   { id:'impre', type:'apps', name:'Impre', kind:'приложение о здоровье',
     status:'Концепт', theme:'light', img:'assets/impre.jpg', pos:'center center',
-    // в карточке — чистый цвет проекта; в раскрытом кейсе — экран приложения
     color:'#b8f03c',
     slides:['assets/slides/impre-1.jpg','assets/slides/impre-2.jpg','assets/slides/impre-3.jpg'],
     line:'Состояние организма без медицинской тревоги: живая капсула вместо дашборда.',
@@ -394,8 +349,8 @@ const CASES = [
 ];
 
 const $ = s => document.querySelector(s);
-const deck = $('#deck'), logo = $('#logo'), caseEl = $('#case');
-let filter = 'all', cards = [], openIdx = -1, busy = false;
+const logo = $('#logo'), caseEl = $('#case');
+let openIdx = -1;
 
 /* ---------- логотип ---------- */
 function setLetters(el, text){ el.innerHTML = [...text].map((c,i)=>`<span style="animation-delay:${i*55}ms">${c}</span>`).join(''); }
@@ -425,65 +380,6 @@ function scramble(el, text, dur=520){
   })(t0);
   wobble(26, dur+200);
 }
-
-/* ---------- колода ---------- */
-function visible(){ return CASES.filter(c => filter==='all' || c.type===filter); }
-
-function mediaHTML(c, inCase){
-  if(c.color && !inCase) return `<div class="solid" style="background:${c.color}"></div>`;
-  // проект в разработке: вместо картинок — цвет проекта и надпись
-  if(c.wip) return `<div class="wip-cover" style="background:${c.color}"><span>В разработке</span></div>`;
-  return c.img
-    ? `<img src="${c.img}" alt="" style="object-position:${c.pos}">`
-    : `<div style="position:absolute;inset:0;background:${c.bg}"></div><img class="phone" src="${c.wire}" alt="">`;
-}
-function linkAttrs(c){ return /^https?:/.test(c.url) ? 'target="_blank" rel="noopener"' : 'target="_blank"'; }
-
-function cardHTML(c){
-  return `<article class="card t-${c.theme}${c.slides ? ' has-slides' : ''}" data-id="${c.id}" tabindex="0" aria-label="${c.name}">
-    <div class="skin">
-      <div class="media${c.color ? ' live' : ''}">${mediaHTML(c)}</div>
-      <div class="slides">${(c.slides||[]).map(src=>`<img src="${src}" alt="" loading="lazy">`).join('')}</div>
-      <div class="scrim"></div>
-    </div>
-    <div class="label"><h2 class="word">${c.name}</h2>${c.wip ? '<span class="wip">в разработке</span>' : ''}</div>
-    <div class="side">
-      <span class="chip">${c.status}</span>
-      ${c.url ? `<a class="site" href="${c.url}" ${linkAttrs(c)}><i>Сайт ↗</i></a>` : ''}
-      ${c.wip ? `<span class="arrow lock" title="В разработке"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg></span>` : `<span class="arrow"><i>↗</i></span>`}
-    </div>
-  </article>`;
-}
-
-/* Всё движение колоды считается в одном цикле:
-   pos — сколько карточек пролистано (плавно догоняет target),
-   у каждой карточки свои enter (подъём при появлении) и spread (раздвигание при наведении). */
-let pos = 0, target = 0, hovered = -1, state = [], vel = 0, wCur = 0;
-// у каждой карточки свой лёгкий поворот, как в референсе
-const TILT = [-1.6, 1.1, -0.7, 1.4, -1.2, 0.8];
-
-function geometry(){
-  const vw = innerWidth, vh = innerHeight, mobile = vw <= 760;
-  const few = Math.max(0, 4 - cards.length);   // 0 при 4+ карточках, 2 при двух
-  return {
-    vw, vh, mobile,
-    // чуть шире экрана, чтобы и задние, уменьшенные и наклонённые карточки доходили до краёв
-    w: vw*1.1,
-    h: vh*.86,
-    // чем меньше карточек, тем ниже начинается колода и тем шире полоса у каждой
-    peek: (mobile ? 74 : Math.max(82, Math.min(112, vh*.11))) * (1 + few*.4),
-    top: mobile ? Math.max(170, vh*(.30 + few*.05)) : Math.max(260, vh*(.42 + few*.06)),
-    few,
-  };
-}
-const easeOut = k => 1 - Math.pow(1-k, 3);
-// версия раскладки названий: меняется при ресайзе, смене шрифта или выравнивания — тогда их положение пересчитывается
-let layoutVer = 0;
-const bumpLayout = ()=>{ layoutVer++; };
-addEventListener('resize', bumpLayout);
-document.fonts.addEventListener?.('loadingdone', bumpLayout);
-// если в системе включено «уменьшить движение» — без веера, наклона и изгиба
-const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- рыбий глаз на логотипе ----------
    Круглая линза ездит за курсором. Внутри радиуса R точка берёт картинку из c + (p − c)·(1 − k·(1 − r²)):
@@ -555,279 +451,302 @@ function fisheye(el, id, k){
   build();
 }
 
-function frame(now){
-  const g = geometry();
-  wCur = wCur ? wCur + (g.w - wCur)*.14 : g.w;
-  deck.style.setProperty('--w', wCur.toFixed(1)+'px');
-  deck.style.setProperty('--inset', Math.max(0, (wCur - g.vw)/2).toFixed(1)+'px');
-  deck.style.setProperty('--h', g.h+'px');
-  deck.style.setProperty('--peek', g.peek.toFixed(1)+'px');
-  const prev = pos;
-  pos += (target - pos) * .12;
-  vel += ((pos - prev) - vel) * .2;
-  if(Math.abs(target-pos) < .001) pos = target;
+function visible(){ return CASES; }
+function linkAttrs(c){ return /^https?:/.test(c.url) ? 'target="_blank" rel="noopener"' : 'target="_blank"'; }
+const lockSVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>';
+// проект в разработке: вместо картинок — цвет проекта и надпись
+const wipCover = c => `<div class="wip-cover" style="background:${c.color}"><span>В разработке</span></div>`;
 
-  // какая карточка сейчас раскрывается в кейс и насколько (значения прошлого кадра)
-  let openI = -1, openEx = 0;
-  state.forEach((st,i)=>{ if((st.exp||0) > openEx){ openEx = st.exp; openI = i; } });
-  // на время раскрытия колода поднимается над шапкой, чтобы карточка закрыла весь экран
-  const dz = openEx > .001 ? '26' : '';
-  if(deck.style.zIndex !== dz) deck.style.zIndex = dz;
-
-  cards.forEach((el,i)=>{
-    const st = state[i];
-    // появление: все карточки одновременно стартуют от нижнего края и веером расходятся по местам
-    const k = REDUCED ? 1 : Math.min(1, Math.max(0, (now - st.t0) / 1100));
-    const e = st.dir > 0 ? easeOut(k) : 1 - easeOut(k);
-    // наведение: карточка под курсором поднимается, нижние слегка отъезжают
-    st.spread += (((hovered > -1 && i > hovered) ? 1 : 0) - st.spread) * .12;
-    st.lift += ((i===hovered ? 1 : 0) - st.lift) * .12;
-    // раскрытие в кейс
-    st.exp += (st.expT - st.exp) * .14;
-    if(Math.abs(st.expT - st.exp) < .002) st.exp = st.expT;
-    const x = st.exp*st.exp*(3 - 2*st.exp);
-
-    const d = i - pos;
-    let y, s, o = 1;
-    if(d >= 0){
-      y = g.top + d*g.peek;
-      // задние карточки чуть уже передних; когда карточек мало, почти не сужаются
-      s = 1 - (.05 - g.few*.02) * Math.max(0, 1 - d/2);
+/* ---------- лента проектов ---------- */
+let pvIdx = -1, pvBusy = false;
+const PV_DUR = 7000;      // сколько проект на экране до автосмены
+const PV_T = 1300;        // длительность перехода — спокойная
+const PV_EASE = 'cubic-bezier(.76,0,.2,1)';   // мягкий разгон и долгое торможение
+// картинка проекта в ленте: обложка, если есть, иначе первый кадр
+const pvSrc = c => c.cover || (c.slides && c.slides[0]) || c.img;
+// для миниатюр и карточек — готовая картинка, где экран устройства уже заполнен
+const thumbSrc = c => c.thumb || pvSrc(c);
+const introHTML = ()=>`<div class="intro-in">
+  <figure class="intro-photo"><img src="assets/me.webp" alt="Алиса Брюква"></figure>
+  <p class="intro-lead">Привет! Меня зовут Алиса — я&nbsp;мультидисциплинарный дизайнер. Создаю фирменные стили, digital-интерфейсы и&nbsp;визуальные концепции.</p>
+  <div class="intro-contacts">
+    <a class="contact" href="https://t.me/brukwa" target="_blank" rel="noopener"><span>Telegram</span><b>@brukwa ↗</b></a>
+    <a class="contact" href="https://himki.hh.ru/resume/be003531ff079394cd0039ed1f4b7554794a5a" target="_blank" rel="noopener"><span>Резюме</span><b>hh.ru ↗</b></a>
+  </div>
+  <button class="intro-go" data-go>Работы ↓</button>
+</div>`;
+// start: -1 — первый экран «кто я», 0… — проект
+function renderPreview(start = -1){
+  const list = visible();
+  $('#pvThumbs').innerHTML = list.map((c,i)=>`<button class="pv-thumb" data-i="${i}" style="--c:${c.color}" aria-label="${c.name}">
+    <span class="ph">${c.wip ? lockSVG : `<img src="${thumbSrc(c)}" alt="">`}</span>
+    <span class="cap"><b>${c.name}</b><i>${c.kind[0].toUpperCase() + c.kind.slice(1)}${c.wip ? ' · в разработке' : ''}</i></span>
+  </button>`).join('');
+  // клик по мини-карточке — сразу внутрь кейса (лента под ним переходит на этот проект); проект в разработке — только показываем
+  $('#pvThumbs').querySelectorAll('.pv-thumb').forEach(b=>b.addEventListener('click', e=>{
+    e.stopPropagation();
+    const i = +b.dataset.i, c = visible()[i];
+    if(c.wip) return pvShow(i);
+    if(i !== pvIdx){ pvBusy = false; pvShow(i, true); }
+    openCase(i);
+  }));
+  $('#pvStage').innerHTML = '';
+  pvIdx = -2; pvBusy = false;
+  pvShow(start, true);
+}
+function pvShow(i, instant, dir){
+  const list = visible(), intro = i === -1, c = intro ? null : list[i];
+  if((!intro && !c) || i === pvIdx || (pvBusy && !instant)) return;
+  const fwd = dir || (i > pvIdx ? 1 : -1);
+  pvIdx = i;
+  const stage = $('#pvStage');
+  const old = stage.querySelector('.pv-slide.cur');
+  const sl = document.createElement('div');
+  if(intro){
+    sl.className = 'pv-slide intro'; sl.style.background = 'var(--bg)';
+    sl.innerHTML = introHTML();
+    sl.querySelector('[data-go]').addEventListener('click', e=>{ e.stopPropagation(); pvStep(1); });
+  } else {
+    sl.className = 'pv-slide'; sl.style.background = '#0d0d0e'; sl.dataset.i = i;
+    sl.innerHTML = `<div class="pv-hero"><h2 class="pv-title">${c.name}</h2>${factsHTML(c)}</div>${picHTML(c, i)}`;
+  }
+  if(c && c.device) requestAnimationFrame(()=>placeDevice(sl.querySelector('.pv-pic'), c));
+  const theme = ()=>{
+    document.body.classList.toggle('on-intro', intro);
+    document.body.classList.toggle('on-work', !intro);      // на проектах у шапки — размытая плашка
+  };
+  if(instant || !old){
+    stage.innerHTML = ''; stage.append(sl);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>sl.classList.add('cur')));
+    theme();
+  } else {
+    // кинетика: вперёд новый выезжает снизу и накрывает текущий, а текущий проваливается вглубь —
+    // чуть вверх, меньше и темнее; картинка в новом едет медленнее карточки и доезжает с запаздыванием.
+    // Назад — зеркально: верхний уезжает вниз, лежащий под ним поднимается из глубины.
+    pvBusy = true;
+    const T = PV_T, E = PV_EASE;
+    const DEEP = 'translateY(-6%) scale(.965)', DIM = 'brightness(.72)', LAG = 'translateY(-16%) scale(1.12)';
+    const pic = el => el.querySelector(':scope > img, :scope > .pv-pic, :scope > .wip-cover, :scope > .intro-in');
+    if(fwd > 0){
+      sl.style.transform = 'translateY(100%)';
+      if(pic(sl)) pic(sl).style.transform = LAG;
+      stage.append(sl); old.classList.add('flat');
     } else {
-      // пролистанные уходят назад и вверх, в стопку под логотипом
-      y = g.top + d*16;
-      s = .95 + d*.04;
-      o = Math.max(0, 1 + d*.45);
+      sl.classList.add('cur'); sl.style.transform = DEEP; sl.style.filter = DIM;
+      stage.insertBefore(sl, old);
     }
-    const start = g.vh * 1.04;
-    // положение без наведения — по нему ставим названия
-    st.by = y*e + start*(1 - e);
-    st.d = d;
-    y += st.spread * g.peek * 1.3 - st.lift * g.peek * .32;
-    y = y*e + start*(1 - e);
-    // карточки под раскрывающейся уезжают вниз
-    if(openI > -1 && i > openI) y += openEx * g.vh * .7;
-    // перспектива: низ карточки ближе к зрителю; при наведении выпрямляется, при прокрутке гнётся
-    let rx = REDUCED ? 0 : -11 + st.lift*7 - vel*60;
-    let rz = REDUCED ? 0 : TILT[i % TILT.length]*(1 - st.lift*.8) + vel*18*(i%2 ? 1 : -1);
-    // раскрытие: карточка едет вверх, выпрямляется и растягивается на весь экран
-    if(x > 0){ y *= (1 - x); rx *= (1 - x); rz *= (1 - x); s += (1 - s)*x; }
-    const sz = x > 0 ? `${(wCur + (g.vw - wCur)*x).toFixed(1)}|${(g.h + (g.vh - g.h)*x).toFixed(1)}|${(1-x).toFixed(3)}` : '';
-    if(sz !== st.sz){
-      const skin = (st.skin ||= el.querySelector('.skin'));
-      if(sz){
-        const [w, h, r] = sz.split('|');
-        el.style.width = w+'px'; el.style.height = h+'px'; el.style.marginLeft = (-w/2)+'px';
-        skin.style.borderRadius = `calc(var(--radius) * ${r})`;
-        el.style.zIndex = 100; el.classList.add('expanding');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      const go = (el, tf, extra = '')=>{ el.style.transition = `transform ${T}ms ${E}, filter ${T}ms ${E}${extra}`; el.style.transform = tf; };
+      const picGo = (el, tf)=>{ const im = pic(el); if(im){ im.style.transition = `transform ${T*1.15}ms ${E}`; im.style.transform = tf; } };
+      if(fwd > 0){
+        go(sl, 'translateY(0)', `, border-radius .45s var(--ease) ${T*.62}ms`); picGo(sl, 'none');
+        go(old, DEEP); old.style.filter = DIM;
       } else {
-        el.style.width = el.style.height = el.style.marginLeft = el.style.zIndex = skin.style.borderRadius = '';
-        el.classList.remove('expanding');
+        go(old, 'translateY(100%)', ', border-radius .3s var(--ease)'); picGo(old, LAG);
+        go(sl, 'none'); sl.style.filter = 'none';
       }
-      st.sz = sz;
+      old.classList.remove('cur'); sl.classList.add('cur');
+    }));
+    setTimeout(theme, PV_T * .3);                          // шапка уезжает / возвращается, плашка появляется
+    setTimeout(()=>{ old.remove(); pvBusy = false; }, PV_T + 120);
+  }
+  const pr = $('#pvProg');
+  pr.classList.remove('run'); void pr.offsetWidth;
+  if(intro) return;                                        // на первом экране автосмены нет
+  const meta = $('#pvMeta');
+  meta.innerHTML = `<b>${c.name}</b><span>${c.kind[0].toUpperCase() + c.kind.slice(1)} · ${c.status}</span>`;
+  meta.classList.remove('roll'); void meta.offsetWidth; meta.classList.add('roll');
+  $('#pvOpen').innerHTML = c.wip ? lockSVG : '↗';
+  $('#pvThumbs').querySelectorAll('.pv-thumb').forEach(b=>b.classList.toggle('on', +b.dataset.i === i));
+  // прогресс внизу плашки; когда дойдёт до конца — следующий проект
+  pr.style.setProperty('--pvdur', PV_DUR + 'ms'); pr.classList.add('run');
+}
+const cap = t => t[0].toUpperCase() + t.slice(1);
+const factsHTML = c => `<div class="pv-facts">
+  <div><b>Тип проекта</b><span>${cap(c.kind)}</span></div>
+  <div><b>Статус</b><span>${c.status}</span></div>
+  <div><b>Что делала</b><span>${c.role}</span></div></div>`;
+// обложка проекта: картинка (и экран устройства с живым сайтом, если он есть)
+const picHTML = (c, i) => `<div class="pv-pic" data-i="${i}">${
+  c.wip ? wipCover(c)
+  : `<img class="cover" src="${pvSrc(c)}" alt="${c.name}" style="object-position:${c.cover ? 'center' : 'center top'}">${
+      c.device ? `<div class="pv-device"><iframe src="${c.device.src}" title="${c.name} — живой сайт" loading="eager"></iframe><i class="cam"></i><i class="glare"></i></div>` : ''}`
+}</div>`;
+/* экран устройства на обложке: та же математика, что у object-fit: cover — масштаб по большей стороне, центр */
+function placeDevice(box0, c){
+  const sl = box0;
+  const W = sl.clientWidth, H = sl.clientHeight;
+  const [iw, ih] = c.device.img, [x, y, w, h] = c.device.rect;
+  const k = Math.max(W/iw, H/ih), ox = (W - iw*k)/2, oy = (H - ih*k)/2;
+  const box = { left: ox + x*k, top: oy + y*k, width: w*k, height: h*k };
+  const dev = sl.querySelector('.pv-device');
+  [dev].forEach(el=>Object.assign(el.style, { left: box.left+'px', top: box.top+'px', width: box.width+'px', height: box.height+'px' }));
+  // сайт внутри рисуется в ширину 1440 и уменьшается под экран
+  const bz = Math.max(2, Math.round(box.width * .006)), inner = box.width - bz*2, vw = 1440;
+  dev.style.setProperty('--bz', bz + 'px'); dev.style.setProperty('--dr', Math.round(box.width*.012) + 'px');
+  const f = dev.querySelector('iframe');
+  f.style.width = vw + 'px'; f.style.height = Math.round((box.height - bz*2) * vw / inner) + 'px';
+  f.style.transform = `scale(${inner / vw})`;
+}
+addEventListener('resize', ()=>{
+  document.querySelectorAll('.pv-pic[data-i]').forEach(el=>{
+    const c = visible()[+el.dataset.i]; if(c && c.device) placeDevice(el, c);
+  });
+});
+
+const pvStep = sg => {
+  const n = visible().length;
+  if(pvIdx === -1){ if(sg > 0) pvShow(0, false, 1); return; }
+  if(pvIdx === 0 && sg < 0) return pvShow(-1, false, -1);
+  pvShow((pvIdx + sg + n) % n, false, sg);
+};
+$('#pvProg').addEventListener('animationend', ()=>{ if(openIdx < 0 && pvIdx >= 0) pvStep(1); });
+const pvOpenCurrent = ()=>{ const c = pvIdx >= 0 && visible()[pvIdx]; if(c && !c.wip) openCase(pvIdx); };
+$('#pvStage').addEventListener('click', pvOpenCurrent);
+$('#pvOpen').addEventListener('click', e=>{ e.stopPropagation(); pvOpenCurrent(); });
+
+
+/* надпись «Смотреть» у курсора: над проектом — вместо стрелки, догоняет курсор с лёгкой задержкой */
+{
+  const tag = $('#ctag');
+  let tx = 0, ty = 0, x = 0, y = 0, raf = 0, shown = false;
+  const loop = ()=>{ x += (tx - x)*.22; y += (ty - y)*.22; tag.style.left = x + 'px'; tag.style.top = y + 'px';
+    raf = (Math.abs(tx - x) > .3 || Math.abs(ty - y) > .3) ? requestAnimationFrame(loop) : 0; };
+  addEventListener('mousemove', e=>{
+    const over = e.target.closest('#pvStage') && !e.target.closest('.pv-bar, .pv-device') && openIdx < 0 && pvIdx >= 0;
+    if(over){
+      const c = visible()[pvIdx];
+      tag.textContent = c && c.wip ? 'В разработке' : 'Смотреть';
+      if(!shown){ x = tx = e.clientX; y = ty = e.clientY; }
     }
-    // сдвиг — у всей карточки; наклон и уменьшение — только у фона, чтобы названия стояли ровно и на одной линии
-    const tf = `translate3d(0,${y.toFixed(1)}px,0)`;
-    const sk = `perspective(1500px) rotateX(${rx.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg) scale(${s.toFixed(4)})`;
-    if(sk !== st.sk){ (st.skin ||= el.querySelector('.skin')).style.transform = sk; st.sk = sk; }
-    st.rz = rz; st.y = y;
-    // пишем стиль только при изменении
-    if(tf !== st.tf){ el.style.transform = tf; st.tf = tf; }
-    const op = o.toFixed(3);
-    if(op !== st.op){ el.style.opacity = op; st.op = op; }
-    el.style.pointerEvents = o < .5 ? 'none' : '';
+    tx = e.clientX; ty = e.clientY;
+    if(over !== shown){ shown = over; tag.classList.toggle('on', over); document.body.classList.toggle('ctag-on', over); }
+    if(!raf) raf = requestAnimationFrame(loop);
   });
-
-  // название — у верхнего края своей полоски; наклон сдвигает край, поэтому поправка на него
-  cards.forEach((el,i)=>{
-    const st = state[i];
-    const lab = (st.label ||= el.querySelector('.label')), w = (st.word ||= el.querySelector('.word'));
-    // lx — горизонтальное расстояние от центра карточки (оси поворота) до середины названия
-    if(st.lxv !== layoutVer){ st.lxc = lab.offsetLeft + w.offsetLeft + w.offsetWidth/2; st.lxv = layoutVer; }
-    const lx = st.lxc - wCur/2;
-    const off = (lx*Math.sin(st.rz*Math.PI/180)).toFixed(1);
-    if(off !== st.lo){ lab.style.transform = `translateY(${off}px)`; st.lo = off; }
-    // названия проявляются, когда карточки встали; у пролистанной карточки сразу гаснут
-    const t = now - st.t0;
-    const le = st.dir > 0 ? Math.min(1, Math.max(0, (t - 650) / 450)) : Math.max(0, 1 - t/250);
-    const lop = ((st.d >= 0 ? 1 : Math.max(0, 1 + st.d*3)) * le).toFixed(3);
-    if(lop !== st.lop){ lab.style.opacity = lop; st.lop = lop; }
-  });
-  requestAnimationFrame(frame);
+  document.addEventListener('mouseleave', ()=>{ shown = false; tag.classList.remove('on'); document.body.classList.remove('ctag-on'); });
+  // при открытии кейса надпись сразу прячется
+  caseEl.addEventListener('transitionstart', ()=>{ if(openIdx > -1){ shown = false; tag.classList.remove('on'); document.body.classList.remove('ctag-on'); } });
 }
 
-function render(){
-  deck.innerHTML = visible().map(cardHTML).join('');
-  cards = [...deck.querySelectorAll('.card')];
-  const now = performance.now();
-  state = cards.map(()=>({ t0: now, dir: 1, spread: 0, lift: 0, exp: 0, expT: 0 }));
-  pos = target = 0; hovered = -1;
-  cards.forEach((el,i)=>{
-    el.addEventListener('mouseenter', ()=>{ if(!geometry().mobile) hovered = i; });
-    el.addEventListener('click', e=>{
-      if(e.target.closest('a')) return;
-      if(visible()[i].wip){ const l = el.querySelector('.lock'); l.classList.remove('shake'); void l.offsetWidth; l.classList.add('shake'); return; }
-      openCase(i);
-    });
-    // слайды: при наведении кадры по очереди проявляются из размытия, каждый новый — поверх предыдущего
-    const imgs = [...el.querySelectorAll('.slides img')];
-    if(imgs.length){
-      let timer = 0, k = -1, z = 1;
-      const step = ()=>{
-        const prev = imgs[k];
-        k = (k + 1) % imgs.length;
-        const im = imgs[k];
-        im.classList.remove('on'); im.style.zIndex = ++z; void im.offsetWidth; im.classList.add('on');
-        if(prev && prev !== im) setTimeout(()=>{ if(imgs[k] !== prev) prev.classList.remove('on'); }, 1000);
-      };
-      el.addEventListener('mouseenter', ()=>{ if(geometry().mobile) return; clearInterval(timer); k = -1; step(); timer = setInterval(step, 1800); });
-      el.addEventListener('mouseleave', ()=>{ clearInterval(timer); imgs.forEach(im=>im.classList.remove('on')); });
-    }
-    el.addEventListener('keydown', e=>{ if(e.key==='Enter') openCase(i); });
-  });
-}
-deck.addEventListener('mouseleave', ()=>{ hovered = -1; });
-
-/* прокрутка: колесо, тач, стрелки */
-function scrollBy(dy){
-  if(openIdx > -1 || busy || !cards.length || aboutOpen) return;
-  target = Math.min(cards.length-1, Math.max(0, target + dy));
-  if(target > .3) $('#hint').classList.add('is-hidden');
-}
-addEventListener('wheel', e=>{ scrollBy(e.deltaY / (geometry().peek*3.2)); }, { passive:true });
-let touchY = null, touchT = 0;
-addEventListener('touchstart', e=>{ touchY = e.touches[0].clientY; touchT = target; }, { passive:true });
-addEventListener('touchmove', e=>{
-  if(touchY===null || openIdx>-1) return;
-  target = touchT;
-  scrollBy((touchY - e.touches[0].clientY) / (geometry().peek*1.8));
+/* ---------- прокрутка, свайпы, клавиши ---------- */
+// колесо листает проекты по одному; в открытом кейсе прокрутка вверх возвращает к ленте
+let wheelAcc = 0, wheelT = 0, wheelMuteUntil = 0, lastWheel = 0, gestureFromTop = false;
+addEventListener('wheel', e=>{
+  clearTimeout(wheelT);
+  wheelAcc += e.deltaY;
+  wheelT = setTimeout(()=>{ wheelAcc = 0; }, 220);
+  if(openIdx > -1){
+    // закрываем только новым жестом вверх, начатым уже в самом верху: долистала до начала с разгона — кейс остаётся
+    const now = performance.now(), fresh = now - lastWheel > 260;
+    lastWheel = now;
+    if(fresh) gestureFromTop = caseScroll.scrollTop <= 0;
+    if(caseScroll.scrollTop > 0) gestureFromTop = false;
+    if(!gestureFromTop){ wheelAcc = 0; return; }
+    if(wheelAcc < -120){ wheelAcc = 0; closeCase(); wheelMuteUntil = now + 700; }
+    return;
+  }
+  // хвост инерции после закрытия кейса не листает ленту
+  if(performance.now() < wheelMuteUntil || pvBusy) return;
+  if(Math.abs(wheelAcc) > 60){ pvStep(Math.sign(wheelAcc)); wheelAcc = 0; wheelMuteUntil = performance.now() + PV_T; }
 }, { passive:true });
-addEventListener('touchend', ()=>{ touchY = null; target = Math.round(target); });
+let touchY = null, touchAtTop = false;
+addEventListener('touchstart', e=>{ touchY = e.touches[0].clientY; touchAtTop = caseScroll.scrollTop <= 0; }, { passive:true });
+addEventListener('touchmove', e=>{
+  if(touchY === null || openIdx < 0 || !touchAtTop) return;
+  // в кейсе свайп вниз тянет его за пальцем; дотянул — закрываем
+  const dy = Math.max(0, e.touches[0].clientY - touchY);
+  caseEl.style.transition = 'none';
+  caseEl.style.transform = `translateY(${(dy*.45).toFixed(1)}px)`;
+}, { passive:true });
+addEventListener('touchend', e=>{
+  if(touchY === null) return;
+  const dy = (e.changedTouches[0]?.clientY ?? touchY) - touchY;
+  touchY = null;
+  if(openIdx > -1){
+    caseEl.style.transition = ''; caseEl.style.transform = '';
+    if(touchAtTop && dy > 90) closeCase();
+    return;
+  }
+  if(Math.abs(dy) > 60) pvStep(dy < 0 ? 1 : -1);   // свайп вверх — следующий проект
+});
 addEventListener('keydown', e=>{
-  if(e.key==='ArrowDown' || e.key==='PageDown'){ scrollBy(1); target = Math.round(target); }
-  if(e.key==='ArrowUp' || e.key==='PageUp'){ scrollBy(-1); target = Math.round(target); }
+  if(e.key === 'Escape'){ closeCase(); return; }
+  if(openIdx > -1) return;
+  if(e.key === 'ArrowDown' || e.key === 'PageDown') pvStep(1);
+  if(e.key === 'ArrowUp' || e.key === 'PageUp') pvStep(-1);
 });
-// клик по пустому месту — колода плавно возвращается в исходное положение
-addEventListener('click', e=>{
-  if(openIdx > -1 || busy) return;
-  if(aboutOpen || e.target.closest('.card, .top, .fonts, .case, .about, a, button')) return;
-  target = 0; hovered = -1;
-});
-// после колеса докатываем до ближайшей карточки
-let snapTimer;
-addEventListener('wheel', ()=>{ clearTimeout(snapTimer); snapTimer = setTimeout(()=>{ target = Math.round(target); }, 160); }, { passive:true });
 
-function setFilter(f){
-  if(busy || openIdx > -1) return;
-  if(aboutOpen){ closeAbout(); if(f===filter) return; }
-  if(f===filter) f = 'all';
-  filter = f;
-  document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('is-active', b.dataset.filter===filter));
-  busy = true;
-  const now = performance.now();
-  state.forEach(st=>{ st.t0 = now; st.dir = -1; });
-  scramble(logo, 'BRUKWA');
-  setTimeout(()=>{ render(); busy = false; syncHash(); }, 650);
+// логотип — всегда на главную, к первому экрану: закрывает кейс и возвращает ленту в начало
+function goHome(){
+  if(openIdx > -1) closeCase();
+  if(pvIdx !== -1){ pvBusy = false; pvShow(-1, false, -1); } else wobble(22, 800);
 }
-document.querySelectorAll('[data-filter]').forEach(b=>{
-  b.querySelector('sup').textContent = CASES.filter(c=>c.type===b.dataset.filter).length;
-  b.addEventListener('click', ()=>setFilter(b.dataset.filter));
-});
-logo.addEventListener('click', ()=>{ if(aboutOpen) return closeAbout(); if(filter!=='all') setFilter('all'); else wobble(22, 800); });
+logo.addEventListener('click', goHome);
+logo.addEventListener('keydown', e=>{ if(e.key==='Enter') goHome(); });
+$('#caseLogo').addEventListener('click', goHome);
 
-/* ---------- обо мне и контакты ---------- */
-let aboutOpen = false;
-const aboutEl = $('#about');
-/* адрес страницы помнит, что открыто: обновление страницы возвращает туда же */
-let aboutPage = '';
+/* адрес страницы помнит открытый кейс: обновление страницы возвращает туда же */
 function syncHash(){
-  let h = '';
-  if(aboutOpen) h = aboutPage;
-  else if(openIdx > -1) h = 'case/' + visible()[openIdx].id;
-  else if(filter !== 'all') h = filter;
+  const h = openIdx > -1 ? 'case/' + visible()[openIdx].id : '';
   history.replaceState(null, '', h ? '#' + h : location.pathname + location.search);
 }
-function openAbout(page){
-  aboutOpen = true; aboutPage = page;
-  document.body.classList.add('about-on');
-  aboutEl.classList.add('is-open'); aboutEl.setAttribute('aria-hidden','false');
-  document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('is-active', b.dataset.page===page));
-  // «Обо мне» и «Контакты» — две разные страницы в одном слое; при смене содержимое заново проявляется
-  aboutEl.dataset.page = page;
-  const inner = aboutEl.querySelector('.about-in');
-  inner.classList.add('pre');
-  requestAnimationFrame(()=>requestAnimationFrame(()=>inner.classList.remove('pre')));
-  aboutEl.scrollTo({ top:0 });
-  syncHash();
-}
-function closeAbout(){
-  aboutOpen = false;
-  document.body.classList.remove('about-on');
-  aboutEl.classList.remove('is-open'); aboutEl.setAttribute('aria-hidden','true');
-  document.querySelectorAll('[data-page]').forEach(b=>b.classList.remove('is-active'));
-  syncHash();
-}
-document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click', ()=>{
-  if(openIdx > -1) closeCase();
-  if(aboutOpen && b.classList.contains('is-active')) return closeAbout();
-  openAbout(b.dataset.page);
-}));
-logo.addEventListener('keydown', e=>{ if(e.key==='Enter') logo.click(); });
 
-/* ---------- раскрытие кейса ---------- */
-function fillCase(c){
-  caseEl.classList.toggle('is-wip', !!c.wip);
-  $('#caseMedia').innerHTML = mediaHTML(c, true).replace('alt=""', `alt="${c.name}"`);
-  $('#caseWord').textContent = c.name;
-  $('#caseLine').textContent = c.line;
-  $('#caseFacts').innerHTML = `
-    <div><dt>Тип</dt><dd>${c.kind[0].toUpperCase() + c.kind.slice(1)}</dd></div>
-    <div><dt>Что делала</dt><dd>${c.role}</dd></div>
-    <div><dt>Статус</dt><dd>${c.status}</dd></div>
-    ${c.url ? `<a class="cta" href="${c.url}" ${linkAttrs(c)}>${c.urlLabel} ↗</a>`
-            : `<span class="cta muted">Кейс скоро</span>`}`;
-  scramble($('#caseLogo'), c.short);
+/* ---------- кейс ---------- */
+const caseScroll = $('#caseScroll');
+// подзаголовки и блоки проявляются, когда до них долистали
+const revealIO = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); }),
+  { root: caseScroll, threshold: .15 });
+const nextOpen = i => { const list = visible(); do { i = (i + 1) % list.length; } while(list[i].wip); return i; };
+function fillCase(i){
+  const c = visible()[i];
+  $('#caseTitle').textContent = c.name;
+  $('#caseFacts').outerHTML = factsHTML(c).replace('class="pv-facts"', 'class="pv-facts" id="caseFacts"');
+  $('#caseCover').innerHTML = picHTML(c, i);
+  if(c.device) requestAnimationFrame(()=>placeDevice($('#caseCover .pv-pic'), c));
+  const shots = [...(c.slides || []), ...(c.cover && c.img ? [c.img] : [])];
+  // тексты пока черновые — из того, что известно о проекте
+  $('#caseContent').innerHTML = `
+    <section class="cs reveal"><h3>Задача</h3><p>${c.line}</p></section>
+    <section class="cs reveal"><h3>Что делала</h3><p>${c.role}</p></section>
+    ${shots.length ? `<section class="cs reveal"><h3>Как выглядит</h3><div class="cs-gallery">${shots.map(src=>`<img class="reveal" src="${src}" alt="" loading="lazy">`).join('')}</div></section>` : ''}
+    ${c.url ? `<section class="cs reveal"><h3>Посмотреть</h3><a class="cta" href="${c.url}" ${linkAttrs(c)}>${c.urlLabel} ↗</a></section>` : ''}
+    <section class="cs-more reveal"><h3>Другие проекты</h3><div class="cs-cards">${
+      visible().map((o,j)=>j === i ? '' : `<button class="cs-card${o.wip ? ' wip' : ''}" data-i="${j}" style="--c:${o.color}">
+        <span class="ph">${o.wip ? lockSVG : `<img src="${thumbSrc(o)}" alt="" loading="lazy">`}</span>
+        <b>${o.name}</b><i>${cap(o.kind)}${o.wip ? ' · в разработке' : ''}</i></button>`).join('')
+    }</div></section>`;
+  $('#caseContent').querySelectorAll('.cs-card:not(.wip)').forEach(b=>b.addEventListener('click', ()=>switchCase(+b.dataset.i)));
+  $('#caseContent').querySelectorAll('.reveal').forEach(el=>revealIO.observe(el));
+  caseScroll.scrollTop = 0;
+  scramble($('#caseLogo'), 'BRUKWA');   // в шапке кейса — логотип, маленький, как на экранах проектов
 }
-
-let caseTimer = 0;
 function openCase(i){
-  if(busy || openIdx > -1) return;
-  openIdx = i; hovered = -1;
-  fillCase(visible()[i]);
-  state[i].expT = 1;
-  caseEl.classList.add('is-anim');
-  clearTimeout(caseTimer);
-  // содержимое кейса проявляется, когда карточка почти закрыла экран
-  caseTimer = setTimeout(()=>{ caseEl.classList.add('is-open'); caseEl.setAttribute('aria-hidden','false'); }, 620);
+  if(openIdx > -1) return;
+  openIdx = i;
+  fillCase(i);
+  caseEl.classList.add('is-open'); caseEl.setAttribute('aria-hidden','false');
   syncHash();
 }
 function closeCase(){
   if(openIdx < 0) return;
-  const i = openIdx;
   openIdx = -1;
-  clearTimeout(caseTimer);
-  caseEl.classList.remove('is-open');
-  caseEl.setAttribute('aria-hidden','true');
-  // когда содержимое погасло, карточка сворачивается обратно в колоду
-  caseTimer = setTimeout(()=>{ if(state[i]) state[i].expT = 0; caseEl.classList.remove('is-anim'); }, 380);
+  caseEl.classList.remove('is-open'); caseEl.setAttribute('aria-hidden','true');
   syncHash();
 }
-$('#back').addEventListener('click', closeCase);
-$('#next').addEventListener('click', ()=>{
-  const list = visible();
-  const old = openIdx;
-  openIdx = (openIdx+1) % list.length;
-  // под кейсом теперь раскрыта следующая карточка — в неё он и свернётся при закрытии
-  state[old].exp = state[old].expT = 0;
-  state[openIdx].exp = state[openIdx].expT = 1;
+// открыть другой кейс поверх текущего; лента под ним тоже переходит на этот проект
+function switchCase(j){
+  openIdx = j;
+  // лента под кейсом тоже переходит на этот проект — после закрытия окажемся на нём
+  pvBusy = false; pvShow(openIdx, true);
   caseEl.classList.remove('is-open');
-  setTimeout(()=>{ fillCase(list[openIdx]); caseEl.classList.add('is-open'); syncHash(); }, 280);
-});
-addEventListener('keydown', e=>{ if(e.key==='Escape'){ if(aboutOpen) closeAbout(); else closeCase(); } });
+  setTimeout(()=>{ fillCase(openIdx); caseEl.classList.add('is-open'); syncHash(); }, 320);
+}
+const goNextCase = ()=>switchCase(nextOpen(openIdx));
+$('#back').addEventListener('click', closeCase);
+$('#next').addEventListener('click', goNextCase);
 
-/* ---------- временный выбор шрифта названий ---------- */
+/* ---------- временный выбор шрифта ---------- */
 function setFont(b){
-  bumpLayout();
   document.documentElement.style.setProperty('--title-font', `"${b.dataset.font}"`);
   document.documentElement.style.setProperty('--title-weight', b.dataset.w);
   document.querySelectorAll('#fonts [data-font]').forEach(x=>x.classList.toggle('is-active', x===b));
@@ -840,18 +759,6 @@ function setFont(b){
   btns.forEach(b=>b.addEventListener('click', ()=>setFont(b)));
   setFont(btns.find(b=>b.dataset.font===saved) || btns[0]);
 }
-function setAlign(v){
-  bumpLayout();
-  document.body.classList.toggle('titles-center', v==='center');
-  document.querySelectorAll('#fonts [data-align]').forEach(x=>x.classList.toggle('is-active', x.dataset.align===v));
-  try { localStorage.setItem('brukwa-align', v); } catch(e) {}
-}
-{
-  let saved = 'left';
-  try { saved = localStorage.getItem('brukwa-align') || 'left'; } catch(e) {}
-  document.querySelectorAll('#fonts [data-align]').forEach(b=>b.addEventListener('click', ()=>setAlign(b.dataset.align)));
-  setAlign(saved);
-}
 
 /* ---------- старт ---------- */
 document.fonts.ready.then(()=>{
@@ -859,20 +766,14 @@ document.fonts.ready.then(()=>{
   fisheye(logo, 'fishLogo', .5);
   fisheye($('#caseLogo'), 'fishCase', .5);
   const h = decodeURIComponent(location.hash.slice(1));
-  if(h === 'apps' || h === 'landings'){
-    filter = h;
-    document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('is-active', b.dataset.filter===filter));
-  }
-  // картинки для наведения грузим и раскодируем заранее, в паузе после старта
-  const warm = ()=>CASES.flatMap(c=>c.slides||[]).forEach(src=>{ const im = new Image(); im.src = src; im.decode?.().catch(()=>{}); });
+  // кадры проектов грузим и раскодируем заранее, в паузе после старта
+  const warm = ()=>CASES.flatMap(c=>[pvSrc(c), c.img]).filter(Boolean).forEach(src=>{ const im = new Image(); im.src = src; im.decode?.().catch(()=>{}); });
   (window.requestIdleCallback || (f=>setTimeout(f, 1500)))(warm);
+  const ci = h.startsWith('case/') ? visible().findIndex(c=>c.id === h.slice(5)) : -1;
   setTimeout(()=>{
-    document.body.classList.add('ready'); render(); requestAnimationFrame(frame);
-    if(h === 'about' || h === 'contacts') openAbout(h);
-    else if(h.startsWith('case/')){
-      const i = visible().findIndex(c=>c.id === h.slice(5));
-      if(i > -1) setTimeout(()=>openCase(i), 1200);  // ждём, пока колода поднимется
-    }
+    document.body.classList.add('ready');
+    renderPreview(ci > -1 ? ci : -1);
+    if(ci > -1) setTimeout(()=>openCase(ci), 300);
   }, 450);
 });
 </script>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- иконка сайта: строчная b, тёмная плитка как логотип BRUKWA -->
+  <rect width="64" height="64" rx="16" fill="#141414"/>
+  <rect x="17" y="10" width="9" height="44" rx="1.5" fill="#ececea"/>
+  <circle cx="35" cy="39" r="11.5" fill="none" stroke="#ececea" stroke-width="9"/>
+</svg>
