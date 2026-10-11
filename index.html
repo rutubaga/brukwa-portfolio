@@ -86,7 +86,7 @@
     opacity:0;visibility:hidden;transition:opacity .4s, visibility 0s .4s}
   .case.is-open{opacity:1;visibility:visible;transition:opacity .4s}
   .case-scroll{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain}
-  .case-first{position:relative;height:100vh}
+  .case-first{position:relative;height:100vh;background:#0d0d0e}
   .case-cover{position:absolute;overflow:hidden}
   .case .pv-hero > *{opacity:1;transform:none}
   .case-content{padding:110px 36px 120px;display:grid;gap:96px}
@@ -199,6 +199,9 @@
   .pv-pic{position:absolute;inset:0;transform:scale(1.06);transition:transform 1.8s cubic-bezier(.2,.8,.2,1)}
   .pv-slide.cur > .pv-pic{transform:scale(1)}
   .pv-pic > .cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+  /* живая обложка (блистер Impre) проявляется поверх своего же кадра, когда загрузится */
+  .pv-pic > .cover-live{position:absolute;inset:0;width:100%;height:100%;border:0;opacity:0;transition:opacity .8s;pointer-events:none}
+  .pv-pic > .cover-live.on{opacity:1}
   /* CSS-экран ноутбука: тонкая рамка, «чёлка» с камерой, лёгкий блик; внутри — живой сайт */
   .pv-device{position:absolute;overflow:hidden;background:#000;border-radius:var(--dr,10px);
     box-shadow:inset 0 0 0 var(--bz,3px) #0a0a0b}
@@ -330,6 +333,694 @@
     .case-bar.on{transform:translate(0,-50%)}
   }
 
+  /* =====================================================================
+     v2 — исправления после аудита и свои раскладки для каждого кейса.
+     Стиль сайта тот же; меняется только то, как устроена страница кейса.
+     ===================================================================== */
+
+  /* логотип на экранах проектов уходит в левую тёмную колонку, а не висит над обложкой */
+  .top .logo{transform-origin:0 0}
+  body.on-work .top .logo{transform:translate(var(--lx,0px), var(--ly,-8px)) scale(.32)}
+
+  /* над названием — номер и направление: видно, где я и сколько всего */
+  .pv-eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:18px}
+  .pv-eyebrow b{font-weight:400;color:#fff}
+  .pv-title{overflow-wrap:normal}
+
+  /* разделитель продукт / коммуникации в плашке */
+  .pv-sep{flex:none;display:block;background:rgba(255,255,255,.22)}
+  @media (min-width:761px){
+    .pv-sep{width:22px;height:1px;margin:4px 8px 4px auto}
+    .pv-thumb .ph,.pv-bar:hover .pv-thumb .ph{width:32px;height:32px;border-radius:9px}
+    .pv-thumbs{gap:5px}
+    .pv-open{width:32px;height:32px;border-radius:9px}
+  }
+  /* автосмена выключается после первого ручного перелистывания — прогресс тогда не нужен */
+  body.no-auto .pv-progress{display:none}
+
+  /* ---------- шапка кейса: логотип слева, навигация справа; после первого экрана — плашка цвета кейса ---------- */
+  .case{--cbg:#0d0d0e;--cink:#fff;--cmute:rgba(255,255,255,.55);--cline:rgba(255,255,255,.14);--ccard:#18181a;--cacc:#fff;--cacc-ink:#111}
+  .case-top{display:flex;justify-content:space-between;align-items:center;padding:18px 36px;
+    transition:background .35s, color .35s, transform .45s var(--ease), box-shadow .35s}
+  .case-top .logo{font-size:25px;color:inherit}
+  .case-top nav{display:flex;gap:22px;padding:9px 16px;border-radius:99px;background:rgba(13,13,14,.82);color:#fff}
+  .case-top.past nav{background:none;color:inherit;padding:9px 0}
+  .case-top nav button{white-space:nowrap}
+  @media (max-width:760px){ .case-top .nx-name{display:none} }
+  .case-top.scrolled{background:#0d0d0e}
+  .case-top.past{background:var(--cbg);color:var(--cink);box-shadow:0 1px 0 var(--cline)}
+  .case-top.hide{transform:translateY(-100%)}
+
+  /* первый экран кейса: та же колонка, что в ленте, но с вводной фразой и подсказкой листать */
+  .case .pv-hero{padding-bottom:40px}
+  .case-lead{font-size:17px;line-height:1.45;color:rgba(255,255,255,.72);max-width:34ch;margin-top:26px}
+  .case-hint{display:flex;align-items:center;gap:18px;margin-top:30px;font-size:13px;color:rgba(255,255,255,.5)}
+  .case-hint .cta{padding:11px 18px;font-size:13px}
+  .case-hint span{animation:bob 2.4s ease-in-out infinite}
+
+  /* ---------- контент кейса: цвета берутся из темы кейса ---------- */
+  .case-content{--pl:36px;--pr:36px;grid-template-columns:minmax(0,1fr);background:var(--cbg);color:var(--cink);gap:clamp(48px,5.5vw,76px);padding:76px var(--pr) 110px var(--pl)}
+  .case-scroll{background:var(--cbg)}
+  .cs h3,.b-head h3,.b-stagger h3,h3.eb{font-weight:400;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--cmute)}
+  .case-content .cs{grid-template-columns:1fr;gap:12px}
+  .cs p{max-width:34ch}
+  .cta{background:var(--cacc);color:var(--cacc-ink)}
+  .b-head{display:grid;gap:10px;margin-bottom:22px;max-width:760px}
+  .b-head h3{padding-top:0}
+  .b-head p{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);font-size:clamp(19px,1.5vw,24px);line-height:1.3;max-width:44ch}
+  .b-media{display:block;width:100%;border-radius:28px;overflow:hidden;background:var(--ccard)}
+  .b-media img{display:block;width:100%;height:auto}
+
+  /* ключевые факты — рамка с пунктами, как карточка продукта */
+  .b-kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px 28px;padding-top:20px;border-top:1px solid var(--cline);margin-top:-20px}
+  .b-kv > div{padding:0}
+  .b-kv span{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--cmute);margin-bottom:6px}
+  .b-kv span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--cacc)}
+  .b-kv b{display:block;font-weight:400;font-size:15px;line-height:1.4}
+
+  /* начало кейса: слева задача, справа факты, внизу этапы — одна карточка */
+  .b-intro{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:30px clamp(30px,5vw,80px);
+    padding:clamp(26px,3.2vw,46px);border-radius:28px;background:var(--ccard)}
+  .b-intro .ld p{margin-top:14px;font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);
+    font-size:clamp(22px,2.1vw,32px);line-height:1.22;letter-spacing:-.01em;max-width:30ch}
+  .b-intro dl{display:grid;align-content:start}
+  .b-intro dl div{padding:13px 0;border-top:1px solid var(--cline)}
+  .b-intro dl div:first-child{border-top:0;padding-top:2px}
+  .b-intro dt{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--cmute)}
+  .b-intro dd{margin-top:5px;font-size:15px;line-height:1.4}
+  .b-intro .proc{grid-column:1/-1;padding-top:22px;border-top:1px solid var(--cline)}
+  .b-intro .proc .b-chips{margin-top:12px}
+  @media (max-width:760px){ .b-intro{grid-template-columns:1fr;gap:20px;border-radius:22px} }
+
+  /* этапы работы — пронумерованные строки */
+  .b-chips{list-style:none;display:flex;flex-wrap:wrap;gap:8px 0;font-size:15px}
+  .b-chips li{display:flex;gap:7px;align-items:baseline}
+  .b-chips li + li::before{content:"→";margin:0 14px;color:var(--cmute)}
+  .b-chips i{font-style:normal;font-size:11px;color:var(--cacc)}
+
+  /* решения: номер, короткий заголовок, объяснение «почему» */
+  .b-steps{list-style:none;display:grid}
+  .b-steps li{display:grid;grid-template-columns:56px minmax(0,1fr) minmax(0,1.4fr);gap:24px;padding:16px 0;border-top:1px solid var(--cline);align-items:baseline}
+  .b-steps li:last-child{border-bottom:1px solid var(--cline)}
+  .b-steps i{font-style:normal;font-size:13px;color:var(--cacc)}
+  .b-steps b{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);font-size:clamp(18px,1.5vw,22px);line-height:1.2}
+  .b-steps span{font-size:15px;line-height:1.5;color:var(--cmute)}
+
+  /* лесенка: большая карточка с картинкой и короткий текст напротив, через ряд — зеркально */
+  .b-stagger{display:grid;gap:clamp(36px,4vw,56px)}
+  .b-stagger .row{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:24px;align-items:center}
+  .b-stagger .m{grid-column:1 / span 7}
+  .b-stagger .m.s{grid-column:1 / span 5}
+  .b-stagger .t{grid-column:8 / span 5}
+  .b-stagger .row.flip .m{grid-column:6 / span 7;grid-row:1}
+  .b-stagger .row.flip .m.s{grid-column:8 / span 5}
+  .b-stagger .row.flip .t{grid-column:1 / span 5;grid-row:1}
+  .b-stagger .t p{margin-top:12px;font-size:17px;line-height:1.5;max-width:36ch}
+
+  .b-stagger .t .cta{margin-top:22px}
+
+  /* окно браузера и телефон: внутри живой сайт (на компьютере) или снимок; длинный снимок медленно листается */
+  .b-browser .frame{max-width:960px;margin:0 auto;border-radius:18px;overflow:hidden;background:var(--ccard);box-shadow:0 0 0 1px var(--cline),0 40px 80px -50px rgba(0,0,0,.6)}
+  .b-browser .b-head{max-width:960px;margin-left:auto;margin-right:auto}
+  .b-browser .bar{display:flex;align-items:center;gap:7px;height:40px;padding:0 16px;font-size:12px;color:var(--cmute)}
+  .b-browser .bar i{width:10px;height:10px;border-radius:50%;background:var(--cline)}
+  .b-browser .bar span{margin-left:12px}
+  .scr{position:relative;overflow:hidden;background:#0b0d12;container-type:size}
+  .b-browser .scr{aspect-ratio:16/10}
+  .scr > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0}
+  /* длинная страница: листается колесом или пальцем прямо внутри окна */
+  .scr.long{overflow-y:auto;overscroll-behavior:auto;container-type:normal;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.35) transparent}
+  .scr.long > img{position:static;display:block;width:100%;height:auto}
+  .b-browser .scr.long{aspect-ratio:auto;height:min(64vh,600px)}
+  .b-browser .bar .hint{margin-left:auto;font-size:12px;color:var(--cmute)}
+  .scr iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;z-index:1;opacity:0;transition:opacity .6s;background:#fff}
+  .scr iframe.on{opacity:1}
+  .scr .live{position:absolute;right:14px;bottom:14px;z-index:2;padding:6px 11px;border-radius:99px;background:rgba(0,0,0,.7);color:#fff;font-size:11px;letter-spacing:.06em;pointer-events:none;opacity:0;transition:opacity .4s}
+  .scr.is-live .live{opacity:1}
+  .b-phones .row{display:flex;justify-content:center;gap:clamp(14px,2.4vw,36px);flex-wrap:wrap}
+  .phone{width:min(300px,42vw);aspect-ratio:390/844;border-radius:46px;padding:10px;background:#0a0a0b;box-shadow:0 0 0 1px var(--cline),0 40px 90px -40px rgba(0,0,0,.6)}
+  .phone{aspect-ratio:auto !important}
+  .phone .scr{width:100%;height:auto;aspect-ratio:390/844;border-radius:36px}
+  .b-phones.wide .phone{width:min(220px,40vw)}
+  .ph-item{display:flex;flex-direction:column;align-items:center}
+  .pcap{margin-top:14px;max-width:24ch;text-align:center;font-size:13px;line-height:1.45;color:var(--cmute)}
+  .phone.story{aspect-ratio:auto}
+  .b-phones .phone.story{padding:0;background:none;box-shadow:0 30px 60px -36px rgba(0,0,0,.7);border-radius:18px}
+  .b-phones .phone.story .scr{border-radius:18px}
+  .b-phones .row:has(.story){display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+  .b-phones .row:has(.story) .phone.story{width:100%}
+  @media (max-width:760px){ .b-phones .row:has(.story){grid-template-columns:repeat(3,minmax(0,1fr));gap:8px} }
+  .phone.story .scr{height:auto;aspect-ratio:9/16}
+  .phone.story .scr > img{object-fit:cover !important}
+  /* рядом с телефоном — текст и размеры экранов */
+  .b-adapt{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(30px,6vw,90px);align-items:center}
+  .b-adapt .t p{margin-top:14px;font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);font-size:clamp(22px,2.2vw,34px);line-height:1.25;max-width:22ch}
+  .b-adapt ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+  .b-adapt li{padding:8px 14px;border-radius:99px;border:1px solid var(--cline);font-size:13px}
+
+  /* одна картинка; bleed — на всю ширину экрана */
+  .b-img .cap{margin-top:14px;font-size:13px;color:var(--cmute)}
+  .b-img.bleed{margin:0 calc(-1*var(--pr)) 0 calc(-1*var(--pl))}
+  .b-img.bleed .b-media{border-radius:0}
+  .b-img.bleed .b-head,.b-img.bleed .cap{padding:0 var(--pr) 0 var(--pl)}
+
+  /* сетки работ */
+  .b-grid .g{display:grid;grid-template-columns:repeat(var(--cols,3),minmax(0,1fr));gap:var(--gap,16px)}
+  .b-grid figure{position:relative;overflow:hidden;border-radius:var(--r,20px);background:var(--ccard)}
+  .b-grid figure img{display:block;width:100%;height:100%;object-fit:cover}
+  .b-grid.feed .g{max-width:760px;border-radius:20px;overflow:hidden}
+  /* превью видео: значок «play» по центру */
+  .b-grid.video figure::after{content:"";position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;
+    background:rgba(0,0,0,.55) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 7l9 5-9 5z' fill='white'/%3E%3C/svg%3E") center/26px no-repeat;
+    transition:transform .4s var(--ease)}
+  .b-grid.video figure:hover::after{transform:scale(1.12)}
+  /* постеры — на светлой «стене», с номером под каждым */
+  .b-grid.wall{margin:0 calc(-1*var(--pr)) 0 calc(-1*var(--pl));padding:clamp(40px,5vw,70px) var(--pr) clamp(40px,5vw,70px) var(--pl);background:#e9e6e0;color:#161616}
+  .b-grid.wall .b-head h3{color:rgba(0,0,0,.5)}
+  .b-grid.wall figure{border-radius:4px;box-shadow:0 30px 60px -30px rgba(0,0,0,.45);background:#fff}
+  .b-grid.wall .g{gap:clamp(20px,4vw,60px)}
+  .b-grid.wall .num{display:block;margin-top:12px;font-size:12px;color:rgba(0,0,0,.5)}
+
+  .b-grid.trio figure{aspect-ratio:1;background:#fff}
+  .b-grid.trio figure img{object-fit:contain;padding:6%}
+  .b-duo .g{display:grid;grid-template-columns:1fr 1fr;gap:clamp(16px,2vw,28px);align-items:start}
+  .b-duo .b-media{border-radius:22px}
+  .b-duo h3{margin-top:16px}
+  .b-duo p{margin-top:6px;font-size:15px;line-height:1.5;color:var(--cmute);max-width:44ch}
+  .b-duo.three .g{grid-template-columns:repeat(3,1fr)}
+  @media (max-width:760px){ .b-duo .g,.b-duo.three .g{grid-template-columns:1fr} }
+  /* ===== Revnikoff: страница по кейсу — хром, стекло, движение ===== */
+  .b-bleed,.b-chrome,.b-lap,.b-adapt,.b-bars,.b-pair,.b-glow,.b-drift{margin-left:calc(-1*var(--pl));margin-right:calc(-1*var(--pr))}
+  .tag{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--cmute)}
+  .tag::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+  /* обложка: стеклянные сферы и лёгкий параллакс */
+  .rv-cover img.cover{transform:translate(calc(var(--px,0)*-14px),calc(var(--py,0)*-10px)) scale(1.05);transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+  .rv-orbs{position:absolute;inset:0;pointer-events:none}
+  .rv-orb{position:absolute;left:var(--x);top:var(--y);width:clamp(112px,11vw,176px);height:auto;
+    translate:calc(var(--px,0)*var(--d)*46px) calc(var(--py,0)*var(--d)*36px);transition:translate .9s cubic-bezier(.2,.8,.2,1);
+    animation:orb 8s ease-in-out infinite;animation-delay:var(--dl);filter:drop-shadow(0 24px 30px rgba(0,0,0,.55))}
+  @keyframes orb{50%{transform:translateY(-14px)}}
+  @media (max-width:760px){ .rv-orb{width:92px} }
+  /* процесс на хромированных полосах */
+  .b-chrome{display:grid;gap:22px}
+  .b-chrome .b-head{padding:0 var(--pr) 0 var(--pl)}
+  .b-rows{display:grid}
+  .b-rows i{display:block;height:var(--rh,40px);background:var(--bg) center/cover no-repeat;opacity:0;transform:translateX(-3%);
+    transition:opacity .7s calc(var(--i)*80ms),transform 1s cubic-bezier(.2,.8,.2,1) calc(var(--i)*80ms)}
+  .reveal.in .b-rows i{opacity:1;transform:none}
+  .b-bars .b-rows{--rh:76px}
+  @media (max-width:760px){ .b-rows{--rh:30px} .b-bars .b-rows{--rh:46px} }
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  /* сколько экранов: схема контурами */
+  .b-screens{display:grid;gap:28px}
+  .b-screens .total{display:flex;align-items:baseline;gap:14px}
+  .b-screens .total b{font-size:clamp(56px,7vw,110px);font-weight:300;line-height:.9;letter-spacing:-.03em}
+  .b-screens .total span{color:var(--cmute);font-size:15px}
+  .b-screens .row{display:grid;grid-template-columns:150px minmax(0,1fr);gap:20px;align-items:center;padding:18px 0;border-top:1px solid var(--cline)}
+  .b-screens .row p{font-size:14px;color:var(--cmute)}
+  .b-screens .row p b{display:block;color:var(--cink);font-size:22px;font-weight:400}
+  .b-screens .sh{display:flex;flex-wrap:wrap;gap:8px}
+  .b-screens .sh i{display:block;height:var(--h);aspect-ratio:var(--a);border:1px solid rgba(255,255,255,.32);border-radius:3px;
+    background:linear-gradient(rgba(255,255,255,.14),rgba(255,255,255,.14)) 0 0/100% 14% no-repeat;opacity:0;transition:opacity .5s calc(var(--k)*25ms)}
+  .b-screens.in .sh i{opacity:1}
+  @media (max-width:760px){ .b-screens .row{grid-template-columns:1fr;gap:10px} }
+  /* окно с прокруткой поверх картинки */
+  .b-win{position:relative;margin-left:calc(-1*var(--pl));margin-right:calc(-1*var(--pr));overflow:hidden}
+  .b-win .tag{position:absolute;z-index:2;left:var(--pl);top:22px;color:rgba(255,255,255,.75)}
+  .b-win .st{position:relative}
+  .b-win .st > img{display:block;width:100%;height:auto}
+  .b-win .win{position:absolute;left:var(--l);top:var(--t);width:var(--w);bottom:0;overflow:hidden;border-radius:10px 10px 0 0;box-shadow:0 30px 80px -20px rgba(0,0,0,.7)}
+  .b-win .win img{display:block;width:100%;height:auto;animation:winScroll 46s cubic-bezier(.45,0,.55,1) infinite alternate;animation-play-state:paused}
+  .b-win.in .win img{animation-play-state:running}
+  .b-win .win:hover img{animation-play-state:paused}
+  @keyframes winScroll{0%,5%{transform:translateY(0)}95%,100%{transform:translateY(var(--shift))}}
+  /* ноутбук: сайт прокручивается внутри экрана */
+  .b-lap{position:relative}
+  .b-lap .tag,.b-adapt .tag{position:absolute;z-index:2;left:var(--pl);top:22px;color:rgba(255,255,255,.7)}
+  .b-lap .lap{position:relative;background:#0b0b0b}
+  .b-lap .lap > img{display:block;width:100%;height:auto}
+  .b-lap .scr{position:absolute;left:20.104%;top:32.337%;width:61.302%;height:66.848%;overflow:hidden;border-radius:6px 6px 0 0;background:#fff}
+  .b-lap .scr img{display:block;width:100%;height:auto;animation:lapScroll 26s cubic-bezier(.45,0,.55,1) infinite alternate;animation-play-state:paused}
+  .b-lap.in .scr img{animation-play-state:running}
+  .b-lap .lap:hover .scr img{animation-play-state:paused}
+  @keyframes lapScroll{0%,6%{transform:translateY(0)}94%,100%{transform:translateY(-74.68%)}}
+  .b-lap .lap::after{content:'';position:absolute;left:12%;right:12%;bottom:0;height:1.4%;border-radius:0 0 14px 14px;background:linear-gradient(180deg,#9c9c9c,#e9e9e9 40%,#6a6a6a)}
+  .b-lap .hint{position:absolute;right:var(--pr);top:22px;font-size:12px;color:rgba(255,255,255,.5)}
+  /* адаптивы: телефоны парят вокруг сферы */
+  .b-adapt{position:relative;overflow:hidden;background:#000}
+  .b-adapt .st{position:relative}
+  .b-adapt .st > img.bg{display:block;width:100%;height:auto}
+  .b-adapt .ph{position:absolute;width:14.01%;filter:drop-shadow(0 30px 40px rgba(0,0,0,.6));animation:float 7s ease-in-out infinite}
+  .b-adapt .ph.p1{left:11.35%;top:38%}
+  .b-adapt .ph.p2{left:74.64%;top:26.93%;animation-duration:8.5s;animation-delay:-3s}
+  @keyframes float{50%{transform:translateY(-3.5%) rotate(-1.2deg)}}
+  /* пара кадров без зазора */
+  .b-pair{display:grid;grid-template-columns:1fr 1fr}
+  .b-pair figure{overflow:hidden}
+  .b-pair img{display:block;width:100%;height:100%;object-fit:cover;transition:transform 1.4s cubic-bezier(.2,.8,.2,1)}
+  .b-pair figure:hover img{transform:scale(1.03)}
+  @media (max-width:760px){ .b-pair{grid-template-columns:1fr} }
+  /* пакет: дышащий свет */
+  .b-glow figure{position:relative;overflow:hidden;background:#000}
+  .b-glow img{display:block;width:100%;height:auto;animation:breathe 9s ease-in-out infinite alternate}
+  .b-glow figure::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 34% 46% at 50% 44%,rgba(255,120,20,.55),transparent 70%);mix-blend-mode:screen;animation:glow 4.5s ease-in-out infinite alternate;pointer-events:none}
+  @keyframes breathe{to{transform:scale(1.045)}}
+  @keyframes glow{from{opacity:.15}to{opacity:.7}}
+  /* сторис: до / после шторкой */
+  @property --p{syntax:'<percentage>';inherits:true;initial-value:50%}
+  .b-ba .g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;max-width:980px}
+  .b-ba .cmp{position:relative;aspect-ratio:9/16;border-radius:14px;overflow:hidden;background:var(--ccard);cursor:ew-resize;touch-action:pan-y;
+}
+  .b-ba.in .cmp{animation:demo 2.6s cubic-bezier(.45,0,.55,1) 1 both;animation-delay:calc(.6s + var(--i)*.5s)}
+  .b-ba .cmp.man{animation:none}
+  .b-ba .cmp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .b-ba .bf{position:absolute;inset:0;clip-path:inset(0 calc(100% - var(--p)) 0 0)}
+  .b-ba .hd{position:absolute;top:0;bottom:0;left:var(--p);width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 12px rgba(0,0,0,.35)}
+  .b-ba .hd::after{content:'↔';position:absolute;top:50%;left:50%;width:30px;height:30px;margin:-15px;border-radius:50%;background:#fff;color:#111;display:grid;place-items:center;font-size:13px}
+  @keyframes demo{0%{--p:50%}35%{--p:22%}70%{--p:78%}100%{--p:50%}}
+  @media (max-width:760px){ .b-ba .g{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px} .b-ba .hd::after{width:22px;height:22px;margin:-11px;font-size:10px} }
+
+
+  /* лента, которую листают вбок */
+  .b-strip .g{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 calc(-1*var(--pr)) 0 calc(-1*var(--pl));padding:0 var(--pr) 14px var(--pl);scrollbar-width:thin}
+  .b-strip figure{flex:none;height:min(68vh,620px);scroll-snap-align:start;border-radius:22px;overflow:hidden;background:var(--ccard)}
+  .b-strip figure img{height:100%;width:auto;display:block}
+  .b-strip .hint{margin-top:10px;font-size:12px;color:var(--cmute)}
+
+  /* баннеры столбиком во всю ширину */
+  .b-stack .g{display:grid;gap:16px}
+  .b-stack figure{border-radius:20px;overflow:hidden}
+  .b-stack.two .g{display:block;columns:2;column-gap:16px}
+  .b-stack.two figure{break-inside:avoid;margin-bottom:16px;border-radius:16px}
+  @media (max-width:760px){ .b-stack.two .g{columns:1} }
+  .b-stack img{display:block;width:100%}
+
+  /* презентация: один большой слайд, переключение стрелками или кликом */
+  .deck .stage{position:relative;aspect-ratio:16/10;border-radius:24px;overflow:hidden;background:var(--ccard);cursor:pointer}
+  .deck .stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transform:scale(.98);transition:opacity .5s, transform .7s var(--ease)}
+  .deck .stage img.on{opacity:1;transform:none}
+  .deck .ctl{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:16px;font-size:13px;color:var(--cmute)}
+  .deck .ctl button{width:44px;height:44px;border-radius:50%;border:1px solid var(--cline);color:var(--cink)}
+  .deck .ctl button:hover{background:var(--ccard)}
+
+  /* палитра и шрифты */
+  .b-pal .sw{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px}
+  .b-pal .sw div{aspect-ratio:16/9;border-radius:24px;padding:22px;display:flex;flex-direction:column;justify-content:flex-end;font-size:13px;box-shadow:inset 0 0 0 1px var(--cline)}
+  .b-pal .sw b{font-weight:400;font-size:20px}
+  .b-pal .ty{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:16px}
+  .b-pal .ty div{padding:22px;border-radius:24px;background:var(--ccard)}
+  .b-pal .ty b{display:block;font-weight:400;font-size:20px}
+  .b-pal .ty span{display:block;margin-top:6px;font-size:13px;color:var(--cmute)}
+
+  /* ---------- конец кейса: большой «Следующий проект» и компактный список остальных ---------- */
+  .cs-more{border-top:0;padding-top:0}
+  .cs-next{position:relative;display:block;width:100%;height:min(52vh,480px);border-radius:32px;overflow:hidden;text-align:left;color:#fff;background:#111}
+  /* как экран ленты: слева тёмная колонка с названием, справа обложка */
+  .cs-next img{position:absolute;left:40%;top:0;right:0;bottom:0;width:60%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+  .cs-next .tx{right:auto !important;top:clamp(22px,3vw,36px);width:calc(40% - 2*clamp(22px,3vw,40px));flex-direction:column;align-items:flex-start !important;justify-content:space-between !important}
+  .cs-next:hover img{transform:scale(1.04)}
+  .cs-next .tx{position:absolute;left:clamp(22px,3vw,40px);right:clamp(22px,3vw,40px);bottom:clamp(22px,3vw,36px);z-index:1;display:flex;justify-content:space-between;align-items:flex-end;gap:20px}
+  .cs-next small{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.7;margin-bottom:10px}
+  .cs-next b{display:block;font-weight:var(--title-weight);font-family:var(--title-font),"Inter Tight",sans-serif;font-size:clamp(30px,3.6vw,60px);line-height:.98;letter-spacing:-.02em;overflow-wrap:anywhere}
+  .cs-next .go{flex:none;width:64px;height:64px;border-radius:50%;background:#fff;color:#111;display:grid;place-items:center;font-size:22px}
+  .cs-more h3{margin:48px 0 16px;color:var(--cmute)}
+  .cs-cards{display:flex;gap:14px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x proximity;scrollbar-width:thin}
+  .cs-cards .cs-card{flex:0 0 200px;scroll-snap-align:start}
+  .cs-cards .cs-group{display:none}
+  .cs-card{color:var(--cink)}
+  .cs-card .ph{aspect-ratio:4/3;border-radius:16px}
+  .cs-card b{font-size:16px;margin-top:10px}
+  .cs-card i{font-size:12px;color:var(--cmute)}
+  .cs-group{grid-column:1/-1;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--cmute);margin-top:18px}
+  .cs-group:first-child{margin-top:0}
+
+  /* ---------- телефон ---------- */
+  @media (max-width:760px){
+    body.on-work .top .logo{transform:translate(var(--lx,0px), var(--ly,-2px)) scale(.5)}
+    .pv-eyebrow{font-size:11px;margin-bottom:12px}
+    /* плашка: без миниатюр — название, номер и кнопка «открыть» во всю ширину */
+    .pv-bar,body:has(.fonts) .pv-bar{left:12px;right:12px;bottom:14px;transform:none;max-width:none;padding:8px 8px 8px 16px}
+    body.on-intro .pv-bar{transform:translateY(40px)}
+    .pv-bar .pv-thumbs,.pv-sep{display:none}
+    .pv-meta{flex:1;min-width:0}
+    .pv-meta b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pv-bar:hover{padding:8px 8px 8px 16px;gap:10px}
+    .pv-bar:hover .pv-meta{max-width:none;opacity:1;padding:0 6px 0 0}
+    .pv-open{width:44px;height:44px}
+    .pv-hero{height:46%;padding:84px 18px 18px}
+    .pv-slide:not(.intro) > .pv-pic,.case-cover{top:46%}
+    .case-bar{display:none}
+    .case-top{padding:14px 16px}
+    .case-top .logo{font-size:22px}
+    .case-top nav{gap:16px;font-size:13px}
+    .case .pv-hero{height:auto;min-height:46%;padding:70px 18px 22px}
+    .case-lead{font-size:15px;margin-top:14px}
+    .case-hint{margin-top:16px}
+    .b-head,.b-steps li{grid-template-columns:1fr;gap:10px}
+    .b-head{margin-bottom:22px}
+    .b-kv{grid-template-columns:1fr 1fr}
+    .b-browser .bar .hint{display:none}
+    .b-browser .bar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .b-chips{flex-direction:column;gap:6px}
+    .b-chips li + li::before{display:none}
+    .b-stagger .row,.b-stagger .row.flip{display:flex;flex-direction:column;align-items:stretch;gap:18px}
+    .b-adapt{grid-template-columns:1fr}
+    .b-adapt .phone{margin:0 auto}
+    .case-content{--pl:18px;--pr:18px}
+    .b-grid.wall{padding:44px 18px}
+    .b-strip figure{height:56vh}
+    .b-grid:not(.feed) .g{grid-template-columns:repeat(min(var(--cols,3),2),minmax(0,1fr))}
+    .b-grid.video .g,.b-grid.one .g{grid-template-columns:1fr}
+    .b-pal .sw{grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px}
+    .b-pal .sw div{aspect-ratio:1;padding:12px;border-radius:16px}
+    .b-pal .sw b{font-size:15px}
+    .b-pal .ty{grid-template-columns:1fr;gap:8px}
+    .b-pal .ty div{padding:14px 16px}
+    .b-grid.trio .g{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .phone{width:min(260px,62vw)}
+    .b-phones.wide .phone{width:40vw;border-radius:30px;padding:6px}
+    .b-phones.wide .phone .scr{border-radius:24px}
+    .cs-next{height:auto;border-radius:24px}
+    .cs-next img{position:relative;left:0;width:100%;height:auto;aspect-ratio:16/10;display:block}
+    .cs-next .tx{position:relative !important;left:0 !important;top:0 !important;width:auto;padding:18px;flex-direction:row !important;align-items:flex-end !important}
+    .cs-next .go{width:48px;height:48px}
+    .cs-cards .cs-card{flex-basis:160px}
+  }
+  @media (prefers-reduced-motion:reduce){ .scr.long > img{animation:none} }
+
+  /* сцена для телефона: яркий фон, за телефоном бежит огромная надпись, по углам мелкие подписи */
+  .b-stage{position:relative;margin:0 calc(-1*var(--pr)) 0 calc(-1*var(--pl));height:min(84vh,780px);min-height:600px;overflow:hidden;display:grid;place-items:center;
+    background:var(--sbg);color:var(--sink)}
+  .b-stage .mq{position:absolute;inset:0;display:flex;align-items:center;pointer-events:none}
+  .b-stage .run{display:flex;flex:none;white-space:nowrap;animation:mq 64s linear infinite;will-change:transform}
+  .b-stage .run span{font-family:Anton,Impact,sans-serif;font-size:min(46vh,420px);line-height:.8;letter-spacing:-.01em;padding-right:.25em;text-transform:uppercase}
+  @keyframes mq{to{transform:translateX(-50%)}}
+  .b-stage .phone.story{aspect-ratio:auto}
+  .b-stage .phone.story .scr{height:auto;aspect-ratio:9/16}
+  .b-stage .phone.story .scr > img{object-fit:cover}
+  .b-stage .phone{position:relative;z-index:1;width:min(270px,64vw);box-shadow:0 50px 120px -40px rgba(0,0,0,.55)}
+  .b-stage .cn{position:absolute;z-index:2;max-width:26ch;font-size:12px;line-height:1.4;letter-spacing:.04em;text-transform:uppercase}
+  .b-stage .cn.tl{left:36px;top:30px}.b-stage .cn.tr{right:36px;top:30px;text-align:right}
+  .b-stage .cn.bl{left:36px;bottom:30px;text-transform:none;letter-spacing:0;font-size:15px;max-width:30ch}
+  .b-stage .cn.br{right:36px;bottom:30px;text-align:right}
+  .scr.cycle > img{opacity:0;transition:opacity .6s}
+  .scr.cycle > img.on{opacity:1}
+  .phone .scr:not(.long) > img{object-fit:contain;background:#000}
+  .b-phones.shot-top .phone .scr > img{object-fit:cover;object-position:50% 0;background:#fff}
+  .scr .bars{position:absolute;left:10px;right:10px;top:14px;z-index:2;display:flex;gap:3px}
+  .scr .bars i{flex:1;height:2px;border-radius:2px;background:rgba(255,255,255,.3)}
+  .scr .bars i.on{background:#fff}
+  @media (max-width:760px){
+    .b-stage{height:auto;min-height:0;padding:90px 0 120px}
+    .b-stage .cn.tl,.b-stage .cn.bl{left:18px}.b-stage .cn.tr,.b-stage .cn.br{right:18px}
+    .b-stage .cn.tl,.b-stage .cn.tr{top:22px}.b-stage .cn.bl,.b-stage .cn.br{bottom:22px}
+    .b-stage .cn.bl{max-width:60%;font-size:13px}
+    .b-stage .run span{font-size:240px}
+  }
+  @media (prefers-reduced-motion:reduce){ .b-stage .run{animation:none} }
+
+  /* бенто: материалы проекта плитками разного размера, у каждой — короткая подпись */
+  .bento{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:clamp(150px,16vw,240px);grid-auto-flow:dense;gap:12px}
+  .bento > div{position:relative;overflow:hidden;border-radius:24px;background:var(--ccard)}
+  .bento .w2{grid-column:span 2}.bento .h2{grid-row:span 2}
+  .bento > div > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .bento .lb{position:absolute;left:12px;bottom:12px;z-index:3;padding:6px 11px;border-radius:99px;background:rgba(0,0,0,.6);color:#fff;
+    font-size:11px;letter-spacing:.06em;text-transform:uppercase;backdrop-filter:none}
+  .bento .tx{display:flex;flex-direction:column;justify-content:center;padding:22px 22px 52px}
+  .bento .tx b{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);font-size:clamp(26px,2.6vw,44px);line-height:1;letter-spacing:-.02em}
+  .bento .tx small{margin-top:10px;font-size:13px;color:var(--cmute)}
+  .bento .acc{background:var(--cacc);color:var(--cacc-ink)}
+  .bento .acc small{color:inherit;opacity:.7}
+  .bento .words b{display:block;font-size:clamp(24px,2.2vw,38px);line-height:1.08}
+  .bento .pal{display:flex}
+  .bento .pal i{flex:1;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+  .bento .ph-tile{display:grid;place-items:center;background:var(--cacc)}
+  .bento .ph-tile .phone{width:min(64%,190px);padding:7px;border-radius:30px}
+  .bento .ph-tile .phone .scr{border-radius:24px}
+  .bento .cube-wrap{height:100%;border-radius:0}
+  .bento .book{--w:clamp(110px,10vw,150px)}
+  @media (max-width:760px){
+    .bento{grid-template-columns:1fr 1fr;grid-auto-rows:150px;gap:8px}
+    .bento > div{border-radius:18px}
+    .bento .w2{grid-column:span 2}
+    .bento .tx{padding:14px 14px 44px}
+    .bento .tx b,.bento .words b{font-size:24px}
+    .bento .tx small{font-size:11px;margin-top:6px}
+    .bento .lb{left:8px;bottom:8px;font-size:9px;padding:5px 8px;max-width:calc(100% - 16px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  }
+
+  /* просмотр работы на весь экран */
+  .case-content figure img,.bento > div > img{cursor:zoom-in}
+  /* ---------- окно «Все работы»: карточки проектов выезжают справа ----------
+     открывается кнопкой «Все работы» в кейсе или наведением на правый край обложки */
+  .works-dim{position:fixed;inset:0;z-index:48;background:rgba(6,6,7,.5);opacity:0;visibility:hidden;transition:opacity .4s, visibility 0s .4s}
+  .works{position:fixed;top:12px;right:12px;bottom:12px;z-index:50;width:min(460px,calc(100vw - 24px));display:flex;flex-direction:column;
+    border-radius:28px;background:rgba(18,18,19,.9);backdrop-filter:blur(24px) saturate(1.2);-webkit-backdrop-filter:blur(24px) saturate(1.2);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7), inset 0 0 0 1px rgba(255,255,255,.08);color:#fff;
+    transform:translateX(calc(100% + 24px));visibility:hidden;transition:transform .6s var(--ease), visibility 0s .6s}
+  .works.on{transform:none;visibility:visible;transition:transform .6s var(--ease)}
+  body.works-pin .works-dim{opacity:1;visibility:visible;transition:opacity .4s}
+  .works-hd{display:flex;align-items:center;gap:10px;padding:20px 20px 14px 24px}
+  .works-hd h2{font-weight:400;font-size:15px}
+  .works-hd span{font-size:13px;color:rgba(255,255,255,.45)}
+  .works-hd button{margin-left:auto;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);font-size:20px;line-height:1;transition:background .3s}
+  .works-hd button:hover{background:rgba(255,255,255,.16)}
+  .works-list{flex:1;overflow-y:auto;padding:0 20px 22px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
+  .works-list h3{margin:14px 4px 10px;font-weight:400;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+  .works-list .g{display:grid;grid-template-columns:1fr 1fr;gap:14px 10px}
+  .works .w-card{display:block;text-align:left;color:#fff;opacity:0;transform:translateX(24px);transition:opacity .4s, transform .6s var(--ease)}
+  .works.on .w-card{opacity:1;transform:none;transition-delay:calc(var(--k) * 30ms + .1s)}
+  .w-card .ph{position:relative;display:grid;place-items:center;aspect-ratio:16/10;border-radius:16px;overflow:hidden;background:var(--c)}
+  .w-card .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
+  .w-card .ph svg{stroke:#fff;opacity:.55}
+  .w-card:hover .ph img{transform:scale(1.05)}
+  .w-card b{display:block;margin-top:8px;font-weight:400;font-size:14px;line-height:1.2}
+  .w-card i{display:block;margin-top:2px;font-style:normal;font-size:12px;color:rgba(255,255,255,.45)}
+  .w-card.cur .ph{box-shadow:0 0 0 2px #fff}
+  .w-card.cur .ph::after{content:'Вы здесь';position:absolute;left:8px;top:8px;padding:4px 8px;border-radius:99px;background:#fff;color:#111;font-size:10px}
+  @media (max-width:760px){
+    .works{top:8px;right:8px;bottom:8px;width:calc(100vw - 16px);border-radius:24px}
+    .works-list{padding:0 14px 18px}
+  }
+  .lbox{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(8,8,9,.94);opacity:0;visibility:hidden;transition:opacity .3s, visibility 0s .3s}
+  .lbox.on{opacity:1;visibility:visible;transition:opacity .3s}
+  .lbox img{max-width:min(92vw,1600px);max-height:88vh;object-fit:contain;border-radius:12px}
+  .lbox button{position:absolute;color:#fff;width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.1);font-size:22px}
+  .lbox button:hover{background:rgba(255,255,255,.2)}
+  .lb-x{top:20px;right:20px}.lb-p{left:20px;top:50%;margin-top:-26px}.lb-f{right:20px;top:50%;margin-top:-26px}
+  .lb-c{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:13px}
+
+  /* 3D-коробка: шесть сторон из макета, крутится сама, можно повернуть мышью или пальцем */
+  .b-box .wrap{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:clamp(30px,5vw,80px);align-items:center}
+  .cube-wrap{position:relative;height:min(64vh,520px);display:grid;place-items:center;perspective:1300px;border-radius:32px;overflow:hidden;
+    background:radial-gradient(60% 55% at 50% 58%,rgba(255,106,19,.38),rgba(255,106,19,0) 70%),var(--ccard);cursor:grab;touch-action:pan-y;user-select:none}
+  .cube-wrap:active{cursor:grabbing}
+  .cube-wrap::after{content:"";position:absolute;left:50%;bottom:12%;width:44%;height:22px;transform:translateX(-50%);border-radius:50%;background:rgba(0,0,0,.55);filter:blur(16px)}
+  .cube{--s:min(250px,46vw);position:relative;z-index:1;width:var(--s);height:var(--s);transform-style:preserve-3d;will-change:transform}
+  .cube i{position:absolute;inset:0;background:#111 center/cover;backface-visibility:hidden}
+  .cube i::after{content:"";position:absolute;inset:0;background:#000;opacity:var(--sh,0)}
+  .cube .f{transform:translateZ(calc(var(--s)/2))}
+  .cube .bk{transform:rotateY(180deg) translateZ(calc(var(--s)/2))}
+  .cube .r{transform:rotateY(90deg) translateZ(calc(var(--s)/2));--sh:.25}
+  .cube .l{transform:rotateY(-90deg) translateZ(calc(var(--s)/2));--sh:.25}
+  .cube .t{transform:rotateX(90deg) translateZ(calc(var(--s)/2));--sh:-.1}
+  .cube .bt{transform:rotateX(-90deg) translateZ(calc(var(--s)/2));--sh:.45}
+  .b-box .t p{margin-top:14px;font-size:18px;line-height:1.5}
+  .b-box .t small{display:block;margin-top:18px;font-size:12px;color:var(--cmute)}
+  .b-box .photo{margin-top:34px;border-radius:20px;max-width:420px}
+  @media (max-width:760px){ .b-box .wrap{grid-template-columns:1fr} .cube-wrap{height:58vh} }
+
+  /* книга: обложка, корешок, задняя сторона, обрез страниц */
+  .cube-wrap.book-wrap{background:radial-gradient(60% 55% at 50% 58%,color-mix(in srgb,var(--cacc) 40%,transparent),transparent 70%),var(--ccard)}
+  .book{--w:min(250px,44vw);--h:calc(var(--w)*1.412);--d:calc(var(--w)*.144);position:relative;z-index:1;width:var(--w);height:var(--h);transform-style:preserve-3d;will-change:transform}
+  .book i{position:absolute;background:#eee center/cover;backface-visibility:hidden}
+  .book i::after{content:"";position:absolute;inset:0;background:#000;opacity:var(--sh,0)}
+  .book .f{inset:0;transform:translateZ(calc(var(--d)/2))}
+  .book .bk{inset:0;transform:rotateY(180deg) translateZ(calc(var(--d)/2))}
+  .book .sp{top:0;left:calc(50% - var(--d)/2);width:var(--d);height:100%;transform:rotateY(-90deg) translateZ(calc(var(--w)/2));--sh:.12}
+  .book .pg{top:2px;left:calc(50% - var(--d)/2);width:var(--d);height:calc(100% - 4px);transform:rotateY(90deg) translateZ(calc(var(--w)/2 - 2px));
+    background:repeating-linear-gradient(90deg,#f4f1ea 0 2px,#ddd8cd 2px 3px);--sh:.15}
+  .book .tp,.book .bt{left:2px;width:calc(100% - 4px);height:var(--d);top:calc(50% - var(--d)/2);background:repeating-linear-gradient(0deg,#f4f1ea 0 2px,#ddd8cd 2px 3px)}
+  .book .tp{transform:rotateX(90deg) translateZ(calc(var(--h)/2 - 2px))}
+  .book .bt{transform:rotateX(-90deg) translateZ(calc(var(--h)/2 - 2px));--sh:.4}
+
+  /* три главные эмоции — крупно */
+  .b-emo .words{display:flex;flex-wrap:wrap;gap:12px}
+  .b-emo .words b{flex:1 1 220px;padding:clamp(20px,2.4vw,32px) 24px;border-radius:28px;background:var(--ccard);
+    font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);font-size:clamp(34px,4.6vw,76px);letter-spacing:-.02em;line-height:1}
+  .b-emo .words b:first-child{background:var(--cacc);color:var(--cacc-ink)}
+  .b-emo .words b small{display:block;margin-bottom:18px;font-family:"Inter Tight",sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.6}
+
+  /* плитки с цифрами; последняя — акцентная кнопка */
+  .b-tiles .g{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+  .b-tiles .g > *{min-height:clamp(140px,13vw,190px);padding:22px;border-radius:24px;background:var(--ccard);display:flex;flex-direction:column;justify-content:space-between;text-align:left}
+  .b-tiles b{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);font-size:clamp(30px,3vw,48px);letter-spacing:-.02em;line-height:1}
+  .b-tiles span{font-size:13px;line-height:1.35;color:var(--cmute)}
+  .b-tiles .g > a{background:var(--cacc);color:var(--cacc-ink);transition:transform .4s var(--ease)}
+  .b-tiles a:hover{transform:translateY(-3px)}
+  .b-tiles a b{font-size:clamp(22px,2vw,30px)}
+  .b-tiles .g > a span{color:inherit;font-size:24px}
+  @media (max-width:760px){ .b-tiles .g{grid-template-columns:1fr 1fr} .b-tiles .g > a{grid-column:1/-1;min-height:120px} }
+
+
+  /* ---------- миниатюры проектов — гармошка: вместо обводки текущий проект крупнее,
+     соседи чуть меньше, остальные маленькие; листаешь — увеличение переезжает на следующий ---------- */
+  .pv-thumb.on{transform:none}
+  .pv-thumb.on .ph{box-shadow:none}
+  .pv-thumb.nb{opacity:.72}
+  .pv-thumb .ph{transition:width .55s var(--ease), height .55s var(--ease), border-radius .55s var(--ease)}
+  @media (min-width:761px){
+    .pv-thumbs{padding:2px 0}
+    .pv-bar .pv-thumb.nb .ph,.pv-bar:hover .pv-thumb.nb .ph{width:40px;height:40px;border-radius:11px}
+    .pv-bar .pv-thumb.on .ph,.pv-bar:hover .pv-thumb.on .ph{width:56px;height:56px;border-radius:15px}
+  }
+
+  /* ---------- бегущие ряды карточек (лента Instagram в 1WIN): во всю ширину экрана ---------- */
+  .b-run{margin:0 calc(-1*var(--pr,0px)) 0 calc(-1*var(--pl,0px))}
+  .b-run .b-head{padding:0 var(--pr,0px) 0 var(--pl,0px)}
+  .b-run .rw{overflow:hidden}
+  .b-run .rw + .rw{margin-top:14px}
+  .b-run .tr{display:flex;gap:14px;width:max-content;animation:brun 60s linear infinite}
+  .b-run .rt .tr{animation-direction:reverse}
+  .b-run:hover .tr{animation-play-state:paused}
+  .b-run figure{flex:none;width:clamp(200px,22vw,320px);aspect-ratio:1;border-radius:18px;overflow:hidden;background:var(--ccard)}
+  .b-run figure img{width:100%;height:100%;object-fit:cover}
+  /* сдвиг на половину ленты + половину зазора — ровно один набор карточек */
+  @keyframes brun{to{transform:translateX(calc(-50% - 7px))}}
+  @media (max-width:760px){
+    .b-run .rw + .rw{margin-top:8px}
+    .b-run .tr{gap:8px;animation-duration:45s}
+    .b-run figure{width:150px;border-radius:12px}
+    @keyframes brun{to{transform:translateX(calc(-50% - 4px))}}
+  }
+
+  /* посты в бегущей ленте — в рамке поста Instagram: картинка, снизу лайк, комментарий, отправить, закладка */
+  .b-run .igp{flex:none;width:clamp(220px,22vw,320px);padding:8px 8px 0;border-radius:20px;background:#fff;color:#111}
+  .b-run .igp figure{width:100%;border-radius:13px}
+  .b-run .igb{display:flex;gap:12px;padding:11px 6px 12px}
+  .b-run .igb svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+  .b-run .igb .bm{margin-left:auto}
+  /* окно презентации со слайдами внахлёст */
+  .b-scatter .sc{position:relative;aspect-ratio:1510/970;margin:0 auto;max-width:1400px;border-radius:24px;background:#f3f3f4;overflow:hidden}
+  .b-scatter .win{position:absolute;left:1.2%;right:1.4%;top:17.4%;height:71.7%;border-radius:14px;background:#ececee;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+  .b-scatter .win i{position:absolute;top:2.2%;width:1.5%;aspect-ratio:1;border-radius:50%;background:#ff5f57}
+  .b-scatter .win i:nth-child(1){left:.8%}.b-scatter .win i:nth-child(2){left:3%;background:#febc2e}.b-scatter .win i:nth-child(3){left:5.2%;background:#28c840}
+  .b-scatter .win span{position:absolute;left:0;right:0;top:1.6%;text-align:center;color:#111;font-weight:600;font-size:clamp(9px,1.2vw,17px)}
+  .b-scatter figure{position:absolute;left:var(--l);top:var(--t);width:var(--w);margin:0;border-radius:clamp(5px,.8vw,12px);overflow:hidden;
+    box-shadow:0 30px 60px -24px rgba(10,20,80,.45);transform:translateY(30px);opacity:0;
+    transition:transform 1s var(--ease) calc(var(--k) * 90ms), opacity .7s calc(var(--k) * 90ms), box-shadow .4s}
+  .b-scatter.in figure{transform:none;opacity:1}
+  .b-scatter figure:hover{transform:translateY(-6px) scale(1.02);z-index:6;box-shadow:0 40px 70px -24px rgba(10,20,80,.55);transition-delay:0s}
+  .b-scatter figure img{display:block;width:100%;height:auto}
+  /* без подложки и окна — слайды лежат прямо на фоне кейса */
+  .b-scatter.bare .sc{background:none;border-radius:0;aspect-ratio:1510/880}
+  .b-scatter.bare figure{top:calc(var(--t) - 9%);box-shadow:0 30px 70px -26px rgba(0,0,0,.75)}
+  @media (max-width:760px){
+    .b-scatter .sc{border-radius:16px;margin:0 -6px}
+    .b-run .igp{width:170px;padding:5px 5px 0;border-radius:14px}
+    .b-run .igp figure{border-radius:9px}
+    .b-run .igb{gap:8px;padding:7px 4px 8px}
+    .b-run .igb svg{width:15px;height:15px}
+  }
+
+  /* ---------- бенто: размеры плиток c1–c4 (колонки) и r1–r3 (ряды) ---------- */
+  .bento .c1{grid-column:span 1}.bento .c2{grid-column:span 2}.bento .c3{grid-column:span 3}.bento .c4{grid-column:span 4}
+  .bento .r1{grid-row:span 1}.bento .r2{grid-row:span 2}.bento .r3{grid-row:span 3}.bento .r4{grid-row:span 4}
+  /* окно браузера на цветной подложке: длинная страница листается внутри */
+  .bento .dv{display:flex;align-items:flex-end;justify-content:center;padding:clamp(18px,3.4vw,48px) clamp(18px,6vw,90px) 0;background:var(--dbg)}
+  .bento .bw{width:min(100%,980px);height:100%;display:flex;flex-direction:column;border-radius:14px 14px 0 0;overflow:hidden;background:#111;
+    box-shadow:0 -10px 60px -20px rgba(0,0,0,.6)}
+  .bento .bw .bar{flex:none;display:flex;align-items:center;gap:7px;height:34px;padding:0 14px;background:#1b1b1d;font-size:11px;color:rgba(255,255,255,.5)}
+  .bento .bw .bar i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.18)}
+  .bento .bw .bar span{margin-left:10px}
+  .bento .bw .bar em{margin-left:auto;font-style:normal}
+  .bento .bw .scr{flex:1;height:auto;min-height:0}
+  .bento .dv .lb{left:auto;right:12px}
+  /* решение — текстовая плитка: номер, заголовок, пояснение */
+  .bento .st{display:flex;flex-direction:column;padding:20px 20px 22px}
+  .bento .st i{font-style:normal;font-size:12px;color:var(--cmute)}
+  .bento .st b{margin-top:auto;font-weight:400;font-family:var(--title-font),"Inter Tight",sans-serif;font-size:clamp(18px,1.6vw,24px);line-height:1.1}
+  .bento .st span{margin-top:8px;font-size:13px;line-height:1.4;color:var(--cmute)}
+  /* палитра с подписями */
+  .bento .pal.named i{display:flex;flex-direction:column;justify-content:flex-end;padding:14px;font-style:normal;font-size:11px;opacity:1}
+  .bento .pal.named i b{font-weight:400;font-size:13px;margin-bottom:2px}
+  @media (max-width:760px){
+    .bento .c3,.bento .c4{grid-column:span 2}
+    .bento .st{grid-column:span 2;padding:14px}
+    .bento .st b{font-size:17px}
+    .bento .st span{font-size:12px}
+    .bento .dv{padding:14px 12px 0}
+    .bento .bw .bar em{display:none}
+    .bento .pal.named i{padding:8px;font-size:9px}
+    .bento .pal.named i b{font-size:10px}
+  }
+
+  /* бенто с рядами от ширины колонки: пропорции плиток не плывут на любом экране */
+  .b-bento{container-type:inline-size}
+  .bento.rk{grid-auto-rows:calc((100cqw - 36px) / 4 * var(--rk))}
+  @media (max-width:760px){ .bento.rk{grid-auto-rows:calc((100cqw - 8px) / 2 * var(--rk))} }
+
+  /* ---------- плитки бенто: телефон в высокой плитке, генератор, коробка, до/после, пара телефонов, список ---------- */
+  .bento .ph-tile.r3 .phone{width:min(80%,250px)}
+  .bento .ph-tile .scr.long{border-radius:24px}
+  .bento .gen{background:#d6d9de}
+  .bento .gen > img{object-fit:cover}
+  .bento .gen .gc{position:absolute;left:clamp(12px,1.6vw,22px);bottom:clamp(12px,1.6vw,22px);z-index:2;max-width:min(340px,40%);padding:16px 18px;border-radius:16px;color:#222327;
+    background:rgba(244,245,247,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 10px 30px -14px rgba(30,34,40,.35)}
+  .bento .gen .gc b{display:block;font-weight:400;font-family:var(--title-font),"Inter Tight",sans-serif;font-size:clamp(18px,1.7vw,26px);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+  .bento .gen .gc span{display:block;margin-top:8px;font-size:13px;line-height:1.45;color:#5d6168}
+  .bento .bx .cube-wrap{height:100%;border-radius:0}
+  .bento .bx .cube{--s:min(170px,62cqw)}
+  .bento .b-ba .cmp{position:absolute;inset:0;aspect-ratio:auto;border-radius:0}
+  .in .bento .b-ba .cmp{animation:demo 2.6s cubic-bezier(.45,0,.55,1) 1 both;animation-delay:calc(.6s + var(--i)*.5s)}
+  .in .bento .b-ba .cmp.man{animation:none}
+  .bento .duo2{display:flex;align-items:center;justify-content:center;gap:6%;background:var(--dbg)}
+  .bento .duo2 > img{position:static;width:auto;height:auto;max-height:80%;max-width:42%;object-fit:contain;filter:drop-shadow(0 24px 30px rgba(0,0,0,.35))}
+  .bento .ls{display:flex;flex-direction:column;padding:20px 22px}
+  .bento .ls > i{font-style:normal;font-size:12px;color:var(--cmute)}
+  .bento .ls ol{margin:auto 0 0;padding:0;list-style:none;counter-reset:ls}
+  .bento .ls li{counter-increment:ls;display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--cline);font-size:14px}
+  .bento .ls li::before{content:counter(ls, decimal-leading-zero);color:var(--cmute);font-size:12px;padding-top:2px}
+  .bento .tx.big b{font-size:clamp(34px,4.4vw,68px)}
+  @media (max-width:760px){
+    .bento .gen{grid-row:span 2}
+    .bento .gen > img{object-fit:contain;object-position:50% 100%}
+    .bento .gen .gc{position:static;max-width:none;padding:14px 14px 0;background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+    .bento .gen{display:flex;flex-direction:column}
+    .bento .gen > img{position:relative;flex:1;min-height:0}
+    .bento .gen .gc span{font-size:12px}
+    .bento .ls{padding:14px}
+    .bento .ls li{font-size:12px;padding:5px 0}
+  }
+
+  /* справа в кейсе висит вертикальная плашка проектов — контент к ней не подходит */
+  @media (min-width:761px){ .case-content{--pr:104px} }
+  /* образцы палитры: тёмный цвет не сливается с фоном */
+  .bento .pal{box-shadow:inset 0 0 0 1px var(--cline)}
+  .bento .pal.named i{box-shadow:none}
+  .bento .pal.named i + i{border-left:1px solid var(--cline)}
+  /* тяжёлые iframe (живые сайты, блистер) не работают, пока их не видно: display:none останавливает их кадры */
+  .frame-off > iframe,.frame-off > .pv-device > iframe{display:none}
+  body.case-on #pvStage iframe{display:none}
+
+  /* ---------- бенто рядами: высота ряда общая, ширины по пропорциям картинок ---------- */
+  .case-scroll{overflow-x:hidden}
+  .brows{display:flex;flex-direction:column;gap:12px}
+  .bento.brow{display:flex;gap:12px;grid-auto-rows:auto}
+  .bento.brow > div{min-width:0}
+  .bento.brow .ph-tile,.bento.brow .bx{container-type:size}
+  .bento.brow .ph-tile .phone{width:min(76cqw, calc((100cqh - 44px) / 2.2))}
+  .bento .ph-tile .scr > img{object-fit:cover !important;object-position:50% 0 !important}
+  .bento.brow .bx .cube{--s:min(170px,62cqw,48cqh)}
+  @media (max-width:760px){
+    .brows{gap:8px}
+    .bento.brow{flex-wrap:wrap;gap:8px;align-items:flex-start}
+    .bento.brow > div{flex:1 1 calc(50% - 4px) !important}
+    .bento.brow > .wide{flex-basis:100% !important}
+    .bento.brow > .st,.bento.brow > .tx,.bento.brow > .ls{flex-basis:100% !important;aspect-ratio:auto !important}
+    .bento.brow > .tx{min-height:120px}
+    .bento.brow > .dv{aspect-ratio:auto !important;height:min(70vh,480px)}
+  }
 </style>
 </head>
 <body>
@@ -365,101 +1056,308 @@
 </section>
 
 <div class="ctag" id="ctag" aria-hidden="true">Смотреть</div>
+<div class="works-dim" id="worksDim"></div>
+<aside class="works" id="works" aria-hidden="true" aria-label="Все работы">
+  <div class="works-hd"><h2>Все работы</h2><span id="worksN"></span><button id="worksX" aria-label="Закрыть">×</button></div>
+  <div class="works-list" id="worksList"></div>
+</aside>
+<div class="lbox" id="lbox" aria-hidden="true"><img id="lboxImg" alt=""><button class="lb-x" id="lboxX" aria-label="Закрыть">×</button>
+  <button class="lb-n lb-p" id="lboxP" aria-label="Предыдущая">←</button><button class="lb-n lb-f" id="lboxF" aria-label="Следующая">→</button><span class="lb-c" id="lboxC"></span></div>
 
 <section class="case" id="case" aria-hidden="true">
   <div class="case-scroll" id="caseScroll">
     <div class="case-first">
-      <div class="pv-hero"><h1 class="pv-title" id="caseTitle"></h1><div class="pv-facts" id="caseFacts"></div></div>
+      <div class="pv-hero">
+        <div><p class="pv-eyebrow" id="caseEyebrow"></p><h1 class="pv-title" id="caseTitle"></h1><p class="case-lead" id="caseLead"></p></div>
+        <div><div class="case-hint" id="caseHint"></div></div>
+      </div>
       <div class="case-cover" id="caseCover"></div>
     </div>
     <div class="case-content" id="caseContent"></div>
   </div>
   <!-- в кейсе, когда пролистали первый экран, снизу появляется плашка для перехода к другим проектам -->
   <div class="pv-bar case-bar" id="caseBar"><div class="pv-thumbs" id="caseThumbs"></div><div class="pv-meta" id="caseMeta"></div></div>
-  <div class="case-top">
-    <button class="back" id="back">← Все работы</button>
-    <div class="logo" id="caseLogo"></div>
-    <button class="next" id="next">Следующий →</button>
+  <div class="case-top" id="caseTop">
+    <div class="logo" id="caseLogo" role="button" tabindex="0" aria-label="На главную"></div>
+    <nav><button class="back" id="back">Все работы</button><button class="next" id="next">Дальше →</button></nav>
   </div>
 </section>
 
 <script>
-/* Кейсы — в порядке ленты. Тексты черновые. */
+/* Кейсы — в порядке ленты. У каждого своя тема (цвета страницы кейса) и свой набор блоков (blocks) — см. BLOCKS ниже.
+   Тексты: факты — из брифов, Behance и Figma; формулировки черновые, править можно смело. */
+const G = (id, n, ext='jpg') => Array.from({length:n}, (_, k)=>`assets/comms/${id}/${String(k+1).padStart(2,'0')}.${ext}`);
+const RV = 'assets/cases/revnikoff/';
+const MV = k => `assets/comms/mvideo/${String(k).padStart(2,'0')}.jpg`;
+const IG = k => `assets/comms/onewin-ig/${String(k).padStart(2,'0')}.jpg`, YT = k => `assets/comms/onewin-yt/${String(k).padStart(2,'0')}.jpg`;
 const CASES = [
-    { id:'trading', type:'landings', name:'Трейдинг 101', kind:'лендинг курса',
-    status:'Концепт', theme:'light', img:'assets/trading.jpg', pos:'center 30%', pvDark:true,
+  { id:'trading', type:'landings', name:'Трейдинг 101', kind:'лендинг курса',
+    status:'Концепт', img:'assets/trading.jpg', pvDark:true,
     cover:'assets/trading-cover.jpg',   // обложка для ленты — из Figma
-    thumb:'assets/trading-thumb.jpg',   // для миниатюр и карточек: обложка с сайтом в экране
+    thumb:'assets/trading-thumb.jpg',   // для «Следующего проекта»: обложка с сайтом в экране
     // в экран ноутбука на обложке встаёт CSS-экран с живым лендингом; координаты экрана — в пикселях обложки
     device:{ src:'projects/trading-101/index.html', shot:'assets/trading.jpg', img:[2800,1877], rect:[784,546,1219,775] },
     color:'#5ab8ff',
-    slides:['assets/slides/trading-1.jpg','assets/slides/trading-2.jpg','assets/slides/trading-3.jpg','assets/slides/trading-4.jpg'],
-    line:'Сложная и пугающая тема, поданная так, чтобы новичок решился начать.',
+    theme:{ bg:'#0e1218', card:'#161c26', acc:'#3aa0ff', accInk:'#04121f' },
+    line:'Лендинг онлайн-курса по трейдингу для тех, кто давно хотел начать, но боялся.',
     role:'Дизайн, адаптивы, 3D в первом экране', short:'TRADING',
-    url:'projects/trading-101/index.html', urlLabel:'Открыть сайт' },
+    url:'projects/trading-101/index.html', urlLabel:'Открыть сайт',
+    blocks:[
+      { t:'lead', h:'Задача', text:'Снять страх новичка перед трейдингом и довести до покупки курса.' },
+      { t:'kv', items:[['Аудитория','Женщины 30–45 лет'],['Путь','Игра в телеграм-боте → лендинг → покупка'],['Экраны','1200 · 1024 · 768 · 390']] },
+      // бенто: сверху живой лендинг в окне браузера (как подача у tatianae.com), дальше телефон, книга, 3D и стиль
+      { t:'bento', rows:[
+        [{ win:'assets/trading.jpg', live:'projects/trading-101/index.html', url:'trading-101 · лендинг', bg:'linear-gradient(150deg,#00C2FF,#0a5e8a 70%,#0e1218)', a:2.1, lb:'Лендинг' }],
+        [{ phone:'assets/cases/trading/mobile-page.jpg', live:'projects/trading-101/index.html', long:true, a:.6, lb:'Телефон' },
+         { img:'assets/cases/trading/hero3d.jpg', a:1.537, lb:'Портрет в 3D' }],
+        [{ book:{ f:'assets/cases/trading/book-front.jpg', bk:'assets/cases/trading/book-back.jpg', sp:'assets/cases/trading/book-spine.jpg' }, a:.75, lb:'Книга автора' },
+         { img:'assets/trading-thumb.jpg', a:1.493, lb:'Ноутбук' },
+         { big:'{ }', small:'заголовки блоков — как в тетради', acc:1, a:.9, lb:'Приём' }],
+        [{ pal:['#111213','#FFFFFF','#00C2FF'], a:2, lb:'Палитра' },
+         { big:'4', small:'адаптива: 1200 · 1024 · 768 · 390', a:2, cls:'big' }] ] } ] },
+
   { id:'revnikoff', type:'landings', name:'Revnikoff', kind:'сайт мастерской',
-    status:'Запущен', theme:'dark', img:'assets/revnikoff.jpg', pos:'center top',
+    status:'Запущен', img:'assets/revnikoff.jpg', cover:RV+'bag.jpg', coverPos:'50% 50%',
     color:'#ff6a13',
+    theme:{ bg:'#0a0a0a', card:'#171717', acc:'#ff6a13', accInk:'#140600' },
     slides:['assets/slides/revnikoff-1.jpg','assets/slides/revnikoff-2.jpg','assets/slides/revnikoff-3.jpg','assets/slides/revnikoff-4.jpg'],
-    line:'Как доверить дорогую и памятную вещь незнакомой мастерской.',
+    line:'Сайт мастерской, которая реставрирует брендовые сумки, обувь, часы и украшения.',
     role:'Структура, путь клиента, визуал, вёрстка', short:'REVNIKOFF',
-    url:'https://revnikoff.ru/', urlLabel:'Открыть сайт' },
+    url:'https://revnikoff.ru/', urlLabel:'Открыть сайт',
+    caseCover:RV+'v2/hero.jpg',
+    orbs:[[RV+'v2/orb-1.png',6,10,1.2],[RV+'v2/orb-2.png',44,6,.7],[RV+'v2/orb-3.png',76,18,1],[RV+'v2/orb-4.png',4,72,.5],[RV+'v2/orb-5.png',72,70,1.4]],
+    blocks:[
+      { t:'lead', h:'Задача', text:'Посетитель решает одно: можно ли доверить дорогую вещь незнакомой мастерской.' },
+      { t:'kv', items:[
+        ['Тип','Корпоративный сайт с магазином'],
+        ['Объём','8 страниц и адаптивы'],
+        ['Платформа','Тильда — собрала сама'] ] },
+      // бенто: сайт в окне, экраны, адаптивы, процесс, стиль, сторис «до / после», упаковка
+      { t:'bento', rows:[
+        [{ win:RV+'v2/page.jpg', url:'revnikoff.ru', bg:'linear-gradient(150deg,#ff6a13,#9a3a06 65%,#1a0a02)', a:2.1, lb:'Главная' }],
+        [{ img:RV+'v2/card.jpg', a:1.670, lb:'Карточка товара' }, { img:RV+'box.jpg', a:1.5, lb:'Choco Boom — подарок клиентам' }],
+        // ряды по смыслу: адаптивы · процесс и цвет · цифры и подарок
+        [{ img:RV+'v2/adapt-bg.jpg', a:1.28, lb:'Планшет' },
+         { duo:[RV+'v2/phone-1.png', RV+'v2/phone-2.png'], bg:'#ff6a13', a:1.1, lb:'Телефон' }],
+        [{ list:['Брифинг','Исследование','Прототипирование','Референсы','Визуальная концепция','UI-кит и адаптация'], h:'Как шла работа', a:1.2 },
+         { pal:[['#F3F3F3','Grey','#111'],['#0A0A0A','Black'],['#FF6A13','Orange','#140600']], a:2.2 }],
+        [{ big:'55', small:'экранов: десктоп, планшет, телефон и попапы', a:1.1, cls:'big' },
+         { big:'8', small:'страниц, собрала на Тильде сама', acc:1, a:1.1, cls:'big' },
+         { box:{ f:RV+'box/front.jpg', bk:RV+'box/back.jpg', l:RV+'box/left.jpg', r:RV+'box/right.jpg', t:RV+'box/top.jpg', bt:RV+'box/bottom.jpg' }, a:1.1, lb:'Покрутите коробку' }],
+        [{ img:RV+'v2/cap.jpg', a:.765 }, { img:RV+'v2/bag.jpg', a:1.926, lb:'Пакет доставки' }, { img:RV+'v2/foam.jpg', a:.796 }] ] },
+      // сторис «до / после» — отдельным разделом
+      { t:'bento', h:'Сторис: до / после', text:'Потяните шторку.', rows:[
+        [2,3,4].map((k, j)=>({ ba:[`${RV}stories/${String(k*2+1).padStart(2,'0')}.jpg`, `${RV}stories/${String(k*2+2).padStart(2,'0')}.jpg`], k:j, a:.5623 })) ] },
+      { t:'cta' } ] },
+
   { id:'impre', type:'apps', name:'Impre', kind:'приложение о здоровье',
-    status:'Концепт', theme:'light', img:'assets/impre.jpg', pos:'center center',
+    status:'Концепт', img:'assets/impre.jpg', cover:'assets/cases/impre/blister.jpg', coverPos:'50% 50%',
+    coverLive:'projects/impre/blister.html?cover',   // поверх кадра — живой блистер из генератора: капсулы перекатываются по полю
     color:'#b8f03c',
+    theme:{ bg:'#e4e7eb', card:'#ffffff', ink:'#222327', mute:'#6f737a', line:'rgba(30,34,40,.12)', acc:'#222327', accInk:'#fff' },
     slides:['assets/slides/impre-1.jpg','assets/slides/impre-2.jpg','assets/slides/impre-3.jpg'],
-    line:'Состояние организма без медицинской тревоги: живая капсула вместо дашборда.',
+    line:'Концепт приложения: сенсор читает состояние организма, а витамины подстраиваются под него.',
     role:'Концепция, интерфейс, моушн, прототип', short:'IMPRE',
-    url:'projects/impre/landing.html', urlLabel:'Открыть прототип' },
+    url:'projects/impre/landing.html', urlLabel:'Открыть прототип',
+    blocks:[
+      { t:'lead', h:'Идея', text:'Тело меняется каждый день. Витамины — нет.' },
+      { t:'kv', items:[
+        ['Продукт','Сенсор + адаптивные витамины + приложение'],
+        ['Эмоция','Спокойствие и контроль вместо медицинской тревоги'],
+        ['Разделы','Обзор, Капсула, Био, Формула'] ] },
+      // бенто: живой прототип и экраны в телефонах, решения, ниже — генераторы целиком (как у Instrument Playspace)
+      { t:'bento', rk:.83, items:[
+        { phone:'assets/cases/impre/app.jpg', live:'projects/impre/index.html', bg:'#b8f03c', c:1, r:3, lb:'Живой прототип' },
+        { phone:'assets/cases/impre/s-bio.jpg', bg:'#d6d9de', c:1, r:3, lb:'Витамин D' },
+        { phone:'assets/cases/impre/s-detail.jpg', bg:'#d6d9de', c:1, r:3, lb:'Шкала из точек' },
+        { phone:'assets/cases/impre/s-formula.jpg', bg:'#d6d9de', c:1, r:3, lb:'Формула' },
+        { n:'01', step:['Капсула вместо дашборда','Её внутренний свет показывает состояние по биомаркерам.'], c:1, r:1 },
+        { n:'02', step:['Четыре состояния','Баланс, активность, восстановление, фокус — свой цвет и свет.'], c:1, r:1 },
+        { n:'03', step:['Шкала из точек','Норму и отклонение видно без красно-зелёной паники.'], c:1, r:1 },
+        { n:'04', step:['Тихий интерфейс','Почти без заливок, акцентов на экране — единицы.'], c:1, r:1 },
+        { gen:'assets/cases/impre/gen-capsule.jpg', e:'Лавовая капсула', p:'Капли внутри капсулы: цвет, движение и свет. Экспорт в PNG и видео.', c:4, r:3 },
+        { gen:'assets/cases/impre/gen-blister.jpg', e:'Блистер', p:'Капсулы перекатываются по сетке, палитры формул, запись видео. Он же — обложка этого кейса.', c:4, r:3 },
+        { gen:'assets/cases/impre/gen-graph.jpg', e:'Графики показателей', p:'Форма, цвет и затухания на ручках, выгрузка в SVG и PNG.', c:4, r:3 } ] },
+      { t:'cta' } ] },
+
+  { id:'verss', hidden:true, type:'apps', name:'Verss.ai', kind:'AI-платформа для инвесторов и стартапов', status:'Коммерческий проект',
+    color:'#8b7cf6', cover:'assets/cases/verss/cover.jpg', coverPos:'50% 50%', gallery:G('verss',3),
+    theme:{ bg:'#f1f0f7', card:'#ffffff', ink:'#19170b', mute:'#6e6a80', line:'rgba(25,23,11,.1)', acc:'#e51da2', accInk:'#fff' },
+    line:'Платформа на ИИ, которая сводит венчурных инвесторов и стартапы: скаутинг, due diligence и акселерация.',
+    role:'Дашборд, онбординг, мобильная версия, брендбук', short:'VERSS',
+    blocks:[
+      { t:'lead', h:'Задача', text:'У инвестора сотни заявок от стартапов, и каждую нужно изучить: презентация, команда, рынок, финансы. Платформа должна за минуты показать, кто стоит внимания, — и так же просто принять стартап на борт.' },
+      { t:'kv', items:[
+        ['Продукт','AI-платформа: скаутинг, due diligence, акселерация'],
+        ['Пользователи','Венчурные фонды и основатели стартапов'],
+        ['Что делала','Дашборд, онбординг, мобильная версия, брендбук и презентации'],
+        ['Платформа','Веб и телефон'] ] },
+      { t:'img', h:'Дашборд скаутинга', text:'Все заявки в одной таблице: стадия, город, дата основания и Readiness Score. Справа — карточка компании с радаром и AI-сводкой.', src:'assets/cases/verss/dash2.jpg' },
+      { t:'steps', h:'Решения', items:[
+        ['Readiness Score вместо хаоса','У каждого стартапа — оценка готовности в процентах. Инвестор сортирует заявки по ней, а не читает каждую презентацию подряд.'],
+        ['Радар из шести критериев','Data & AI, команда, технологии, рынок, финансы, риски — сильные и слабые стороны видны одним взглядом.'],
+        ['AI-сводка','Кнопка AI-Powered Executive Summary собирает выжимку из питч-дека: due diligence за секунды, а не за неделю.'],
+        ['Два входа с первого экрана','«Я стартап» — загружает питч-дек. «Я инвестор» — подключает Google Drive, и презентации сами превращаются в дашборды.'] ] },
+      { t:'stagger', items:[
+        { img:'assets/cases/verss/dash3.jpg', e:'Связаться в один клик', p:'Попап «Be in touch»: письмо основателю уходит прямо из карточки стартапа, без почты и копирования адресов.' },
+        { img:'assets/cases/verss/pop3.jpg', e:'Кто вы?', p:'Онбординг начинается с одного вопроса — и дальше у инвестора и стартапа разные пути и разные поля.', size:'s' } ] },
+      { t:'grid', h:'Онбординг', text:'Вход, роль, короткая анкета и загрузка питч-дека — четыре шага до первой оценки.', cols:2, gap:'14px', r:'18px',
+        imgs:['assets/cases/verss/pop1.jpg','assets/cases/verss/pop2.jpg','assets/cases/verss/pop4.jpg','assets/cases/verss/pop3.jpg'], ratio:'16/9' },
+      { t:'phones', wide:true, top:true, h:'Телефон', text:'Таблица превращается в список карточек, а карточка стартапа — в отдельный экран.',
+        items:[{ src:'assets/cases/verss/m-dash1.jpg' },{ src:'assets/cases/verss/m-dash3.jpg' },{ src:'assets/cases/verss/m-pop2.jpg' },{ src:'assets/cases/verss/m-pop4.jpg' }] },
+      { t:'palette', h:'Брендбук', text:'Знак из трёх переплетённых форм, Orbitron для логотипа и заголовков, малиновый акцент на почти чёрном.',
+        colors:[['#E51DA2','Magenta','#fff'],['#19170B','Black','#fff'],['#F5F5F5','Light','#111'],['#8B7CF6','UI Violet','#fff']],
+        fonts:[['Orbitron','Логотип и заголовки'],['Arial','Текст и интерфейс']] },
+      { t:'deck', h:'Брендбук и презентации', text:'Гайды по стилю и система слайдов, из которой команда сама собирает коммерческие и инвестиционные презентации.',
+        imgs:['assets/cases/verss/g1.jpg','assets/cases/verss/g2.jpg','assets/cases/verss/g3.jpg','assets/cases/verss/g4.jpg','assets/cases/verss/g5.jpg','assets/cases/verss/g6.jpg', ...G('verss',3)] } ] },
+
   /* ---------- коммуникации: тексты черновые, по описаниям из презентации ---------- */
   { id:'tb', type:'comms', name:'Therapiezentrum Blender', kind:'айдентика и сайт', status:'Коммерческий проект',
-    color:'#1a1a1c', cover:'assets/comms/tb/05.jpg', gallery:['assets/comms/tb/01.jpg','assets/comms/tb/02.jpg','assets/comms/tb/03.jpg','assets/comms/tb/04.jpg','assets/comms/tb/05.jpg','assets/comms/tb/06.jpg','assets/comms/tb/07.jpg'], galleryLayout:'grid',
-    line:'Фирменный стиль с нуля и сайт для центра терапии и тренировок.',
-    role:'Айдентика, дизайн сайта', short:'BLENDER' },
-  { id:'stories', type:'comms', name:'Сторис в приложении', kind:'ключевые визуалы для сторис', status:'Коммерческий проект',
-    color:'#1a1a1c', coverType:'stories', stories:['assets/comms/stories/01.jpg','assets/comms/stories/02.jpg'], gallery:['assets/comms/stories/01.jpg','assets/comms/stories/02.jpg'], galleryLayout:'grid',
+    color:'#1a1a1c', cover:'assets/cases/tb/hoodie.jpg', coverPos:'50% 35%', gallery:G('tb',7),
+    theme:{ bg:'#0d0d0d', card:'#181818', acc:'#C02D42', accInk:'#fff' },
+    line:'Фирменный стиль с нуля и сайт для центра терапии и тренировок в Германии.',
+    role:'Айдентика, дизайн сайта', short:'BLENDER',
+    blocks:[
+      { t:'lead', h:'Задача', text:'Подать центр как уверенного современного лидера.' },
+      { t:'kv', items:[['Клиент','TZ Blender, Германия'],['Что делала','Айдентика и веб-дизайн'],['Когда','Май 2025']] },
+      // всё в одной бенто-сетке: сверху сайт в окне браузера, дальше экраны, решения и носители
+      { t:'bento', rows:[
+        [{ win:'assets/cases/tb/scroll-page.jpg', url:'dein-therapiezentrum.de', bg:'linear-gradient(140deg,#C02D42 0%,#6d1424 60%,#2a0a10 100%)', a:2.1, lb:'Главная' }],
+        [{ img:'assets/cases/tb/hero.jpg', a:1.684, lb:'Первый экран' }, { img:'assets/cases/tb/laptop.jpg', a:1.348, lb:'Десктоп' }],
+        [{ n:'01', step:['Квиз вместо формы','Четыре цели на выбор — без звонка и длинной анкеты.'], a:1.2 },
+         { n:'02', step:['Запись под рукой','«Termin vereinbaren» и вход для участников — в шапке на каждой странице.'], a:1.2 },
+         { n:'03', step:['Истории перед записью','Истории пациентов снимают страх перед первым визитом.'], a:1.2 },
+         { n:'04', step:['Сайт помогает нанимать','Блок «Karriere»: центр растёт, и сайт ищет ему команду.'], a:1.2 }],
+        [{ img:'assets/cases/tb/mobile.jpg', a:1.140, lb:'Телефон' }, { img:'assets/cases/tb/identity.jpg', a:1, lb:'Визитки и шрифты' }],
+        [{ pal:[['#C02D42','Crimson Pulse'],['#131313','Graphite Void'],['#C4C4C4','Fog Metal','#111'],['#FFFFFF','Clean Signal','#111']], a:2.4 },
+         { big:'Bebas Neue', small:'заголовки · текст — Helvetica Neue', a:1.2, lb:'Шрифты' },
+         { big:'/', small:'косой штрих из логотипа — на всех носителях', acc:1, a:1.2, lb:'Знак' }],
+        [{ img:'assets/cases/tb/shirt.jpg', a:1.344, lb:'Мерч' }, { img:'assets/cases/tb/scroll-bg.jpg', a:1.570, lb:'Фотостиль' }] ] } ] },
+  { id:'versatil', hidden:true, type:'comms', name:'VERSATIL', kind:'брендбук и инвест-дек', status:'Коммерческий проект',
+    color:'#e5248f', cover:'assets/cases/versatil/cover.jpg', coverPos:'50% 50%',
+    theme:{ bg:'#f3efea', card:'#ffffff', ink:'#1b1b1b', mute:'#77706a', line:'rgba(0,0,0,.1)', acc:'#e5248f', accInk:'#fff' },
+    line:'Фирменный стиль и инвест-дек для AI-платформы, которая помогает отделам продаж не терять знания о клиентах.',
+    role:'Брендбук, паттерны, инвест-дек, цифровые носители', short:'VERSATIL',
+    blocks:[
+      { t:'lead', h:'Задача', text:'VERSATIL собирает CRM, переписку и документы компании в один граф знаний и отвечает без галлюцинаций. Технология сложная — стиль и презентация должны объяснить её инвестору за несколько слайдов.' },
+      { t:'kv', items:[['Продукт','AI-платформа для отделов продаж'],['Что делала','Логотип, брендбук, паттерны, инвест-дек, визитки'],['Носители','Сайт, соцсети, фоны для созвонов, подписи, бланки'],['Идея','Шесть связей: каждый связан с каждым через шесть рукопожатий']] },
+      { t:'img', h:'Знак', text:'Шесть стрелок сходятся в одну точку — сеть контактов, в которой каждый связан с каждым. Градиент от фиолетового к малиновому.', src:'assets/cases/versatil/logo.jpg' },
+      { t:'deck', h:'Брендбук', text:'Знак работает как паттерн, как акцент вокруг портрета и как фон: один элемент — много носителей.',
+        imgs:['assets/cases/versatil/p1.jpg','assets/cases/versatil/p2.jpg','assets/cases/versatil/p3.jpg','assets/cases/versatil/p4.jpg'] },
+      { t:'duo', items:[
+        { img:'assets/cases/versatil/card1.jpg', e:'Визитка', p:'Лицевая сторона: крупный фрагмент знака на тёмном градиенте.' },
+        { img:'assets/cases/versatil/card2.jpg', e:'Оборот', p:'Светлая сторона с логотипом — для печати и цифровых визиток.' } ] },
+      { t:'deck', h:'Инвест-дек', text:'Проблема, решение, технология, рынок и конкуренты: тёплый светлый фон, сеть связей на каждом слайде и один малиновый акцент.',
+        imgs:['assets/cases/versatil/s2.jpg','assets/cases/versatil/s5.jpg','assets/cases/versatil/s4.jpg','assets/cases/versatil/s3.jpg','assets/cases/versatil/s6.jpg'] } ] },
+  { id:'stories', hidden:true, type:'comms', name:'Сторис в приложении', kind:'ключевые визуалы для сторис', status:'Коммерческий проект',
+    color:'#1a1a1c', coverType:'stories', stories:G('stories',2), gallery:G('stories',2),
+    theme:{ bg:'#f3eff6', card:'#ffffff', ink:'#1b1b1f', mute:'#77737d', line:'rgba(0,0,0,.1)', acc:'#ff4fa3', accInk:'#fff' },
     line:'Сторис с акциями и подборками для мобильного приложения ритейлера.',
-    role:'Ключевые визуалы, сторис', short:'STORIES' },
+    role:'Ключевые визуалы, сторис', short:'STORIES',
+    blocks:[
+      { t:'lead', h:'Задача', text:'Сторис с акциями для мобильного приложения ритейлера: скидка должна читаться за секунду, пока палец не пролистнул дальше.' },
+      { t:'grid', cls:'one', cols:2, gap:'24px', r:'28px', imgs:G('stories',2) } ] },
   { id:'mvideo', type:'comms', name:'М.Видео и Эльдорадо', kind:'ключевые визуалы', status:'Коммерческий проект',
-    color:'#1a1a1c', coverType:'banners', gallery:['assets/comms/mvideo/01.jpg','assets/comms/mvideo/02.jpg','assets/comms/mvideo/03.jpg','assets/comms/mvideo/04.jpg','assets/comms/mvideo/05.jpg','assets/comms/mvideo/06.jpg','assets/comms/mvideo/07.jpg','assets/comms/mvideo/08.jpg','assets/comms/mvideo/09.jpg','assets/comms/mvideo/10.jpg'], galleryLayout:'wide',
-    line:'Ключевые визуалы для сезонных акций и промо — единый узнаваемый стиль на сайте и в приложении.',
-    role:'Баннеры и ключевые визуалы для акций', short:'MVIDEO' },
+    color:'#1a1a1c', coverType:'banners', gallery:G('mvideo',10),
+    theme:{ bg:'#0d0d0e', card:'#18181a', acc:'#e3262f', accInk:'#fff' },
+    line:'Ключевые визуалы для сезонных акций на сайте и в приложении.',
+    role:'Баннеры и ключевые визуалы для акций', short:'MVIDEO',
+    blocks:[
+      { t:'lead', h:'Задача', text:'Каждый раз новая механика, но стиль узнаётся с первого взгляда.' },
+      { t:'kv', items:[['Клиент','М.Видео и Эльдорадо'],['Формат','Баннеры для сайта и приложения'],['Механики','Скидки, рассрочка, промокоды, подборки']] },
+      // ряд = половина колонки: плитка 2×1 — длинный баннер, 2×2 — квадратный
+      { t:'bento', rk:.5, items:[
+        { img:MV(5), c:2, r:2, lb:'Баннеры для сайта и приложения' }, { img:MV(1), c:2, r:1 }, { img:MV(2), c:2, r:1 },
+        { img:MV(3), c:2, r:1 }, { img:MV(7), c:2, r:2 }, { img:MV(4), c:2, r:1 },
+        { img:MV(10), c:2, r:2 }, { img:MV(6), c:2, r:1 }, { img:MV(8), c:2, r:1 },
+        { img:MV(9), c:2, r:1 }, { big:'Скидки · рассрочка · промокоды', small:'новая механика — тот же узнаваемый стиль', acc:1, c:2, r:1 } ] } ] },
   { id:'leveraged', type:'comms', name:'Leveraged', kind:'посты для соцсетей', status:'Коммерческий проект',
-    color:'#1a1a1c', coverType:'columns', gallery:['assets/comms/leveraged/01.jpg','assets/comms/leveraged/02.jpg','assets/comms/leveraged/03.jpg','assets/comms/leveraged/04.jpg','assets/comms/leveraged/05.jpg','assets/comms/leveraged/06.jpg'], galleryLayout:'grid',
+    color:'#1a1a1c', coverType:'columns', gallery:G('leveraged',6),
+    theme:{ bg:'#0b0c10', card:'#15171f', acc:'#8c7bff', accInk:'#fff' },
     line:'Посты для трейдинг-сервиса: акции, выплаты трейдерам и анонсы мероприятий.',
-    role:'Ключевые визуалы, посты', short:'LEVERAGED' },
-  { id:'verss', type:'comms', name:'Verss.ai', kind:'дизайн презентаций', status:'Коммерческий проект',
-    color:'#1a1a1c', cover:'assets/comms/verss/01.jpg', gallery:['assets/comms/verss/01.jpg','assets/comms/verss/02.jpg','assets/comms/verss/03.jpg'], galleryLayout:'grid',
-    line:'Универсальная система слайдов для коммерческих и инвестиционных проектов.',
-    role:'Дизайн-система презентаций', short:'VERSS' },
+    role:'Ключевые визуалы, посты', short:'LEVERAGED',
+    blocks:[
+      { t:'lead', h:'Задача', text:'Разные поводы — один визуальный язык.' },
+      { t:'kv', items:[['Клиент','Leveraged — трейдинг-сервис'],['Формат','Посты 4:5 для соцсетей'],['Стиль','Тёмно-зелёный, стекло и металл']] },
+      // плитка 1×2 — ровно пост 4:5
+      { t:'bento', rk:.6, items:[
+        ...G('leveraged',6).slice(0, 4).map((s, k)=>({ img:s, c:1, r:2, lb:k ? '' : 'Посты 4:5' })),
+        { img:G('leveraged',6)[4], c:1, r:2 },
+        { big:'Стекло и металл', small:'акции, выплаты трейдерам и анонсы — в одной системе', c:2, r:2 },
+        { img:G('leveraged',6)[5], c:1, r:2 } ] } ] },
   { id:'posters', type:'comms', name:'Постеры', kind:'серия постеров', status:'Личные и коммерческие',
-    color:'#1a1a1c', coverType:'columns', gallery:['assets/comms/posters/01.jpg','assets/comms/posters/02.jpg','assets/comms/posters/03.jpg','assets/comms/posters/04.jpg','assets/comms/posters/05.jpg','assets/comms/posters/06.jpg'], galleryLayout:'grid',
-    line:'Серия в разных графических стилях — от коммерческих предложений и культурных событий до экспериментальных арт-постеров.',
-    role:'Графический дизайн, леттеринг', short:'POSTERS' },
-  { id:'onewin-yt', type:'comms', name:'1WIN — обложки YouTube', kind:'превью для видео', status:'Коммерческий проект',
-    color:'#1a1a1c', coverType:'columns', gallery:['assets/comms/onewin-yt/01.jpg','assets/comms/onewin-yt/02.jpg','assets/comms/onewin-yt/03.jpg','assets/comms/onewin-yt/04.jpg','assets/comms/onewin-yt/05.jpg','assets/comms/onewin-yt/06.jpg'], galleryLayout:'grid',
-    line:'Серия брендированных превью для видео: единый стиль, фирменные цвета, акцент на контент и событие.',
-    role:'Превью, ключевые визуалы', short:'1WIN' },
-  { id:'onewin-ig', type:'comms', name:'1WIN — Instagram', kind:'посты и сторис', status:'Коммерческий проект',
-    color:'#1a1a1c', coverType:'columns', gallery:['assets/comms/onewin-ig/01.jpg','assets/comms/onewin-ig/02.jpg','assets/comms/onewin-ig/03.jpg','assets/comms/onewin-ig/04.jpg','assets/comms/onewin-ig/05.jpg','assets/comms/onewin-ig/06.jpg','assets/comms/onewin-ig/07.jpg','assets/comms/onewin-ig/08.jpg','assets/comms/onewin-ig/09.jpg','assets/comms/onewin-ig/10.jpg','assets/comms/onewin-ig/11.jpg','assets/comms/onewin-ig/12.jpg'], galleryLayout:'grid',
-    line:'Посты и сторис партнёрской программы: анонсы событий, условия и итоги.',
-    role:'Посты, сторис, ключевые визуалы', short:'1WIN' },
+    color:'#1a1a1c', coverType:'columns', gallery:G('posters',6),
+    theme:{ bg:'#111', card:'#1a1a1a', acc:'#fff', accInk:'#111' },
+    line:'Постеры в разных стилях — от афиш событий до арт-экспериментов.',
+    role:'Графический дизайн, леттеринг', short:'POSTERS',
+    blocks:[
+      { t:'lead', h:'О серии', text:'У каждого постера свой графический язык.' },
+      { t:'kv', items:[['Формат','События и личные эксперименты'],['Что делала','Графика, леттеринг, коллаж'],['Стили','От шрифтовых постеров до коллажа']] },
+      // плитка 1×2 — ровно постер A-формата
+      { t:'bento', rk:.686, items:[
+        { img:G('posters',6)[0], c:2, r:4 },
+        ...G('posters',6).slice(1, 5).map(s=>({ img:s, c:1, r:2 })),
+        { img:G('posters',6)[5], c:1, r:2 },
+        { big:'06', small:'постеров: афиши, шрифтовые и коллажи', c:3, r:2, cls:'big' } ] } ] },
+  { id:'onewin-yt', type:'comms', name:'1WIN', kind:'превью, посты и сторис', status:'Коммерческий проект',
+    color:'#1a1a1c', coverType:'banners', gallery:[1,2,3,6].map(k=>`assets/comms/onewin-yt/${String(k).padStart(2,'0')}.jpg`),
+    theme:{ bg:'#0a0f1e', card:'#121a30', acc:'#2f7bff', accInk:'#fff' },
+    line:'Превью для YouTube, посты и сторис партнёрской программы — одна фирменная система.',
+    role:'Превью, посты, сторис', short:'1WIN',
+    blocks:[
+      { t:'lead', h:'Задача', text:'У обложки и поста секунда, чтобы их заметили и узнали бренд.' },
+      { t:'kv', items:[['Клиент','1WIN и 1WIN Partners'],['Форматы','Превью 16:9, посты 1:1, сторис 9:16, презентация'],['Темы','Конференции, итоги года, анонсы, условия']] },
+      // по форматам — отдельные бенто: у каждого своя высота ряда, чтобы плитки были ровно в пропорцию формата
+      { t:'bento', h:'Превью YouTube', rk:.5625, items:[
+        { img:YT(1), c:2, r:2 }, { img:YT(6), c:2, r:2 },
+        { img:YT(2), c:1, r:1 }, { img:YT(3), c:1, r:1 }, { img:YT(4), c:1, r:1 }, { img:YT(5), c:1, r:1 } ] },
+      { t:'bento', h:'Посты Instagram', rk:1, items:[
+        { img:IG(10), c:2, r:2 }, { img:IG(1), c:2, r:2 },
+        { img:IG(3), c:1, r:1 }, { img:IG(6), c:1, r:1 }, { img:IG(8), c:1, r:1 }, { img:IG(12), c:1, r:1 } ] },
+      { t:'bento', h:'Сторис', rk:1.778, items:[
+        ...[2,4,5,7,9,11].map(k=>({ img:IG(k), c:1, r:1 })),
+        { big:'9:16', small:'условия, анонсы и итоги — в той же системе, что посты', acc:1, c:2, r:1, cls:'big' } ] },
+      { t:'bento', h:'Презентация eCommerce vs iGaming', text:'Для партнёров: как перейти из eCommerce в iGaming — рынок, ROI и источники трафика.', rk:.667, items:[
+        { img:'assets/comms/igaming/cover1.jpg', c:2, r:2 }, { img:'assets/comms/igaming/02.jpg', c:2, r:2 },
+        { img:'assets/comms/igaming/01.jpg', c:2, r:2 }, { img:'assets/comms/igaming/03.jpg', c:2, r:2 } ] } ] },
   { id:'anons', type:'comms', name:'Анонсы и розыгрыши', kind:'посты для соцсетей', status:'Коммерческий проект',
-    color:'#1a1a1c', coverType:'columns', gallery:['assets/comms/anons/01.jpg','assets/comms/anons/02.jpg','assets/comms/anons/03.jpg','assets/comms/anons/04.jpg','assets/comms/anons/05.jpg','assets/comms/anons/06.jpg'], galleryLayout:'grid',
+    color:'#1a1a1c', coverType:'columns', gallery:G('anons',6),
+    theme:{ bg:'#121212', card:'#1c1c1c', acc:'#ffd400', accInk:'#111' },
     line:'Посты для продвижения акций и анонса мероприятий.',
-    role:'Посты, леттеринг', short:'ANONS' },
-  { id:'igaming', type:'comms', name:'eCommerce vs iGaming', kind:'презентация', status:'Коммерческий проект',
-    color:'#1a1a1c', coverType:'banners', gallery:['assets/comms/igaming/01.jpg','assets/comms/igaming/02.jpg','assets/comms/igaming/03.jpg'], galleryLayout:'grid',
+    role:'Посты, леттеринг', short:'ANONS',
+    blocks:[
+      { t:'lead', h:'Задача', text:'Главное — дата, приз и что сделать.' },
+      { t:'kv', items:[['Формат','Посты 1:1 для соцсетей'],['Темы','Розыгрыши, экскурсии, праздники'],['Что делала','Посты, леттеринг']] },
+      // плитка 1×1 — ровно квадратный пост
+      { t:'bento', rk:1, items:[
+        { img:G('anons',6)[0], c:2, r:2 },
+        ...G('anons',6).slice(1, 5).map(s=>({ img:s, c:1, r:1 })),
+        { img:G('anons',6)[5], c:1, r:1 },
+        { big:'Дата · приз · действие', small:'три вещи, которые читаются первыми', acc:1, c:3, r:1 } ] } ] },
+  { id:'igaming', hidden:true, type:'comms', name:'eCommerce vs iGaming', kind:'презентация', status:'Коммерческий проект',
+    color:'#1a1a1c', coverType:'banners', gallery:G('igaming',3),
+    theme:{ bg:'#0d0d12', card:'#171722', acc:'#66ccff', accInk:'#071018' },
     line:'Презентация о переходе бизнеса из одного сегмента в другой: цифры рынка и источники трафика.',
-    role:'Дизайн презентации, инфографика', short:'IGAMING' },
-  { id:'apork', type:'comms', name:'Angry Pork', kind:'лендинг и баннеры', status:'Коммерческий проект',
-    color:'#1a1a1c', coverType:'banners', gallery:['assets/comms/apork/01.jpg','assets/comms/apork/02.jpg','assets/comms/apork/03.jpg','assets/comms/apork/04.jpg'], galleryLayout:'grid',
+    role:'Дизайн презентации, инфографика', short:'IGAMING',
+    blocks:[
+      { t:'lead', h:'Задача', text:'Презентация о переходе бизнеса из eCommerce в iGaming: цифры рынка и источники трафика должны считываться с одного взгляда.' },
+      { t:'deck', imgs:G('igaming',3) } ] },
+  { id:'apork', hidden:true, type:'comms', name:'Angry Pork', kind:'лендинг и баннеры', status:'Коммерческий проект',
+    color:'#1a1a1c', coverType:'banners', gallery:G('apork',4),
+    theme:{ bg:'#120c09', card:'#1f1511', acc:'#ff7a3d', accInk:'#140600' },
     line:'Лендинг и рекламные баннеры для криптовалюты APORK.',
-    role:'Лендинг, баннеры, иллюстрации', short:'APORK' },
-  { id:'snaky', type:'comms', name:'Snaky Way', kind:'лендинг и баннеры', status:'Коммерческий проект',
-    color:'#1a1a1c', coverType:'page', gallery:['assets/comms/snaky/01.jpg'], galleryLayout:'grid',
+    role:'Лендинг, баннеры, иллюстрации', short:'APORK',
+    blocks:[
+      { t:'lead', h:'Задача', text:'Лендинг и рекламные баннеры для мем-криптовалюты APORK: дерзкий персонаж, который запоминается.' },
+      { t:'grid', cls:'one', cols:2, gap:'20px', r:'22px', imgs:G('apork',4) } ] },
+  { id:'snaky', hidden:true, type:'comms', name:'Snaky Way', kind:'лендинг и баннеры', status:'Коммерческий проект',
+    color:'#1a1a1c', coverType:'page', gallery:G('snaky',1),
+    theme:{ bg:'#08110b', card:'#102016', acc:'#7dff6b', accInk:'#061006' },
     line:'Лендинг и баннеры для криптовалюты $AKE.',
-    role:'Лендинг, баннеры', short:'SNAKY' },
+    role:'Лендинг, баннеры', short:'SNAKY',
+    blocks:[
+      { t:'lead', h:'Задача', text:'Лендинг для криптовалюты $AKE: длинная история проекта, которую хочется долистать до конца.' },
+      { t:'stage', word:'$AKE', bg:'#7dff6b', ink:'#061006', h:'Лендинг', corner:'Мобильная версия', text:'Страница целиком — листается сама, наведите, чтобы остановить.', src:'assets/comms/snaky/01.jpg', long:true } ] },
 ];
 
 const $ = s => document.querySelector(s);
@@ -565,7 +1463,8 @@ function fisheye(el, id, k){
   build();
 }
 
-function visible(){ return CASES; }
+// hidden: true — кейс скрыт с сайта (данные остаются, можно вернуть)
+function visible(){ return CASES.filter(c=>!c.hidden); }
 function linkAttrs(c){ return /^https?:/.test(c.url) ? 'target="_blank" rel="noopener"' : 'target="_blank"'; }
 const lockSVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>';
 // проект в разработке: вместо картинок — цвет проекта и надпись
@@ -573,6 +1472,10 @@ const wipCover = c => `<div class="wip-cover" style="background:${c.color}"><spa
 
 /* ---------- лента проектов ---------- */
 let pvIdx = -1, pvBusy = false;
+// автосмена проектов: идёт, пока человек сам не перелистнул (и не включается при «меньше движения»)
+let pvAuto = !matchMedia('(prefers-reduced-motion:reduce)').matches;
+const stopAuto = ()=>{ if(!pvAuto) return; pvAuto = false; document.body.classList.add('no-auto'); $('#pvProg').classList.remove('run'); };
+if(!pvAuto) document.body.classList.add('no-auto');
 const PV_DUR = 7000;      // сколько проект на экране до автосмены
 const PV_T = 1300;        // длительность перехода — спокойная
 const PV_EASE = 'cubic-bezier(.76,0,.2,1)';   // мягкий разгон и долгое торможение
@@ -592,7 +1495,20 @@ const introHTML = ()=>`<div class="intro-in">
   <button class="intro-go" data-go>Работы ↓</button>
 </div>`;
 // миниатюры проектов — одни и те же в ленте и в кейсе
-const thumbsHTML = list => list.map((c,i)=>`<button class="pv-thumb" data-i="${i}" style="--c:${c.color}" aria-label="${c.name}">
+// продукт или коммуникации — для номера над названием и разделителя в плашке
+const isProduct = c => c.type !== 'comms';
+const groupName = c => isProduct(c) ? 'Продуктовый дизайн' : 'Коммуникационный дизайн';
+const eyebrowHTML = i => { const list = visible(); return `<b>${String(i+1).padStart(2,'0')}</b> / ${String(list.length).padStart(2,'0')} · ${groupName(list[i])}`; };
+// длинное название (Therapiezentrum) уменьшается, пока не влезет в колонку
+function fitTitles(root = document){
+  root.querySelectorAll('.pv-title').forEach(t=>{
+    t.style.fontSize = '';
+    if(!t.clientWidth) return;
+    let fs = parseFloat(getComputedStyle(t).fontSize);
+    while(t.scrollWidth > t.clientWidth + 1 && fs > 22){ fs *= .94; t.style.fontSize = fs + 'px'; }
+  });
+}
+const thumbsHTML = list => list.map((c,i)=>`${i && isProduct(list[i-1]) && !isProduct(c) ? '<i class="pv-sep" aria-hidden="true"></i>' : ''}<button class="pv-thumb" data-i="${i}" style="--c:${c.color}" aria-label="${c.name}">
     <span class="ph">${c.wip ? lockSVG : `<img src="${thumbSrc(c)}" alt="" loading="lazy">`}</span>
     <span class="cap"><b>${c.name}</b><i>${c.kind[0].toUpperCase() + c.kind.slice(1)}${c.wip ? ' · в разработке' : ''}</i></span>
   </button>`).join('');
@@ -626,7 +1542,7 @@ function pvShow(i, instant, dir){
     sl.querySelector('[data-go]').addEventListener('click', e=>{ e.stopPropagation(); pvStep(1); });
   } else {
     sl.className = 'pv-slide'; sl.style.background = '#0d0d0e'; sl.dataset.i = i;
-    sl.innerHTML = `<div class="pv-hero"><h2 class="pv-title">${c.name}</h2>${factsHTML(c)}</div>${picHTML(c, i)}`;
+    sl.innerHTML = `<div class="pv-hero"><div><p class="pv-eyebrow">${eyebrowHTML(i)}</p><h2 class="pv-title">${c.name}</h2></div>${factsHTML(c)}</div>${picHTML(c, i)}`;
   }
   if(c && c.device){
     requestAnimationFrame(()=>placeDevice(sl.querySelector('.pv-pic'), c));
@@ -671,16 +1587,17 @@ function pvShow(i, instant, dir){
     setTimeout(theme, PV_T * .3);                          // шапка уезжает / возвращается, плашка появляется
     setTimeout(()=>{ old.remove(); pvBusy = false; }, PV_T + 120);
   }
+  requestAnimationFrame(()=>fitTitles(sl));
   const pr = $('#pvProg');
   pr.classList.remove('run'); void pr.offsetWidth;
   if(intro) return;                                        // на первом экране автосмены нет
   const meta = $('#pvMeta');
-  meta.innerHTML = `<b>${c.name}</b><span>${c.kind[0].toUpperCase() + c.kind.slice(1)} · ${c.status}</span>`;
+  meta.innerHTML = `<b>${c.name}</b><span>${String(i+1).padStart(2,'0')} / ${list.length} · ${cap(c.kind)}</span>`;
   meta.classList.remove('roll'); void meta.offsetWidth; meta.classList.add('roll');
   $('#pvOpen').innerHTML = c.wip ? lockSVG : '↗';
-  $('#pvThumbs').querySelectorAll('.pv-thumb').forEach(b=>b.classList.toggle('on', +b.dataset.i === i));
+  $('#pvThumbs').querySelectorAll('.pv-thumb').forEach(b=>{ const d = Math.abs(+b.dataset.i - i); b.classList.toggle('on', !d); b.classList.toggle('nb', d === 1); });
   // прогресс внизу плашки; когда дойдёт до конца — следующий проект
-  pr.style.setProperty('--pvdur', PV_DUR + 'ms'); pr.classList.add('run');
+  if(pvAuto){ pr.style.setProperty('--pvdur', PV_DUR + 'ms'); pr.classList.add('run'); }
   (window.requestIdleCallback || (f=>setTimeout(f, 600)))(()=>preload((i + 1) % list.length));
 }
 const cap = t => t[0].toUpperCase() + t.slice(1);
@@ -705,8 +1622,9 @@ function motionCover(c){
 const picHTML = (c, i) => `<div class="pv-pic" data-i="${i}">${
   c.coverType ? motionCover(c)
   : c.wip ? wipCover(c)
-  : `<img class="cover" src="${pvSrc(c)}" alt="${c.name}" style="object-position:${c.cover ? 'center' : 'center top'}">${
-      c.device ? `<div class="pv-device"><img class="pv-shot" src="${c.device.shot}" alt=""><i class="cam"></i><i class="glare"></i></div>` : ''}`
+  : `<img class="cover" src="${pvSrc(c)}" alt="${c.name}" style="object-position:${c.coverPos || (c.cover ? 'center' : 'center top')}">${
+      c.device ? `<div class="pv-device"><img class="pv-shot" src="${c.device.shot}" alt=""><i class="cam"></i><i class="glare"></i></div>` : ''}${
+      c.coverLive && canLive ? `<iframe class="cover-live" src="${c.coverLive}" title="${c.name}" tabindex="-1" aria-hidden="true" onload="this.classList.add('on')"></iframe>` : ''}`
 }</div>`;
 /* экран устройства на обложке: та же математика, что у object-fit: cover — масштаб по большей стороне, центр */
 function placeDevice(box0, c){
@@ -747,13 +1665,14 @@ function preload(i){
   [pvSrc(c), ...(c.coverType ? (c.stories || c.gallery).slice(0, 6) : [])].filter(Boolean)
     .forEach(src=>{ const im = new Image(); im.src = src; im.decode?.().catch(()=>{}); });
 }
-const pvStep = sg => {
+const pvStep = (sg, auto) => {
   const n = visible().length;
+  if(!auto && pvIdx >= 0) stopAuto();
   if(pvIdx === -1){ if(sg > 0) pvShow(0, false, 1); return; }
   if(pvIdx === 0 && sg < 0) return pvShow(-1, false, -1);
   pvShow((pvIdx + sg + n) % n, false, sg);
 };
-$('#pvProg').addEventListener('animationend', ()=>{ if(openIdx < 0 && pvIdx >= 0) pvStep(1); });
+$('#pvProg').addEventListener('animationend', ()=>{ if(openIdx < 0 && pvIdx >= 0 && pvAuto) pvStep(1, true); });
 const pvOpenCurrent = ()=>{ const c = pvIdx >= 0 && visible()[pvIdx]; if(c && !c.wip) openCase(pvIdx); };
 $('#pvStage').addEventListener('click', pvOpenCurrent);
 $('#pvOpen').addEventListener('click', e=>{ e.stopPropagation(); pvOpenCurrent(); });
@@ -785,6 +1704,7 @@ $('#pvOpen').addEventListener('click', e=>{ e.stopPropagation(); pvOpenCurrent()
 // колесо листает проекты по одному; в открытом кейсе прокрутка вверх возвращает к ленте
 let wheelAcc = 0, wheelT = 0, wheelMuteUntil = 0, lastWheel = 0, gestureFromTop = false;
 addEventListener('wheel', e=>{
+  if(window.lboxOpen && lboxOpen()) return;
   const th = e.target.closest && e.target.closest('.pv-thumbs');
   if(th){ if(th.scrollHeight > th.clientHeight) th.scrollTop += e.deltaY; else th.scrollLeft += e.deltaY + e.deltaX; th.scrollLeft += e.deltaX; return; }
   clearTimeout(wheelT);
@@ -825,8 +1745,15 @@ addEventListener('touchend', e=>{
   if(Math.abs(dy) > 60) pvStep(dy < 0 ? 1 : -1);   // свайп вверх — следующий проект
 });
 addEventListener('keydown', e=>{
-  if(e.key === 'Escape'){ closeCase(); return; }
+  if(window.lboxOpen && lboxOpen()){
+    if(e.key === 'Escape') lboxClose();
+    if(e.key === 'ArrowRight') lboxStep(1);
+    if(e.key === 'ArrowLeft') lboxStep(-1);
+    return;
+  }
+  if(e.key === 'Escape'){ if(works.classList.contains('on')) worksClose(); else closeCase(); return; }
   if(openIdx > -1) return;
+  if(e.key === 'Enter' && e.target === document.body) pvOpenCurrent();
   if(e.key === 'ArrowDown' || e.key === 'PageDown') pvStep(1);
   if(e.key === 'ArrowUp' || e.key === 'PageUp') pvStep(-1);
 });
@@ -839,6 +1766,7 @@ function goHome(){
 logo.addEventListener('click', goHome);
 logo.addEventListener('keydown', e=>{ if(e.key==='Enter') goHome(); });
 $('#caseLogo').addEventListener('click', goHome);
+$('#caseLogo').addEventListener('keydown', e=>{ if(e.key==='Enter') goHome(); });
 
 /* адрес страницы помнит открытый кейс: обновление страницы возвращает туда же */
 function syncHash(){
@@ -852,35 +1780,241 @@ const caseScroll = $('#caseScroll');
 const revealIO = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); }),
   { root: caseScroll, threshold: .15 });
 const nextOpen = i => { const list = visible(); do { i = (i + 1) % list.length; } while(list[i].wip); return i; };
+/* ---------- блоки кейса: у каждого кейса свой набор и порядок (CASES[].blocks) ---------- */
+const pad2 = k => String(k + 1).padStart(2, '0');
+const imgT = (src, extra = '') => `<img src="${src}" alt="" loading="lazy" ${extra}>`;
+const headT = b => (b.h || b.text) ? `<header class="b-head"><h3>${b.h || ''}</h3>${b.text ? `<p>${b.text}</p>` : ''}</header>` : '';
+const screenT = (x, vw) => `<div class="scr${x.long ? ' long' : ''}"${x.live ? ` data-live="${x.live}" data-vw="${vw}"` : ''}>${imgT(x.shot || x.src)}${x.live ? '<span class="live">Живой сайт</span>' : ''}</div>`;
+const igBar = '<span class="igb"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><svg viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-11.6 7.1L4 20l1.4-4.2A8 8 0 1 1 20 11.5z"/></svg><svg viewBox="0 0 24 24"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4 18-7z"/></svg><svg viewBox="0 0 24 24" class="bm"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></span>';
+// плитка бенто — одна разметка и для сетки, и для рядов
+const bentoTile = x=>{
+      // размер плитки: c — колонок из 4, r — рядов; старые w/h — то же, что c:2 / r:2
+      const cls = [x.c ? 'c' + x.c : x.w ? 'w2' : '', x.r ? 'r' + x.r : x.h ? 'h2' : '', x.cls || ''].join(' ');
+      const lb = x.lb ? `<span class="lb">${x.lb}</span>` : '';
+      if(x.img) return `<div class="${cls}">${imgT(x.img, x.pos ? `style="object-position:${x.pos}"` : '')}${lb}</div>`;
+      // длинная страница в окне браузера на цветной подложке — листается внутри окна
+      // live — вместо картинки встаёт живой сайт (на компьютере), картинка остаётся заглушкой
+      if(x.win) return `<div class="${cls} dv" style="--dbg:${x.bg || 'var(--cacc)'}"><div class="bw"><div class="bar"><i></i><i></i><i></i><span>${x.url || ''}</span><em>${x.live ? 'Живой сайт — можно листать' : 'Листайте внутри ↓'}</em></div>${
+          screenT(x.live ? { shot:x.win, live:x.live } : { src:x.win, long:true }, 1440)}</div>${lb}</div>`;
+      // генератор целиком (как у Instrument): снимок инструмента с панелью, сверху слева — название со стрелкой и что он делает
+      if(x.gen) return `<div class="${cls} gen">${imgT(x.gen)}<div class="gc"><b>→ ${x.e}</b><span>${x.p}</span></div></div>`;
+      // 3D-коробка: крутится сама, тянешь — поворачиваешь
+      if(x.box) return `<div class="${cls} bx"><div class="cube-wrap" data-spin><div class="cube">${
+          Object.entries(x.box).map(([k, s])=>`<i class="${k}" style="background-image:url('${s}')"></i>`).join('')}</div></div>${lb}</div>`;
+      // шторка «до / после»
+      if(x.ba) return `<div class="${cls} b-ba"><div class="cmp" style="--i:${x.k || 0}"><img src="${x.ba[1]}" alt="После" loading="lazy"><div class="bf"><img src="${x.ba[0]}" alt="До" loading="lazy"></div><i class="hd"></i></div>${lb}</div>`;
+      // два телефона-картинки (с прозрачным фоном) на цветной подложке
+      if(x.duo) return `<div class="${cls} duo2" style="--dbg:${x.bg || 'var(--cacc)'}">${x.duo.map(s=>imgT(s)).join('')}${lb}</div>`;
+      // список (этапы работы)
+      if(x.list) return `<div class="${cls} ls"><i>${x.h || ''}</i><ol>${x.list.map(t=>`<li>${t}</li>`).join('')}</ol></div>`;
+      if(x.step) return `<div class="${cls} st"><i>${x.n || ''}</i><b>${x.step[0]}</b><span>${x.step[1]}</span></div>`;
+      if(x.pal && Array.isArray(x.pal[0])) return `<div class="${cls} pal named">${x.pal.map(([hex, n, ink])=>`<i style="background:${hex};color:${ink || '#fff'}"><b>${n}</b>${hex}</i>`).join('')}${lb}</div>`;
+      if(x.phone) return `<div class="${cls} ph-tile"${x.bg ? ` style="background:${x.bg}"` : ''}><div class="phone">${x.live || x.long
+          ? screenT({ shot:x.phone, src:x.phone, live:x.live, long:x.long && !x.live }, 390)
+          : `<div class="scr"><img src="${x.phone}" alt="" loading="lazy" style="object-fit:cover;object-position:50% 0"></div>`}</div>${lb}</div>`;
+      if(x.book) return `<div class="${cls}"><div class="cube-wrap book-wrap" data-spin><div class="book">${
+          Object.entries(x.book).map(([k, s])=>`<i class="${k}" style="background-image:url('${s}')"></i>`).join('')}<i class="pg"></i><i class="tp"></i><i class="bt"></i></div></div>${lb}</div>`;
+      if(x.pal) return `<div class="${cls} pal">${x.pal.map(c=>`<i style="background:${c}"></i>`).join('')}${lb}</div>`;
+      if(x.words) return `<div class="${cls} tx words${x.acc ? ' acc' : ''}">${x.words.map(w=>`<b>${w}</b>`).join('')}${lb}</div>`;
+      return `<div class="${cls} tx${x.acc ? ' acc' : ''}"><b>${x.big}</b>${x.small ? `<small>${x.small}</small>` : ''}${lb}</div>`;
+};
+// плитка в ряду: пропорция задаётся на самой плитке; широкие (a ≥ 1.6) на телефоне занимают всю строку
+const rowTile = x=>{
+  const html = bentoTile(x), end = html.indexOf('>'), css = `flex:${x.a} 1 0;aspect-ratio:${x.a}`;
+  let tag = html.slice(0, end);
+  tag = tag.includes(' style="') ? tag.replace(' style="', ` style="${css};`) : tag + ` style="${css}"`;
+  if(x.a >= 1.6) tag = tag.replace('class="', 'class="wide ');
+  return tag + html.slice(end);
+};
+const BLOCKS = {
+  lead: b => `<section class="cs reveal"><h3>${b.h}</h3><p>${b.text}</p></section>`,
+  kv: b => `<section class="b-kv reveal">${b.items.map(([k, v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')}</section>`,
+  chips: b => `<section class="reveal">${headT(b)}<ol class="b-chips">${b.items.map((x, k)=>`<li><i>${pad2(k)}</i>${x}</li>`).join('')}</ol></section>`,
+  steps: b => `<section class="reveal">${headT({ h:b.h })}<ol class="b-steps">${b.items.map(([t, s], k)=>`<li><i>${pad2(k)}</i><b>${t}</b><span>${s}</span></li>`).join('')}</ol></section>`,
+  emo: b => `<section class="b-emo reveal">${headT(b)}<div class="words">${b.words.map((w, k)=>`<b><small>${k ? 'эмоция ' + pad2(k) : 'главная'}</small>${w}</b>`).join('')}</div></section>`,
+  stagger: b => `<section class="b-stagger">${b.items.map((x, k)=>`<div class="row reveal${k % 2 ? ' flip' : ''}">
+      <figure class="b-media m${x.size ? ' ' + x.size : ''}">${imgT(x.img)}</figure>
+      <div class="t"><h3>${x.e}</h3><p>${x.p}</p></div></div>`).join('')}</section>`,
+  browser: b => `<section class="b-browser reveal">${headT(b)}<div class="frame"><div class="bar"><i></i><i></i><i></i><span>${b.url || ''}</span>${
+      b.long ? '<span class="hint">Листайте внутри окна ↓</span>' : b.live ? '<span class="hint">Живой сайт — можно листать</span>' : ''}</div>${screenT(b, 1440)}</div></section>`,
+  phones: b => `<section class="b-phones reveal${b.wide ? ' wide' : ''}${b.top ? ' shot-top' : ''}">${headT(b)}<div class="row">${b.items.map(x=>`<div class="ph-item"><div class="phone${b.story ? ' story' : ''}">${screenT(x, 390)}</div>${x.cap ? `<p class="pcap">${x.cap}</p>` : ''}</div>`).join('')}</div></section>`,
+  adapt: b => `<section class="b-adapt reveal"><div class="t"><h3 class="eb">${b.h}</h3><p>${b.text}</p><ul>${b.sizes.map(s=>`<li>${s}</li>`).join('')}</ul></div><div class="phone">${screenT(b, 390)}</div></section>`,
+  stage: b => { const w = b.word ? `<span>${(b.word + ' · ').repeat(3)}</span>` : '';
+    const scr = b.cycle ? `<div class="scr cycle" data-cycle>${b.cycle.map((s, k)=>imgT(s, k ? '' : 'class="on"')).join('')}<span class="bars">${b.cycle.map((s, k)=>`<i${k ? '' : ' class="on"'}></i>`).join('')}</span></div>` : screenT(b, 390);
+    return `<section class="b-stage reveal" style="--sbg:${b.bg};--sink:${b.ink}"><div class="mq"><div class="run">${w}${w}</div></div>
+      <div class="phone${b.cycle ? ' story' : ''}">${scr}</div>
+      <p class="cn tl">${b.h}</p><p class="cn tr">${(b.sizes || []).join(' · ')}</p><p class="cn bl">${b.text}</p><p class="cn br">${b.corner || ''}</p></section>`; },
+  img: b => `<section class="b-img reveal${b.bleed ? ' bleed' : ''}">${headT(b)}<figure class="b-media">${imgT(b.src)}</figure>${b.cap ? `<p class="cap">${b.cap}</p>` : ''}</section>`,
+  grid: b => `<section class="b-grid reveal ${b.cls || ''}" style="--cols:${b.cols || 3};${b.gap ? `--gap:${b.gap};` : ''}${b.r ? `--r:${b.r};` : ''}">${headT(b)}<div class="g">${
+      b.imgs.map((s, k)=>`<div>${`<figure${b.ratio ? ` style="aspect-ratio:${b.ratio}"` : ''}>${imgT(s)}</figure>`}${b.num ? `<span class="num">${pad2(k)}</span>` : ''}</div>`).join('')}</div></section>`,
+  // бегущие ряды во всю ширину: нечётные едут влево, чётные — вправо; набор продублирован, чтобы шов не был виден
+  run: b => `<section class="b-run reveal">${headT(b)}${b.rows.map((r, k)=>`<div class="rw${k % 2 ? ' rt' : ''}"><div class="tr">${
+      [...r, ...r].map(s=>b.ig ? `<div class="igp"><figure>${imgT(s)}</figure>${igBar}</div>` : `<figure>${imgT(s)}</figure>`).join('')}</div></div>`).join('')}</section>`,
+  // окно презентации со слайдами внахлёст, как на подаче в Behance
+  scatter: b => `<section class="b-scatter reveal${b.bare ? ' bare' : ''}">${headT(b)}<div class="sc">${b.bare ? '' : `<div class="win"><i></i><i></i><i></i><span>${b.title || ''}</span></div>`}${
+      b.items.map(([s, l, t, w], k)=>`<figure style="--l:${l}%;--t:${t}%;--w:${w}%;--k:${k}">${imgT(s)}</figure>`).join('')}</div></section>`,
+  strip: b => `<section class="b-strip reveal">${headT(b)}<div class="g">${b.imgs.map(s=>`<figure>${imgT(s)}</figure>`).join('')}</div><p class="hint">Листайте вбок →</p></section>`,
+  stack: b => `<section class="b-stack reveal${b.cols ? ' two' : ''}">${headT(b)}<div class="g">${b.imgs.map(s=>`<figure>${imgT(s)}</figure>`).join('')}</div></section>`,
+  deck: b => `<section class="reveal">${headT(b)}<div class="deck"><div class="stage">${b.imgs.map((s, k)=>imgT(s, k ? '' : 'class="on"')).join('')}</div>
+      <div class="ctl"><button data-d="-1" aria-label="Предыдущий слайд">←</button><span>01 / ${String(b.imgs.length).padStart(2, '0')}</span><button data-d="1" aria-label="Следующий слайд">→</button></div></div></section>`,
+  intro: b => `<section class="b-intro reveal"><div class="ld"><h3 class="eb">${b.lead.h}</h3><p>${b.lead.text}</p></div>
+      <dl>${b.kv.items.map(([k, v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>${
+      b.chips ? `<div class="proc"><h3 class="eb">${b.chips.h}</h3><ol class="b-chips">${b.chips.items.map((x, k)=>`<li><i>${pad2(k)}</i>${x}</li>`).join('')}</ol></div>` : ''}</section>`,
+  tiles: (b, c) => `<section class="b-tiles reveal">${headT(b)}<div class="g">${b.items.map(([n, s])=>`<div><b>${n}</b><span>${s}</span></div>`).join('')}${
+      c.url ? `<a href="${c.url}" ${linkAttrs(c)}><b>${c.urlLabel}</b><span>↗</span></a>` : ''}</div></section>`,
+  palette: b => `<section class="b-pal reveal">${headT(b)}<div class="sw">${b.colors.map(([hex, n, ink])=>`<div style="background:${hex};color:${ink}"><b>${n}</b>${hex}</div>`).join('')}</div>
+      <div class="ty">${b.fonts.map(([f, s])=>`<div><b>${f}</b><span>${s}</span></div>`).join('')}</div></section>`,
+  trio: b => `<section class="b-grid trio reveal" style="--cols:3">${headT(b)}<div class="g">${b.imgs.map(s=>`<figure>${imgT(s)}</figure>`).join('')}</div></section>`,
+  // две картинки рядом, у каждой подпись снизу
+  duo: b => `<section class="b-duo reveal${b.items.length === 3 ? ' three' : ''}">${headT(b)}<div class="g">${b.items.map(x=>`<div><figure class="b-media">${imgT(x.img)}</figure><h3 class="eb">${x.e}</h3><p>${x.p}</p></div>`).join('')}</div></section>`,
+  chrome: b => `<section class="b-chrome reveal">${headT(b)}<div class="b-rows">${b.rows.map((s, k)=>`<i style="--i:${k};--bg:url('${s}')"></i>`).join('')}</div><ol class="sr">${b.items.map(x=>`<li>${x}</li>`).join('')}</ol></section>`,
+  scrollwin: b => `<section class="b-win reveal"><p class="tag">${b.h}</p><div class="st"><img src="${b.bg}" alt="" loading="lazy"><div class="win" style="--l:${b.box[0]}%;--t:${b.box[1]}%;--w:${b.box[2]}%;--shift:-${b.shift}%"><img src="${b.page}" alt="Главная страница сайта" loading="lazy"></div></div></section>`,
+  laptop: b => `<section class="b-lap reveal"><p class="tag">${b.h}</p><p class="hint">Наведите, чтобы остановить</p><div class="lap"><img src="${b.bg}" alt="" loading="lazy"><div class="scr"><img src="${b.page}" alt="Главная страница сайта" loading="lazy"></div></div></section>`,
+  adapt: b => `<section class="b-adapt reveal"><p class="tag">${b.h}</p><div class="st"><img class="bg" src="${b.bg}" alt="Планшетная версия" loading="lazy">${b.phones.map((s, k)=>`<img class="ph p${k + 1}" src="${s}" alt="Мобильная версия" loading="lazy">`).join('')}</div></section>`,
+  bars: b => `<section class="b-bars reveal"><div class="b-rows">${b.rows.map((s, k)=>`<i style="--i:${k};--bg:url('${s}')"></i>`).join('')}</div><p class="sr">${b.items.join(', ')}</p></section>`,
+  pair: b => `<section class="b-pair reveal">${b.imgs.map(s=>`<figure>${imgT(s)}</figure>`).join('')}</section>`,
+  glow: b => `<section class="b-glow reveal"><figure>${imgT(b.src)}</figure></section>`,
+  screens: b => { let k = 0; return `<section class="b-screens reveal">${headT(b)}<div class="total"><b>${b.rows.reduce((s, r)=>s + r[1], 0)}</b><span>экранов в проекте</span></div>${
+    b.rows.map(([n, c, a, h])=>`<div class="row"><p><b>${c}</b>${n}</p><div class="sh">${Array.from({length:c}, ()=>`<i style="--a:${a};--h:${h}px;--k:${k++}"></i>`).join('')}</div></div>`).join('')}</section>`; },
+  ba: b => `<section class="b-ba reveal">${headT(b)}<div class="g">${b.pairs.map(([a, c], k)=>`<div class="cmp" style="--i:${k}"><img src="${c}" alt="После" loading="lazy"><div class="bf"><img src="${a}" alt="До" loading="lazy"></div><i class="hd"></i></div>`).join('')}</div></section>`,
+  box: b => `<section class="b-box reveal"><div class="wrap"><div class="cube-wrap" data-spin><div class="cube">${
+      Object.entries(b.faces).map(([k, s])=>`<i class="${k}" style="background-image:url('${s}')"></i>`).join('')}</div></div>
+      <div class="t"><h3 class="eb">${b.h}</h3><p>${b.text}</p><small>${b.note}</small></div></div></section>`,
+  book: b => `<section class="b-box reveal"><div class="wrap"><div class="cube-wrap book-wrap" data-spin><div class="book">${
+      Object.entries(b.faces).map(([k, s])=>`<i class="${k}" style="background-image:url('${s}')"></i>`).join('')}<i class="pg"></i><i class="tp"></i><i class="bt"></i></div></div>
+      <div class="t"><h3 class="eb">${b.h}</h3><p>${b.text}</p><small>${b.note}</small>${
+        b.photo ? `<figure class="b-media photo">${imgT(b.photo)}</figure><small>${b.photoCap || ''}</small>` : ''}</div></div></section>`,
+  // rk — высота ряда как доля ширины колонки (.5625 — плитка 1×1 ровно 16:9, 1×3 — почти 9:16)
+  // rows — ряды с подгонкой: в ряду ширины плиток пропорциональны их сторонам (a = ширина/высота), высота общая — ничего не обрезается
+  bento: b => `<section class="reveal b-bento">${headT(b)}${b.rows
+    ? `<div class="brows">${b.rows.map(r=>`<div class="bento brow">${r.map(x=>rowTile(x)).join('')}</div>`).join('')}</div>`
+    : `<div class="bento${b.rk ? ' rk' : ''}"${b.rk ? ` style="--rk:${b.rk}"` : ''}>${b.items.map(x=>bentoTile(x)).join('')}</div>`}</section>`,
+  cta: (b, c) => c.url ? `<section class="cs reveal"><h3>Посмотреть</h3><div><a class="cta" href="${c.url}" ${linkAttrs(c)}>${c.urlLabel} ↗</a></div></section>` : '',
+};
+// кейс без своего набора — общий шаблон
+const defaultBlocks = c => [
+  { t:'lead', h:'Задача', text:c.line },
+  ...(c.gallery ? [{ t:'grid', imgs:c.gallery, cols:3 }] : []),
+  { t:'cta' } ];
+
+// живой сайт в окне браузера / телефоне: подключается, когда до него долистали; только на компьютере
+// iframe вне экрана выключаем (display:none — кадры и шейдеры внутри встают), вернулся — включаем без перезагрузки
+const frameIO = new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('frame-off', !e.isIntersecting)), { rootMargin:'80px 0px' });
+const watchFrames = root => root.querySelectorAll('iframe').forEach(f=>frameIO.observe(f.closest('.pv-device')?.parentElement || f.parentElement));
+const liveIO = new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting || !canLive) return;
+  const el = e.target; liveIO.unobserve(el);
+  const f = document.createElement('iframe');
+  f.src = el.dataset.live; f.title = 'Живой сайт'; f.loading = 'lazy';
+  f.addEventListener('load', ()=>{ f.classList.add('on'); el.classList.add('is-live'); });
+  frameIO.observe(el);
+  el.append(f); fitLive(el);
+}), { rootMargin:'200px 0px' });
+function fitLive(el){
+  const f = el.querySelector('iframe'); if(!f) return;
+  const vw = +el.dataset.vw, k = el.clientWidth / vw;
+  f.style.width = vw + 'px'; f.style.height = Math.ceil(el.clientHeight / k) + 'px'; f.style.transform = `scale(${k})`;
+}
+const liveRO = new ResizeObserver(es=>es.forEach(e=>fitLive(e.target)));
+
+// 3D-коробка и книга: крутятся сами, пока видны; тянешь — поворачиваешь
+const spins = new Set();
+function spinBox(wrap){
+  const obj = wrap.firstElementChild;
+  const st = { ry:-28, rx:-14, v:.22, drag:null, seen:false };
+  const draw = ()=>{ obj.style.transform = `rotateX(${st.rx}deg) rotateY(${st.ry}deg)`; };
+  wrap.addEventListener('pointerdown', e=>{ st.drag = { x:e.clientX, y:e.clientY, ry:st.ry, rx:st.rx }; wrap.setPointerCapture(e.pointerId); });
+  wrap.addEventListener('pointermove', e=>{ if(!st.drag) return;
+    st.ry = st.drag.ry + (e.clientX - st.drag.x) * .5;
+    st.rx = Math.max(-60, Math.min(60, st.drag.rx - (e.clientY - st.drag.y) * .3)); draw(); });
+  const up = ()=>{ st.drag = null; };
+  wrap.addEventListener('pointerup', up); wrap.addEventListener('pointercancel', up);
+  new IntersectionObserver(es=>{ st.seen = es[0].isIntersecting; }).observe(wrap);
+  st.tick = ()=>{ if(st.seen && !st.drag && !reduceMotion){ st.ry += st.v; st.rx += (-14 - st.rx) * .02; draw(); } };
+  draw(); spins.add(st);
+}
+const reduceMotion = matchMedia('(prefers-reduced-motion:reduce)').matches;
+(function spinLoop(){ if(openIdx > -1) spins.forEach(s=>s.tick()); requestAnimationFrame(spinLoop); })();
+
 function fillCase(i){
-  const c = visible()[i];
+  const list = visible(), c = list[i], nx = list[nextOpen(i)];
+  // тема кейса: цвета страницы под проект
+  const t = c.theme || {};
+  const vars = { '--cbg':t.bg, '--ccard':t.card, '--cink':t.ink, '--cmute':t.mute, '--cline':t.line, '--cacc':t.acc, '--cacc-ink':t.accInk };
+  Object.entries(vars).forEach(([k, v])=>v ? caseEl.style.setProperty(k, v) : caseEl.style.removeProperty(k));
+
+  $('#caseEyebrow').innerHTML = eyebrowHTML(i);
   $('#caseTitle').textContent = c.name;
-  $('#caseFacts').outerHTML = factsHTML(c).replace('class="pv-facts"', 'class="pv-facts" id="caseFacts"');
+  $('#caseLead').textContent = c.line;
+  $('#caseHint').innerHTML = `${c.url ? `<a class="cta" href="${c.url}" ${linkAttrs(c)}>${c.urlLabel} ↗</a>` : ''}<span>Листайте вниз ↓</span>`;
   $('#caseCover').innerHTML = picHTML(c, i);
+  if(c.caseCover){
+    const pic = $('#caseCover .pv-pic'); pic.classList.add('rv-cover');
+    pic.querySelector('img.cover').src = c.caseCover;
+    pic.insertAdjacentHTML('beforeend', `<div class="rv-orbs">${(c.orbs || []).map(([t, x, y, d], k)=>
+      `<img class="rv-orb" src="${t}" alt="" style="--x:${x}%;--y:${y}%;--d:${d};--dl:${k * -1.6}s">`).join('')}</div>`);
+  }
   if(c.device) requestAnimationFrame(()=>placeDevice($('#caseCover .pv-pic'), c));
-  const shots = c.gallery || [...(c.slides || []), ...(c.cover && c.img ? [c.img] : [])];
-  // тексты пока черновые — из того, что известно о проекте
-  $('#caseContent').innerHTML = `
-    <section class="cs reveal"><h3>Задача</h3><p>${c.line}</p></section>
-    <section class="cs reveal"><h3>Что делала</h3><p>${c.role}</p></section>
-    ${shots.length ? `<section class="cs cs-full reveal"><h3>Как выглядит</h3><div class="cs-gallery${c.galleryLayout === 'grid' ? ' grid' : ''}">${shots.map(src=>`<img class="reveal" src="${src}" alt="" loading="lazy">`).join('')}</div></section>` : ''}
-    ${c.url ? `<section class="cs reveal"><h3>Посмотреть</h3><a class="cta" href="${c.url}" ${linkAttrs(c)}>${c.urlLabel} ↗</a></section>` : ''}
-    <section class="cs-more reveal"><h3>Другие проекты</h3><div class="cs-cards">${
-      visible().map((o,j)=>j === i ? '' : `<button class="cs-card${o.wip ? ' wip' : ''}" data-i="${j}" style="--c:${o.color}">
-        <span class="ph">${o.wip ? lockSVG : `<img src="${cardSrc(o)}" alt="" loading="lazy">`}</span>
-        <b>${o.name}</b><i>${cap(o.kind)}${o.wip ? ' · в разработке' : ''}</i></button>`).join('')
-    }</div></section>`;
-  $('#caseContent').querySelectorAll('.cs-card:not(.wip)').forEach(b=>b.addEventListener('click', ()=>switchCase(+b.dataset.i)));
-  $('#caseContent').querySelectorAll('.reveal').forEach(el=>revealIO.observe(el));
+  watchFrames($('#caseCover'));
+  $('#next').innerHTML = `Дальше<span class="nx-name">: ${nx.name}</span> →`;
+
+  spins.clear();
+  // «Задача», факты и этапы, если идут подряд, собираются в одну карточку
+  const blocks = [];
+  (c.blocks || defaultBlocks(c)).forEach(b=>{
+    const prev = blocks[blocks.length - 1];
+    if(b.t === 'kv' && prev && prev.t === 'lead') blocks[blocks.length - 1] = { t:'intro', lead:prev, kv:b };
+    else if(b.t === 'chips' && prev && prev.t === 'intro' && !prev.chips) prev.chips = b;
+    else blocks.push(b);
+  });
+  // в конце — большой «Следующий проект» и компактный список остальных по направлениям
+  const card = (o, j)=>`<button class="cs-card" data-i="${j}" style="--c:${o.color}"><span class="ph"><img src="${cardSrc(o)}" alt="" loading="lazy"></span><b>${o.name}</b><i>${cap(o.kind)}</i></button>`;
+  const others = grp => list.map((o, j)=>j !== i && isProduct(o) === grp ? card(o, j) : '').join('');
+  $('#caseContent').innerHTML = blocks.map(b=>BLOCKS[b.t](b, c)).join('') + `
+    <section class="cs-more reveal">
+      <button class="cs-next" data-i="${list.indexOf(nx)}"><img src="${nx.thumb || nx.cover || cardSrc(nx)}" alt="" loading="lazy" style="object-position:${nx.coverPos || 'center'}">
+        <span class="tx"><span><small>Следующий проект</small><b>${nx.name}</b></span><span class="go">→</span></span></button>
+      <h3>Все проекты</h3>
+      <div class="cs-cards">
+        ${others(true) ? `<p class="cs-group">Продуктовый дизайн</p>${others(true)}` : ''}
+        <p class="cs-group">Коммуникационный дизайн</p>${others(false)}
+      </div></section>`;
+  const cc = $('#caseContent');
+  cc.querySelectorAll('.cs-card, .cs-next').forEach(b=>b.addEventListener('click', ()=>switchCase(+b.dataset.i)));
+  cc.querySelectorAll('.reveal').forEach(el=>revealIO.observe(el));
+  cc.querySelectorAll('[data-live]').forEach(el=>{ liveIO.observe(el); liveRO.observe(el); });
+  cc.querySelectorAll('[data-spin]').forEach(spinBox);
+  cc.querySelectorAll('.b-ba .cmp').forEach(el=>{
+    const set = e=>{ const r = el.getBoundingClientRect(); el.style.setProperty('--p', Math.min(100, Math.max(0, (e.clientX - r.left)/r.width*100)) + '%'); };
+    el.addEventListener('pointerenter', e=>{ el.classList.add('man'); set(e); });
+    el.addEventListener('pointermove', set);
+    el.addEventListener('pointerdown', e=>{ el.classList.add('man'); set(e); });
+  });
+  cc.querySelectorAll('[data-cycle]').forEach(el=>{
+    const ims = [...el.querySelectorAll(':scope > img')], bars = [...el.querySelectorAll('.bars i')]; let k = 0;
+    const t = setInterval(()=>{ if(!el.isConnected) return clearInterval(t);
+      ims[k].classList.remove('on'); k = (k + 1) % ims.length; ims[k].classList.add('on');
+      bars.forEach((b, j)=>b.classList.toggle('on', j <= k)); }, 4000);   // как в Instagram: время рассмотреть «до» и «после»
+  });
+  cc.querySelectorAll('.deck').forEach(d=>{
+    const ims = [...d.querySelectorAll('.stage img')], lab = d.querySelector('.ctl span');
+    let k = 0;
+    const go = s=>{ ims[k].classList.remove('on'); k = (k + s + ims.length) % ims.length; ims[k].classList.add('on');
+      lab.textContent = `${pad2(k)} / ${String(ims.length).padStart(2, '0')}`; };
+    d.querySelectorAll('.ctl button').forEach(b=>b.addEventListener('click', ()=>go(+b.dataset.d)));
+    d.querySelector('.stage').addEventListener('click', ()=>go(1));
+  });
   caseScroll.scrollTop = 0;
-  $('#caseThumbs').innerHTML = thumbsHTML(visible());
+  $('#caseTop').classList.remove('past', 'hide', 'scrolled');
+  $('#caseThumbs').innerHTML = thumbsHTML(list);
   $('#caseThumbs').querySelectorAll('.pv-thumb').forEach(b=>{
     const j = +b.dataset.i;
-    b.classList.toggle('on', j === i);
-    b.addEventListener('click', ()=>{ if(j !== openIdx && !visible()[j].wip) switchCase(j); });
+    b.classList.toggle('on', j === i); b.classList.toggle('nb', Math.abs(j - i) === 1);
+    b.addEventListener('click', ()=>{ if(j !== openIdx && !list[j].wip) switchCase(j); });
   });
   $('#caseMeta').innerHTML = `<b>${c.name}</b><span>${cap(c.kind)} · ${c.status}</span>`;
   $('#caseBar').classList.remove('on');
+  requestAnimationFrame(()=>fitTitles($('#case')));
   scramble($('#caseLogo'), 'BRUKWA');   // в шапке кейса — логотип, маленький, как на экранах проектов
 }
 function openCase(i){
@@ -888,14 +2022,16 @@ function openCase(i){
   openIdx = i;
   fillCase(i);
   caseEl.classList.add('is-open'); caseEl.setAttribute('aria-hidden','false');
+  document.body.classList.add('case-on');
   syncHash();
 }
 function closeCase(){
   if(openIdx < 0) return;
   openIdx = -1;
   caseEl.classList.remove('is-open'); caseEl.setAttribute('aria-hidden','true');
+  document.body.classList.remove('case-on');
   syncHash();
-  setTimeout(()=>{ if(openIdx < 0){ $('#caseCover').innerHTML = ''; $('#caseContent').innerHTML = ''; } }, 500);
+  setTimeout(()=>{ if(openIdx < 0){ $('#caseCover').innerHTML = ''; $('#caseContent').innerHTML = ''; spins.clear(); } }, 500);
 }
 // открыть другой кейс поверх текущего; лента под ним тоже переходит на этот проект
 function switchCase(j){
@@ -906,14 +2042,90 @@ function switchCase(j){
   setTimeout(()=>{ fillCase(openIdx); caseEl.classList.add('is-open'); syncHash(); }, 320);
 }
 const goNextCase = ()=>switchCase(nextOpen(openIdx));
-$('#back').addEventListener('click', closeCase);
-// плашка видна после первого экрана и прячется, когда снизу показались карточки «Другие проекты»
-caseScroll.addEventListener('scroll', ()=>{
-  const more = $('#caseContent .cs-more');
-  const moreIn = more && more.getBoundingClientRect().top < innerHeight - 40;
-  $('#caseBar').classList.toggle('on', caseScroll.scrollTop > innerHeight*.5 && !moreIn);
-}, { passive:true });
+/* окно «Все работы»: pin — открыли кнопкой (висит, пока не закроют), иначе — выглянуло по наведению на правый край */
+const works = $('#works');
+let worksPin = false, worksT = 0;
+function worksOpen(pin){
+  clearTimeout(worksT);
+  const list = visible(), cur = openIdx > -1 ? openIdx : pvIdx;
+  const card = (o, j, k)=>`<button class="w-card${j === cur ? ' cur' : ''}" data-i="${j}" style="--c:${o.color};--k:${k}">
+    <span class="ph">${o.wip ? lockSVG : `<img src="${cardSrc(o)}" alt="" loading="lazy">`}</span><b>${o.name}</b><i>${cap(o.kind)}${o.wip ? ' · в разработке' : ''}</i></button>`;
+  let k = 0;
+  const grp = (name, prod)=>{ const cards = list.map((o, j)=>isProduct(o) === prod ? card(o, j, k++) : '').join('');
+    return cards ? `<h3>${name}</h3><div class="g">${cards}</div>` : ''; };
+  if(!works.classList.contains('on')){
+    $('#worksList').innerHTML = grp('Продуктовый дизайн', true) + grp('Коммуникационный дизайн', false);
+    $('#worksN').textContent = list.length;
+  }
+  worksPin = worksPin || pin;
+  document.body.classList.toggle('works-pin', worksPin);
+  works.classList.add('on'); works.setAttribute('aria-hidden', 'false');
+}
+function worksClose(){
+  worksPin = false; document.body.classList.remove('works-pin');
+  works.classList.remove('on'); works.setAttribute('aria-hidden', 'true');
+}
+$('#worksList').addEventListener('click', e=>{
+  const b = e.target.closest('.w-card'); if(!b) return;
+  const j = +b.dataset.i, o = visible()[j];
+  worksClose();
+  if(openIdx > -1){ if(j !== openIdx) switchCase(j); return; }
+  if(j !== pvIdx){ pvBusy = false; pvShow(j, true); }
+  if(!o.wip) openCase(j);
+});
+$('#worksX').addEventListener('click', worksClose);
+$('#worksDim').addEventListener('click', worksClose);
+$('#back').addEventListener('click', ()=>worksOpen(true));
+// наведение: мышь дошла до правого края обложки проекта — окно выглядывает; ушла с окна — прячется
+if(matchMedia('(hover:hover) and (min-width:761px)').matches){
+  addEventListener('pointermove', e=>{
+    if(e.pointerType !== 'mouse' || worksPin || (window.lboxOpen && lboxOpen())) return;
+    const onCover = openIdx > -1 ? caseScroll.scrollTop < innerHeight * .6 : pvIdx > -1;
+    if(onCover && e.clientX >= innerWidth - 16) worksOpen(false);
+  }, { passive:true });
+  works.addEventListener('pointerenter', ()=>clearTimeout(worksT));
+  works.addEventListener('pointerleave', ()=>{ if(!worksPin) worksT = setTimeout(worksClose, 280); });
+}
+// шапка кейса: после первого экрана — плашка цвета кейса; листаешь вниз — прячется, вверх — возвращается.
+// Плашка проектов видна после первого экрана и прячется у «Следующего проекта»
+{
+  let lastY = 0;
+  caseScroll.addEventListener('scroll', ()=>{
+    const y = caseScroll.scrollTop, top = $('#caseTop');
+    top.classList.toggle('scrolled', y > 8);
+    top.classList.toggle('past', y > innerHeight - 70);
+    top.classList.toggle('hide', y > innerHeight && y > lastY + 2);
+    if(y < lastY - 2) top.classList.remove('hide');
+    lastY = y;
+    const more = $('#caseContent .cs-more');
+    const moreIn = more && more.getBoundingClientRect().top < innerHeight - 40;
+    $('#caseBar').classList.toggle('on', y > innerHeight*.5 && !moreIn);
+  }, { passive:true });
+}
 $('#next').addEventListener('click', goNextCase);
+
+/* клик по работе в кейсе — она открывается на весь экран; стрелки листают работы этого блока */
+{
+  const box = $('#lbox'), im = $('#lboxImg'), cnt = $('#lboxC');
+  let list = [], k = 0;
+  const show = ()=>{ im.src = list[k]; cnt.textContent = list.length > 1 ? `${k + 1} / ${list.length}` : '';
+    $('#lboxP').style.display = $('#lboxF').style.display = list.length > 1 ? '' : 'none'; };
+  const open = (srcs, i)=>{ list = srcs; k = i; show(); box.classList.add('on'); box.setAttribute('aria-hidden','false'); };
+  const close = ()=>{ box.classList.remove('on'); box.setAttribute('aria-hidden','true'); };
+  window.lboxOpen = ()=>box.classList.contains('on');
+  window.lboxClose = close;
+  window.lboxStep = s=>{ k = (k + s + list.length) % list.length; show(); };
+  $('#caseContent').addEventListener('click', e=>{
+    const img = e.target.closest('figure img, .bento > div > img'); if(!img) return;
+    const sec = img.closest('section');
+    const srcs = [...sec.querySelectorAll('figure img, .bento > div > img')].map(x=>x.currentSrc || x.src);
+    open(srcs, srcs.indexOf(img.currentSrc || img.src));
+  });
+  $('#lboxX').addEventListener('click', close);
+  $('#lboxP').addEventListener('click', e=>{ e.stopPropagation(); lboxStep(-1); });
+  $('#lboxF').addEventListener('click', e=>{ e.stopPropagation(); lboxStep(1); });
+  box.addEventListener('click', e=>{ if(e.target === box) close(); });
+}
 
 /* ---------- временный выбор шрифта ---------- */
 function setFont(b){
@@ -922,13 +2134,24 @@ function setFont(b){
   document.querySelectorAll('#fonts [data-font]').forEach(x=>x.classList.toggle('is-active', x===b));
   try { localStorage.setItem('brukwa-font', b.dataset.font); } catch(e) {}
 }
+// панель видна только по адресу с ?fonts — посетителям она не нужна и перекрывает низ экрана
 {
-  let saved = null;
-  try { saved = localStorage.getItem('brukwa-font'); } catch(e) {}
   const btns = [...document.querySelectorAll('#fonts [data-font]')];
-  btns.forEach(b=>b.addEventListener('click', ()=>setFont(b)));
-  setFont(btns.find(b=>b.dataset.font===saved) || btns[0]);
+  if(new URLSearchParams(location.search).has('fonts')){
+    let saved = null;
+    try { saved = localStorage.getItem('brukwa-font'); } catch(e) {}
+    btns.forEach(b=>b.addEventListener('click', ()=>setFont(b)));
+    setFont(btns.find(b=>b.dataset.font===saved) || btns[0]);
+  } else { setFont(btns[0]); $('#fonts').remove(); }
 }
+
+/* логотип на экранах проектов уезжает в левый верхний угол тёмной колонки */
+function placeLogo(){
+  const mob = innerWidth <= 760;
+  logo.style.setProperty('--lx', ((mob ? 18 : 36) - logo.offsetLeft) + 'px');
+  logo.style.setProperty('--ly', (mob ? -2 : -8) + 'px');
+}
+addEventListener('resize', ()=>{ placeLogo(); fitTitles(); });
 
 /* ---------- старт ---------- */
 document.fonts.ready.then(()=>{
@@ -940,6 +2163,7 @@ document.fonts.ready.then(()=>{
   // заранее грузим только первый проект; следующий подгружается, пока смотришь текущий (см. pvShow)
   (window.requestIdleCallback || (f=>setTimeout(f, 1500)))(()=>preload(0));
   const ci = h.startsWith('case/') ? visible().findIndex(c=>c.id === h.slice(5)) : -1;
+  placeLogo();
   setTimeout(()=>{
     document.body.classList.add('ready');
     renderPreview(ci > -1 ? ci : -1);
