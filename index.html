@@ -237,7 +237,22 @@
   .intro-brands p{font-size:12px;color:var(--mute)}
   .intro-brands ul{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
   .intro-brands li{padding:6px 13px;border-radius:99px;border:1px solid rgba(20,20,20,.16);font-size:14px}
-  @media (max-width:760px){ .intro-brands{gap:12px} .intro-brands li{font-size:13px;padding:5px 11px} }
+  /* телефон: первый экран целиком помещается между логотипом и панелью браузера */
+  @media (max-width:760px){
+    .intro-in{justify-content:safe center;gap:14px;padding:84px 18px 20px}
+    .intro-photo{height:56px}
+    .intro-lead{font-size:min(21px, 3.3svh);line-height:1.2;max-width:26ch}
+    .intro-brands{gap:10px 18px}
+    .intro-brands > div{gap:5px}
+    .intro-brands p{font-size:11px}
+    .intro-brands ul{gap:4px}
+    .intro-brands li{font-size:12px;padding:4px 10px}
+    .intro-contacts{gap:8px}
+    .intro-contacts .contact{padding:10px 16px;gap:8px}
+    .intro-contacts .contact span{font-size:11px}
+    .intro-contacts .contact b{font-size:15px}
+    .intro-go{margin-top:0;padding:6px 12px}
+  }
   .pv-slide.intro{cursor:default}
   /* на первом экране плашки с миниатюрами нет — она выезжает вместе с работами */
   .pv-bar{transition:opacity .6s, transform .8s var(--ease)}
@@ -303,8 +318,6 @@
     .cs{grid-template-columns:1fr;gap:12px}
     .case-top{padding:18px 16px 0}
     .top{padding:20px 16px 0}
-    .intro-photo{height:76px}
-    .intro-in{padding:110px 20px 80px;gap:22px}
     .fonts{left:8px;right:8px;bottom:10px;overflow-x:auto;font-size:11px}
     .fonts button{padding:6px 9px;white-space:nowrap}
     .case-top{padding:18px 16px 0;grid-template-columns:auto 1fr auto}
