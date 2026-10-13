@@ -230,6 +230,14 @@
   .pv-slide.cur .intro-in > *{opacity:1;filter:none;transform:none}
   .pv-slide.cur .intro-in > :nth-child(2){transition-delay:.1s}
   .pv-slide.cur .intro-in > :nth-child(3){transition-delay:.18s}
+  .pv-slide.cur .intro-in > :nth-child(4){transition-delay:.26s}
+  /* с кем работала и где преподавала — под приветствием, мелко */
+  .intro-brands{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 34px}
+  .intro-brands > div{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .intro-brands p{font-size:12px;color:var(--mute)}
+  .intro-brands ul{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+  .intro-brands li{padding:6px 13px;border-radius:99px;border:1px solid rgba(20,20,20,.16);font-size:14px}
+  @media (max-width:760px){ .intro-brands{gap:12px} .intro-brands li{font-size:13px;padding:5px 11px} }
   .pv-slide.intro{cursor:default}
   /* на первом экране плашки с миниатюрами нет — она выезжает вместе с работами */
   .pv-bar{transition:opacity .6s, transform .8s var(--ease)}
@@ -1488,6 +1496,10 @@ const cardSrc = c => `assets/cards/${c.id}.jpg`;
 const introHTML = ()=>`<div class="intro-in">
   <figure class="intro-photo"><img src="assets/me.webp" alt="Алиса Брюква"></figure>
   <p class="intro-lead">Привет! Меня зовут Алиса — я&nbsp;мультидисциплинарный дизайнер. Создаю фирменные стили, digital-интерфейсы и&nbsp;визуальные концепции.</p>
+  <div class="intro-brands">
+    <div><p>Работала с брендами</p><ul><li>НСПК — Мир и СБП</li><li>М.Видео и Эльдорадо</li><li>МузТорг</li></ul></div>
+    <div><p>Преподавала</p><ul><li>Granich School</li></ul></div>
+  </div>
   <div class="intro-contacts">
     <a class="contact" href="https://t.me/brukwa" target="_blank" rel="noopener"><span>Telegram</span><b>@brukwa ↗</b></a>
     <a class="contact" href="https://himki.hh.ru/resume/be003531ff079394cd0039ed1f4b7554794a5a" target="_blank" rel="noopener"><span>Резюме</span><b>hh.ru ↗</b></a>
