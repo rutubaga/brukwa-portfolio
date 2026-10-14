@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>BRUKWA — главная (холст)</title>
+<link rel="icon" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter+Tight:wght@200;300;400;500&display=swap&subset=cyrillic" rel="stylesheet">
+<style>
+  /* Главная v3 — «холст»: принципы OBYS (лента работ по центру, скобки вокруг активной, список и подписи мелким шрифтом)
+     + принципы нодового редактора (точечная сетка, узлы с подписями, кривые связи, панель масштаба).
+     Палитра чёрно-белая, движение — наше: кривая --ease, появление из размытия. */
+  :root{
+    /* чёрно-белая палитра: белый фон, серые плоскости и подписи, чёрный текст; цвет — только у активной работы */
+    --bg:#FFFFFF; --ink:#111111; --mute:#9A9A9A; --line:rgba(0,0,0,.09); --card:#F4F4F4;
+    --g2:#E9E9E9; --g3:#3A3A3A; --ease:cubic-bezier(.2,.8,.2,1);
+    --strip:clamp(220px, 21vw, 320px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font:400 13px/1.35 "Inter Tight",system-ui,sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  a{color:inherit;text-decoration:none}
+  /* холст: точечная сетка, как в нодовом редакторе; чуть сдвигается вместе с лентой — пространство «живое» */
+  .canvas{position:fixed;inset:0;background-image:radial-gradient(circle, rgba(0,0,0,.13) 1px, transparent 1.2px);background-size:22px 22px;background-position:0 var(--gy,0px)}
+
+  /* ---------- шапка ---------- */
+  .logo{position:fixed;left:28px;top:20px;z-index:5;font-family:Anton,Impact,sans-serif;font-size:clamp(56px,7.4vw,118px);line-height:.86;letter-spacing:-.005em}
+  /* логотип с искажениями: буквы растягиваются при появлении, волна по клику, линза при наведении */
+  .logo{display:flex;cursor:pointer;user-select:none}
+  .logo span{display:inline-block;transform-origin:50% 100%}
+  .logo.enter span{animation:stretch 1.1s var(--ease) both}
+  @keyframes stretch{0%{transform:scale(1.9,.05);opacity:0}45%{transform:scale(.8,1.3);opacity:1}70%{transform:scale(1.08,.92)}100%{transform:scale(1,1)}}
+  .logo.wob{filter:url(#wobble)}
+  /* шапка-схема */
+  .hwires{position:fixed;inset:0;z-index:5;pointer-events:none;overflow:visible}
+  .hwires path{fill:none;stroke:var(--mute);stroke-width:1.1;stroke-linecap:round;transition:stroke .3s, stroke-width .3s}
+  .hwires path.hot{stroke:var(--ink);stroke-width:1.6;transition:d .45s var(--ease)}
+  .hwires circle{fill:var(--bg);stroke:var(--ink);stroke-width:1.1}
+  /* разделы в одну строку на одной линии, которая выходит из логотипа */
+  .schema{position:fixed;top:var(--sy,40px);left:var(--sx,440px);z-index:6;display:flex;align-items:center;gap:clamp(22px,2.6vw,40px)}
+  .node-chip{display:inline-flex;align-items:center;gap:8px;padding:5px 14px 5px 5px;border-radius:99px;background:var(--card);
+    box-shadow:inset 0 0 0 1px var(--line);font-size:13px;line-height:1;white-space:nowrap;transition:background .3s var(--ease), color .3s}
+  .node-chip i{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:#fff;font-style:normal;font-size:10px;transition:background .3s, color .3s}
+  .node-chip:hover{background:var(--g2)}
+  .node-chip.on{background:var(--ink);color:#fff}
+  .node-chip.on i{background:#fff;color:var(--ink)}
+  .node-chip .car{margin-left:2px;font-size:11px;color:var(--mute);transition:transform .4s var(--ease)}
+  .cwrap{position:relative}
+  .cwrap.open .car{transform:rotate(180deg)}
+  .menu-n{position:absolute;left:0;top:calc(100% + 10px);min-width:210px;padding:5px;border-radius:14px;background:var(--card);
+    box-shadow:inset 0 0 0 1px var(--line),0 18px 40px -26px rgba(0,0,0,.35);opacity:0;visibility:hidden;transform:translateX(-6px);
+    transition:opacity .25s, transform .4s var(--ease), visibility 0s .4s}
+  .menu-n{transform:translateY(-6px)}
+  .cwrap.open .menu-n{opacity:1;visibility:visible;transform:none;transition:opacity .25s, transform .4s var(--ease)}
+  .menu-n a{display:flex;justify-content:space-between;gap:16px;padding:9px 10px;border-radius:9px;font-size:13px;transition:background .25s}
+  .menu-n a:hover{background:var(--g2)}
+  .menu-n span{color:var(--mute)}
+  .menu-n b{font-weight:400}
+  .round{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:#fff;font-size:13px}
+  .m-cv{display:none;position:fixed;top:16px;right:16px;z-index:6}
+  .meta{position:fixed;right:28px;top:22px;z-index:5;display:flex;align-items:center;gap:14px;font-size:12px}
+  .meta .time{color:var(--mute);font-variant-numeric:tabular-nums}
+  /* мелкий текст колонкой, как у OBYS */
+  .about{position:fixed;left:30px;top:calc(clamp(56px,7.4vw,118px)*.86 + 44px);z-index:4;width:min(270px,22vw);font-size:12px;line-height:1.4}
+  .about p + p{margin-top:12px}
+  .about .k{color:var(--mute)}
+  .about a{border-bottom:1px solid currentColor}
+  .about a:hover{color:var(--mute)}
+
+  /* ---------- список проектов слева ---------- */
+  .list{position:fixed;left:28px;top:50%;z-index:4;transform:translateY(-50%);font-size:12px;line-height:1.25}
+  .list button{display:block;padding:1px 0;color:rgba(20,20,20,.28);text-align:left;transition:color .4s var(--ease), transform .5s var(--ease)}
+  .list button:hover{color:var(--ink)}
+  .list button.on{color:var(--ink);transform:translateX(6px)}
+  .list .sep{display:block;height:10px}
+  .kind{position:fixed;top:50%;margin-top:20px;left:calc(50% - var(--strip)/2 - 230px);z-index:4;transform:translateY(-50%);font-size:12px;width:150px}
+
+  /* ---------- лента работ по центру ---------- */
+  /* наверху работы растворяются в белом — лента не спорит с шапкой и логотипом */
+  .stripwrap{position:fixed;inset:0;z-index:2;pointer-events:none;
+    -webkit-mask-image:linear-gradient(to bottom, transparent 0, transparent 6%, #000 40%, #000 100%);
+            mask-image:linear-gradient(to bottom, transparent 0, transparent 6%, #000 40%, #000 100%)}
+  .stripwrap .strip{pointer-events:auto}
+  .strip{position:fixed;left:50%;top:0;z-index:2;width:var(--strip);margin-left:calc(var(--strip)/-2);will-change:transform}
+  .item{display:block;margin:0 auto 12px;position:relative;cursor:pointer}
+  .item img{display:block;width:100%;height:auto;filter:grayscale(1) contrast(.9) brightness(1.06);opacity:.85;transition:filter .7s var(--ease), opacity .7s var(--ease), transform .9s var(--ease)}
+  .item.on img{filter:none;opacity:1}
+  .item:not(.on):hover img{opacity:1;filter:grayscale(.4)}
+  /* фигурные скобки — знаки шрифта Inter Tight ExtraLight; кегль подбирается под высоту активной работы (см. braces в скрипте) */
+  .br{position:fixed;left:0;top:0;z-index:3;font-family:"Inter Tight",sans-serif;font-weight:200;line-height:1;white-space:nowrap;pointer-events:none;color:var(--ink)}
+  .center-row{position:fixed;top:50%;z-index:4;transform:translateY(-50%);font-size:12px}
+  .center-row.role{left:calc(50% + var(--strip)/2 + 96px);margin-top:20px}
+  .center-row.idx{right:28px;font-variant-numeric:tabular-nums}
+
+  /* ---------- узлы (как в нодовом редакторе) ---------- */
+  .wires{position:fixed;inset:0;z-index:3;pointer-events:none;overflow:visible}
+  .wires path{fill:none;stroke:var(--ink);stroke-width:1.2;stroke-linecap:round}
+  .wires path.acc{stroke:var(--mute);stroke-dasharray:4 5}
+  .wires circle{fill:var(--bg);stroke:var(--ink);stroke-width:1.2}
+  .node{position:fixed;z-index:4;width:min(290px,22vw)}
+  .node .cap{display:flex;align-items:center;gap:6px;margin:0 0 6px 2px;font-size:11px;color:var(--mute)}
+  .node .cap i{width:12px;height:12px;border-radius:3px;border:1.2px solid currentColor}
+  .node .card{background:var(--card);border-radius:14px;padding:14px 16px;box-shadow:inset 0 0 0 1px var(--line),0 18px 40px -30px rgba(0,0,0,.4)}
+  .node .card p{font-size:14px;line-height:1.4}
+  .node .row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid var(--line);font-size:12px}
+  .node .row:first-child{border-top:0;padding-top:0}
+  .node .row span{color:var(--mute)}
+  .node .row b{font-weight:400;text-align:right}
+  .node .go{margin-top:12px;display:flex;justify-content:space-between;align-items:center;width:100%;padding:10px 14px;border-radius:99px;background:var(--ink);color:#fff;font-size:13px;transition:background .35s var(--ease)}
+  .node .go:hover{background:var(--g3)}
+  .node.task{top:calc(50% - 250px)}
+  .node.facts{top:calc(50% + 30px)}
+  .node.task,.node.facts{left:calc(50% + var(--strip)/2 + 230px)}
+  /* смена проекта — содержимое узлов перекатывается, как подпись в плашке ленты */
+  .swap{animation:swap .6s var(--ease) both}
+  @keyframes swap{from{opacity:0;transform:translateY(10px);filter:blur(6px)}}
+
+  /* ---------- панели холста: фильтр слева и масштаб/счётчик внизу ---------- */
+  .tools{position:fixed;left:28px;bottom:24px;z-index:5;display:flex;gap:8px;align-items:center}
+  .chip{display:flex;align-items:center;gap:2px;padding:4px;border-radius:12px;background:var(--card);box-shadow:inset 0 0 0 1px var(--line);font-size:12px}
+  .chip button{padding:6px 10px;border-radius:8px;color:var(--mute);transition:background .3s, color .3s}
+  .chip button:hover{color:var(--ink)}
+  .chip button.on{background:var(--ink);color:#fff}
+  .chip button:not(.on):hover{background:var(--g2)}
+  .chip .n{padding:0 8px;font-variant-numeric:tabular-nums}
+  .hint{position:fixed;right:28px;bottom:24px;z-index:5;font-size:12px;color:var(--mute);background:#fff;padding:7px 12px;border-radius:99px}
+
+  /* появление — как у нашего первого экрана */
+  .rv{opacity:0;filter:blur(14px);transform:translateY(14px);transition:opacity .8s, filter 1s var(--ease), transform 1s var(--ease)}
+  body.ready .rv{opacity:1;filter:none;transform:none}
+  body.ready .rv.d1{transition-delay:.08s} body.ready .rv.d2{transition-delay:.16s} body.ready .rv.d3{transition-delay:.24s} body.ready .rv.d4{transition-delay:.32s}
+  .br.rv{transform:none}
+  .center-row.rv,.kind.rv,.list.rv{transform:translateY(-50%)} body.ready .center-row.rv,body.ready .kind.rv,body.ready .list.rv{transform:translateY(-50%)}
+
+  /* ---------- телефон: лента во всю ширину, узел — карточкой снизу ---------- */
+  @media (max-width:860px){
+    :root{--strip:min(62vw,300px)}
+    .logo{font-size:44px;left:18px;top:16px}
+    .schema,.hwires{display:none}
+    .m-cv{display:grid}
+    .meta{display:none}
+    .about,.list,.kind,.center-row,.node.task,.wires{display:none}
+    .node.facts{left:12px;right:12px;bottom:12px;top:auto;width:auto}
+    .node.facts .cap{display:none}
+    .node .row:not(:first-child){display:none}
+    .node .card{padding:12px 14px}
+    .tools{display:none}
+
+    .hint{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){ *{transition-duration:.01s !important;animation-duration:.01s !important} }
+
+  /* ---------- схемы в стиле user flow: главный узел — белая капсула с чёрными портами,
+     остальные — капсулы с тонкой обводкой и полыми портами, линии тонкие и светлые ---------- */
+  .node-chip{padding:7px 13px;gap:7px;background:transparent;box-shadow:inset 0 0 0 1px rgba(0,0,0,.4);font-size:12px;color:var(--ink)}
+  .node-chip i{display:none}
+  .node-chip:hover{background:rgba(0,0,0,.035)}
+  .node-chip.on{padding:9px 16px;background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06),0 8px 22px -10px rgba(0,0,0,.22)}
+  .node-chip.on i{display:block;width:auto;height:auto;background:none;color:var(--ink);font-size:11px}
+  .hwires path{stroke:#D2D2D2;stroke-width:.9}
+  .hwires path.hot{stroke:#8E8E8E;stroke-width:1}
+  .hwires circle{fill:#fff;stroke:#9A9A9A;stroke-width:1}
+  .hwires circle.dot{fill:var(--ink);stroke:none}
+  .wires path{stroke:#D2D2D2;stroke-width:.9}
+  .wires path.acc{stroke:#D2D2D2}
+  .wires circle{fill:#fff;stroke:#9A9A9A;stroke-width:1}
+  .node .card{background:#fff;border-radius:14px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16)}
+  .node .cap{color:#9A9A9A}
+  .node .cap i{border-radius:50%;width:8px;height:8px;background:var(--ink);border:0}
+  .chip{background:#fff;border-radius:99px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16)}
+  .chip button{border-radius:99px}
+  .chip button:not(.on):hover{background:rgba(0,0,0,.04)}
+  .menu-n{background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16),0 18px 40px -26px rgba(0,0,0,.3)}
+  /* метки по углам листа, как на схеме */
+  .corner{position:fixed;z-index:7;width:7px;height:7px;background:var(--ink);pointer-events:none}
+  .corner.tl{left:8px;top:8px}.corner.tr{right:8px;top:8px}.corner.bl{left:8px;bottom:8px}.corner.br2{right:8px;bottom:8px}
+
+  /* ---------- вид «Сетка»: карточки как на рефе — название и ID сверху, работа по центру ---------- */
+  .grid{position:fixed;left:28px;right:28px;top:var(--gt,260px);bottom:0;z-index:2;display:none;grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;align-content:start;grid-auto-rows:max-content;overflow-y:auto;padding:28px 0 96px;scrollbar-width:none;
+    -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 40px, #000 100%);mask-image:linear-gradient(to bottom, transparent 0, #000 40px, #000 100%)}
+  .grid::-webkit-scrollbar{display:none}
+  .gcard{position:relative;display:block;border-radius:16px;background:var(--card);overflow:hidden;
+    opacity:0;transform:translateY(16px);animation:gin .8s var(--ease) both;animation-delay:calc(var(--k) * 60ms)}
+  .gcard::before{content:'';display:block;padding-top:106%}
+  @keyframes gin{to{opacity:1;transform:none}}
+  .gcard .gh{position:absolute;left:14px;right:14px;top:12px;z-index:2;display:flex;justify-content:space-between;gap:12px;font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+  .gcard .gh i{font-style:normal;color:var(--mute);margin-right:12px}
+  .gcard .gk{position:absolute;left:14px;bottom:12px;z-index:2;font-size:11px;color:var(--mute);opacity:0;transform:translateY(6px);transition:opacity .35s, transform .5s var(--ease)}
+  .gcard img{position:absolute;left:12%;top:15%;width:76%;height:72%;object-fit:contain;filter:grayscale(1) contrast(.95);transition:filter .6s var(--ease), transform .8s var(--ease)}
+  .gcard:hover img{filter:none;transform:scale(1.03)}
+  .gcard:hover .gk{opacity:1;transform:none}
+  body.grid-view .grid{display:grid}
+  body.grid-view .stripwrap,body.grid-view .br,body.grid-view .center-row,body.grid-view .kind,body.grid-view .list,
+  body.grid-view .wires,body.grid-view .node,body.grid-view .only-strip{display:none}
+  @media (max-width:1100px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @media (max-width:860px){ .grid{left:10px;right:10px;top:84px;gap:6px} .gcard{border-radius:12px} body.grid-view .node.facts{display:none} }
+
+  /* ---------- страница «Обо мне»: схема как user flow ---------- */
+  .aboutv{position:fixed;inset:0;z-index:2;display:none}
+  body.about-page .aboutv{display:block}
+  body.about-page .grid,body.about-page .stripwrap,body.about-page .br,body.about-page .center-row,body.about-page .kind,body.about-page .list,
+  body.about-page .wires,body.about-page .node,body.about-page .tools,body.about-page .hint,body.about-page .about{display:none}
+  .alead{position:absolute;left:30px;top:calc(clamp(56px,7.4vw,118px)*.86 + 70px);width:min(560px,44vw);font-size:clamp(16px,1.35vw,19px);line-height:1.35}
+  .alead .sub{color:var(--mute);margin-top:4px}
+  .flow{position:absolute;left:0;right:0;top:0;bottom:0}
+  .fwires{position:absolute;inset:0;overflow:visible;pointer-events:none}
+  .fwires path{fill:none;stroke:#CFCFCF;stroke-width:.9;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.1s var(--ease)}
+  .fwires.on path{stroke-dashoffset:0}
+  .fwires circle{fill:#fff;stroke:#9A9A9A;stroke-width:1}
+  .fwires circle.dot{fill:var(--ink);stroke:none}
+  .fp{position:absolute;transform:translateY(-50%);display:inline-flex;align-items:center;gap:7px;white-space:nowrap;border-radius:99px;font-size:12px;
+    padding:7px 13px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.4);background:#fff;opacity:0;translate:0 8px;transition:opacity .6s, translate .8s var(--ease), background .3s}
+  .flow.on .fp{opacity:1;translate:none;transition-delay:calc(var(--k) * 45ms)}
+  .fp.cat{padding:9px 16px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 8px 22px -10px rgba(0,0,0,.22);font-size:13px}
+  .fp.main{padding:6px 18px 6px 6px;gap:10px;font-size:14px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 10px 28px -12px rgba(0,0,0,.28)}
+  .fp.main img{width:34px;height:34px;border-radius:50%;object-fit:cover;background:var(--card)}
+  a.fp:hover{background:var(--g2)}
+  .fp b{font-weight:400;color:var(--mute)}
+  @media (max-width:860px){
+    .alead{position:static;width:auto;padding:84px 18px 12px;font-size:16px}
+    .aboutv{overflow-y:auto}
+    .fwires{display:none}
+    .flow{position:static;padding:8px 18px 40px;display:flex;flex-wrap:wrap;gap:8px}
+    .fp{position:static;transform:none}
+    .fp.cat{flex-basis:100%;width:max-content;margin-top:10px}
+    .fp.main{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="canvas" id="canvas"></div>
+
+<!-- фильтр волны для логотипа (как на основном сайте); линза «рыбий глаз» добавляется сюда скриптом -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="wobble" x="-10%" y="-30%" width="120%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.012 0.09" numOctaves="2" seed="3" result="n"/>
+    <feDisplacementMap id="wobbleMap" in="SourceGraphic" in2="n" scale="0" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+<div class="logo enter" id="logo" role="button" tabindex="0" aria-label="BRUKWA"></div>
+
+<!-- шапка-схема: от логотипа к разделам тянутся связи, как к узлам в редакторе -->
+<svg class="hwires" id="hwires" aria-hidden="true"></svg>
+<nav class="schema rv d1" id="schema" aria-label="Меню">
+  <a class="node-chip on" href="#work" data-page="work"><i>◆</i>Работы</a>
+  <a class="node-chip" href="#about" data-page="about"><i>○</i>Обо мне</a>
+  <div class="cwrap" id="cwrap">
+    <button class="node-chip" id="contactsN" aria-expanded="false"><i>@</i>Контакты<span class="car">⌄</span></button>
+    <div class="menu-n" role="menu">
+      <a href="https://t.me/brukwa" target="_blank" rel="noopener"><span>Telegram</span><b>@brukwa ↗</b></a>
+      <a href="https://himki.hh.ru/resume/be003531ff079394cd0039ed1f4b7554794a5a" target="_blank" rel="noopener"><span>Резюме</span><b>hh.ru ↗</b></a>
+    </div>
+  </div>
+  <a class="node-chip" href="https://himki.hh.ru/resume/be003531ff079394cd0039ed1f4b7554794a5a" target="_blank" rel="noopener"><i>↗</i>CV</a>
+</nav>
+<a class="round m-cv rv d1" href="https://himki.hh.ru/resume/be003531ff079394cd0039ed1f4b7554794a5a" target="_blank" rel="noopener">CV</a>
+<div class="meta rv d1"><span class="time" id="time">MSK</span><span>RU · EN</span></div>
+<div class="about rv d2">
+  <p>Мультидисциплинарный дизайнер: фирменные стили, digital-интерфейсы и визуальные концепции. Каждый проект — отдельная история с задачей и эмоцией.</p>
+  <p><span class="k">Контакты</span><br><a href="https://t.me/brukwa" target="_blank" rel="noopener">@brukwa</a></p>
+</div>
+
+<nav class="list rv d2" id="list" aria-label="Проекты"></nav>
+<div class="kind rv d3" id="kind"></div>
+
+<div class="stripwrap"><div class="strip" id="strip"></div></div>
+<div class="grid" id="grid"></div>
+<i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br2"></i>
+<span class="br l rv d3" aria-hidden="true">{</span><span class="br r rv d3" aria-hidden="true">}</span>
+<div class="center-row role rv d3" id="role"></div>
+<div class="center-row idx rv d3" id="idx"></div>
+
+<svg class="wires rv d4" id="wires"></svg>
+<div class="node task rv d4"><div class="cap"><i></i>Задача</div><div class="card" id="task"></div></div>
+<div class="node facts rv d4"><div class="cap"><i></i>Проект</div><div class="card" id="facts"></div></div>
+
+<!-- «Обо мне» — схема в стиле user flow: я → направления, бренды, преподавание, контакты -->
+<section class="aboutv" id="aboutv" aria-label="Обо мне">
+  <div class="alead"><p>Я Алиса — мультидисциплинарный дизайнер. Создаю фирменные стили, digital-интерфейсы и визуальные концепции.</p>
+    <p class="sub">Схема — коротко обо мне: чем занимаюсь, с кем работала, где преподавала и как связаться.</p></div>
+  <svg class="fwires" id="fwires" aria-hidden="true"></svg>
+  <div class="flow" id="flow"></div>
+</section>
+
+<div class="tools rv d4">
+  <div class="chip" id="view"><button data-v="grid" class="on">Сетка</button><button data-v="strip">Лента</button></div>
+  <div class="chip" id="filter"><button data-f="all" class="on">Все</button><button data-f="product">Продукт</button><button data-f="comms">Коммуникации</button></div>
+  <div class="chip only-strip"><button id="prev" aria-label="Предыдущий">−</button><span class="n" id="count">01 / 09</span><button id="nextBtn" aria-label="Следующий">+</button></div>
+</div>
+<div class="hint rv d4" id="hint"></div>
+
+<script>
+/* проекты — те же, что на сайте; картинки разных пропорций дают ленте ритм, как у OBYS */
+const P = [
+  { id:'trading', type:'product', name:'Трейдинг 101', kind:'Лендинг курса', role:'Дизайн, адаптивы, 3D', status:'Концепт', img:'assets/trading-thumb.jpg',
+    task:'Снять страх новичка перед трейдингом и довести до покупки курса.' },
+  { id:'revnikoff', type:'product', name:'Revnikoff', kind:'Сайт мастерской', role:'Структура, путь клиента, вёрстка', status:'Запущен', img:'assets/cases/revnikoff/v2/bag.jpg',
+    task:'Посетитель решает одно: можно ли доверить дорогую вещь незнакомой мастерской.' },
+  { id:'impre', type:'product', name:'Impre', kind:'Приложение о здоровье', role:'Концепция, интерфейс, моушн', status:'Концепт', img:'assets/cases/impre/blister.jpg',
+    task:'Тело меняется каждый день. Витамины — нет.' },
+  { id:'tb', type:'comms', name:'Therapiezentrum Blender', kind:'Айдентика и сайт', role:'Айдентика, дизайн сайта', status:'Коммерческий', img:'assets/cases/tb/hoodie.jpg',
+    task:'Подать центр как уверенного современного лидера.' },
+  { id:'leveraged', type:'comms', name:'Leveraged', kind:'Посты для соцсетей', role:'Ключевые визуалы, посты', status:'Коммерческий', img:'assets/comms/leveraged/01.jpg',
+    task:'Разные поводы — один визуальный язык.' },
+  { id:'posters', type:'comms', name:'Постеры', kind:'Серия постеров', role:'Графика, леттеринг', status:'Личные и коммерческие', img:'assets/comms/posters/01.jpg',
+    task:'У каждого постера свой графический язык.' },
+  { id:'onewin-yt', type:'comms', name:'1WIN', kind:'Превью, посты и сторис', role:'Превью, посты, сторис', status:'Коммерческий', img:'assets/comms/onewin-yt/01.jpg',
+    task:'У обложки и поста секунда, чтобы их заметили и узнали бренд.' },
+  { id:'anons', type:'comms', name:'Анонсы и розыгрыши', kind:'Посты для соцсетей', role:'Посты, леттеринг', status:'Коммерческий', img:'assets/comms/anons/01.jpg',
+    task:'Главное — дата, приз и что сделать.' },
+];
+const $ = s => document.querySelector(s);
+const strip = $('#strip'), list = $('#list');
+const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+let view = (()=>{ try { return localStorage.getItem('v3view') || 'grid'; } catch(e){ return 'grid'; } })();
+let filter = 'all', items = [], active = -1, y = 0, target = 0, drag = null, snapT = 0;
+// фигурные скобки из шрифта: меряем знак на холсте и ставим кегль так, чтобы высота знака = высоте работы + запас
+let bh = 0, bhT = 240, braceRight = 0;
+const braces = [...document.querySelectorAll('.br')];
+const mctx = document.createElement('canvas').getContext('2d');
+let M = null;   // метрики знаков при кегле 100
+function measure(){ mctx.font = '200 100px "Inter Tight"'; const f = mctx.measureText('{');
+  M = { '{': mctx.measureText('{'), '}': mctx.measureText('}'), fa: f.fontBoundingBoxAscent, fd: f.fontBoundingBoxDescent }; }
+function drawBraces(){
+  if(!M) measure();
+  const bw = (items[active] || {}).offsetWidth || 300, gap = innerWidth > 860 ? Math.max(14, innerWidth * .012) : 8;
+  braces.forEach(b=>{ const ch = b.textContent, m = M[ch];
+    const gh = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent, fs = Math.max(20, bh) / gh * 100, k = fs / 100;
+    // строка в 1em: базовая линия от верха блока; центр знака ставим в центр экрана
+    const base = (fs - (M.fa + M.fd) * k) / 2 + M.fa * k, cy = base + (m.actualBoundingBoxDescent - m.actualBoundingBoxAscent) * k / 2;
+    const top = innerHeight / 2 - cy;
+    const gl = -m.actualBoundingBoxLeft * k, gr = m.actualBoundingBoxRight * k;   // края знака от начала строки
+    const left = ch === '{' ? innerWidth / 2 - bw / 2 - gap - gr : innerWidth / 2 + bw / 2 + gap - gl;
+    if(ch === '}') braceRight = left + gr;
+    b.style.fontSize = fs + 'px'; b.style.transform = `translate(${left}px, ${top}px)`; });
+}
+const shown = () => P.filter(p => filter === 'all' || p.type === filter);
+const pad = n => String(n).padStart(2, '0');
+
+function build(){
+  const ps = shown();
+  // ширины чередуются — лента не похожа на сетку, как у OBYS
+  const widths = [1, .78, .9, .7, 1, .84, .74];
+  strip.innerHTML = ps.map((p, k) => `<a class="item" data-k="${k}" style="width:${widths[k % widths.length] * 100}%"><img src="${p.img}" alt="${p.name}" draggable="false"></a>`).join('');
+  let prevType = null;
+  list.innerHTML = ps.map((p, k) => { const sep = prevType && prevType !== p.type ? '<i class="sep"></i>' : ''; prevType = p.type; return `${sep}<button data-k="${k}">${p.name}</button>`; }).join('');
+  $('#grid').innerHTML = ps.map((p, k) => `<a class="gcard" href="index.html#case/${p.id}" style="--k:${k}"><div class="gh"><span>${p.name}</span><span><i>ID</i>${String(k + 1).padStart(3, '0')}</span></div>
+    <img src="${p.img}" alt="${p.name}" loading="lazy"><span class="gk">${p.kind}</span></a>`).join('');
+  items = [...strip.children];
+  active = -1;
+  Promise.all(items.map(it => it.querySelector('img').decode().catch(()=>{}))).then(()=>{ target = y = offsetFor(0); setActive(0); render(); });
+}
+// сдвиг ленты, при котором центр k-й работы стоит в центре экрана
+const offsetFor = k => { const it = items[k]; return innerHeight/2 - (it.offsetTop + it.offsetHeight/2); };
+const nearest = () => { let best = 0, d = Infinity; items.forEach((it, k) => { const c = it.offsetTop + it.offsetHeight/2 + y; const dd = Math.abs(c - innerHeight/2); if(dd < d){ d = dd; best = k; } }); return best; };
+const clampT = v => Math.max(offsetFor(items.length - 1), Math.min(offsetFor(0), v));
+
+function setActive(k){
+  if(k === active || !items[k]) return;
+  active = k; const p = shown()[k];
+  items.forEach((it, j) => it.classList.toggle('on', j === k));
+  list.querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.k === k));
+  const it = items[k];
+  bhT = it.offsetHeight + 24;
+  document.documentElement.style.setProperty('--bw', it.offsetWidth + 'px');
+  const swap = (el, html) => { el.innerHTML = html; el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap'); };
+  swap($('#kind'), p.kind);
+  swap($('#role'), p.role);
+  swap($('#idx'), pad(k + 1));
+  $('#count').textContent = `${pad(k + 1)} / ${pad(items.length)}`;
+  swap($('#task'), `<p>${p.task}</p>`);
+  swap($('#facts'), `<div class="row"><span>Проект</span><b>${p.name}</b></div><div class="row"><span>Тип</span><b>${p.kind}</b></div>
+    <div class="row"><span>Что делала</span><b>${p.role}</b></div><div class="row"><span>Статус</span><b>${p.status}</b></div>
+    <a class="go" href="index.html#case/${p.id}">Открыть кейс <span>→</span></a>`);
+  requestAnimationFrame(wires);
+}
+
+// кривые связи: от правой скобки к узлам, как провода в редакторе; при смене проекта рисуются заново
+function wires(){
+  const svg = $('#wires'); if(getComputedStyle(svg).display === 'none') return;
+  const x0 = braceRight + 6, y0 = innerHeight/2;
+  const ports = ['.node.task .card', '.node.facts .card'].map(s => { const r = $(s).getBoundingClientRect(); return [r.left, r.top + 26]; });
+  const path = ([x1, y1], k) => { const dx = Math.max(60, (x1 - x0) * .55);
+    return `<path class="${k ? 'acc' : ''}" d="M${x0},${y0} C${x0 + dx},${y0} ${x1 - dx},${y1} ${x1},${y1}" pathLength="1" style="stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .9s var(--ease) ${k * .08}s"/>
+      <circle cx="${x1}" cy="${y1}" r="2.6"/>`; };
+  svg.innerHTML = ports.map(path).join('') + `<circle cx="${x0}" cy="${y0}" r="3.2" style="fill:var(--ink);stroke:none"/>`;
+  requestAnimationFrame(() => svg.querySelectorAll('path').forEach(p => p.style.strokeDashoffset = 0));
+}
+
+// плавная лента с инерцией: колесо и перетаскивание задают цель, лента доплывает и встаёт на ближайшую работу
+function render(){
+  y += (target - y) * (reduce ? 1 : .1);
+  if(Math.abs(target - y) < .3) y = target;
+  strip.style.transform = `translate3d(0,${y}px,0)`;
+  $('#canvas').style.setProperty('--gy', (y * .25) + 'px');
+  setActive(nearest());
+  if(Math.abs(bhT - bh) > .3){ bh += (bhT - bh) * (reduce ? 1 : .14); drawBraces(); if(Math.abs(bhT - bh) <= .3){ bh = bhT; drawBraces(); requestAnimationFrame(wires); } }
+  requestAnimationFrame(render);
+}
+const snap = () => { clearTimeout(snapT); snapT = setTimeout(() => { if(!drag) target = offsetFor(nearest()); }, 140); };
+addEventListener('wheel', e => { if(view === 'grid' || document.body.classList.contains('about-page')) return; e.preventDefault(); target = clampT(target - (e.deltaMode === 1 ? e.deltaY * 32 : e.deltaY)); snap(); }, { passive:false });
+strip.addEventListener('pointerdown', e => { drag = { y0:e.clientY, t0:target, moved:0 }; strip.setPointerCapture(e.pointerId); });
+strip.addEventListener('pointermove', e => { if(!drag) return; const d = e.clientY - drag.y0; drag.moved = Math.max(drag.moved, Math.abs(d)); target = clampT(drag.t0 + d); });
+strip.addEventListener('pointerup', e => { const it = e.target.closest('.item'); const was = drag; drag = null;
+  if(was && was.moved < 6 && it){ const k = +it.dataset.k; if(k === active) location.href = `index.html#case/${shown()[k].id}`; else target = offsetFor(k); }
+  else snap(); });
+list.addEventListener('click', e => { const b = e.target.closest('button'); if(b) target = offsetFor(+b.dataset.k); });
+$('#prev').addEventListener('click', () => { target = offsetFor(Math.max(0, active - 1)); });
+$('#nextBtn').addEventListener('click', () => { target = offsetFor(Math.min(items.length - 1, active + 1)); });
+addEventListener('keydown', e => { if(e.key === 'ArrowDown') $('#nextBtn').click(); if(e.key === 'ArrowUp') $('#prev').click(); if(e.key === 'Enter') location.href = `index.html#case/${shown()[active].id}`; });
+$('#filter').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; filter = b.dataset.f;
+  $('#filter').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); build(); });
+addEventListener('resize', () => { const k = active; active = -1; target = y = offsetFor(Math.max(0, k)); setActive(Math.max(0, k)); drawBraces(); });
+// время — как у OBYS «CEST 5:15 AM»
+const tick = () => { $('#time').textContent = 'MSK ' + new Intl.DateTimeFormat('ru-RU', { timeZone:'Europe/Moscow', hour:'2-digit', minute:'2-digit' }).format(new Date()); };
+tick(); setInterval(tick, 10000);
+
+/* ---------- логотип: те же искажения, что на основном сайте ---------- */
+const logo = $('#logo');
+logo.innerHTML = [...'BRUKWA'].map((c, i) => `<span style="animation-delay:${i * 55}ms">${c}</span>`).join('');
+const wobbleMap = document.getElementById('wobbleMap');
+const NO_SVG_FX = (()=>{ const ua = navigator.userAgent; return /iP(hone|ad|od)/.test(ua) || (/Safari/.test(ua) && !/Chrome|Chromium|Edg|OPR/.test(ua)); })();
+function wobble(from, dur){
+  if(NO_SVG_FX) return;
+  const t0 = performance.now(); logo.classList.add('wob');
+  (function step(t){ const k = Math.min(1, (t - t0) / dur);
+    wobbleMap.setAttribute('scale', (from * (1-k) * (1-k) * Math.abs(Math.sin(k * 9) + .35)).toFixed(2));
+    if(k < 1) requestAnimationFrame(step); else { wobbleMap.setAttribute('scale', '0'); logo.classList.remove('wob'); } })(t0);
+}
+// рыбий глаз: круглая линза ездит за курсором и раздувает буквы под собой
+function fisheye(el, id, k){
+  if(NO_SVG_FX) return;
+  const svg = document.querySelector('svg'), NS = 'http://www.w3.org/2000/svg';
+  const f = document.createElementNS(NS, 'filter'); f.id = id;
+  ['filterUnits', 'primitiveUnits'].forEach(a => f.setAttribute(a, 'userSpaceOnUse')); f.setAttribute('color-interpolation-filters', 'sRGB');
+  f.innerHTML = `<feFlood flood-color="rgb(128,128,128)" result="zero"/><feImage preserveAspectRatio="none" result="lens"/>
+    <feMerge result="map"><feMergeNode in="zero"/><feMergeNode in="lens"/></feMerge>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="0" xChannelSelector="R" yChannelSelector="G"/>`;
+  svg.append(f);
+  const m = f.querySelector('feImage'), d = f.querySelector('feDisplacementMap');
+  let R = 60, S = 0, amt = 0, goal = 0, mx = 0, my = 0, tx = 0, ty = 0, raf = 0;
+  function buildLens(){ const W = el.offsetWidth, H = el.offsetHeight; if(!W || !H) return; R = H * 1.05;
+    const n = 128, cv = document.createElement('canvas'); cv.width = cv.height = n; const ctx = cv.getContext('2d'), img = ctx.createImageData(n, n);
+    S = 2 * R * k * .385 + 2;
+    for(let y = 0; y < n; y++) for(let x = 0; x < n; x++){ const px = ((x + .5) / n * 2 - 1) * R, py = ((y + .5) / n * 2 - 1) * R;
+      const r2 = (px*px + py*py) / (R*R), g = r2 < 1 ? -k * (1 - r2) : 0, o = (y*n + x) * 4;
+      img.data[o] = Math.round((.5 + px*g/S) * 255); img.data[o+1] = Math.round((.5 + py*g/S) * 255); img.data[o+2] = 128; img.data[o+3] = 255; }
+    ctx.putImageData(img, 0, 0); m.setAttribute('href', cv.toDataURL()); m.setAttribute('width', R*2); m.setAttribute('height', R*2);
+    const pad = Math.round(H * .3); f.setAttribute('x', -pad); f.setAttribute('y', -pad); f.setAttribute('width', W + pad*2); f.setAttribute('height', H + pad*2); place(); }
+  function place(){ m.setAttribute('x', (mx - R).toFixed(1)); m.setAttribute('y', (my - R).toFixed(1)); d.setAttribute('scale', (S * amt).toFixed(1));
+    el.style.filter = amt > .001 ? `url(#${id}) url(#wobble)` : ''; }
+  function tickL(){ amt += (goal - amt) * .12; mx += (tx - mx) * .25; my += (ty - my) * .25; place();
+    if(Math.abs(goal - amt) < .003 && Math.abs(tx - mx) < .2 && Math.abs(ty - my) < .2){ amt = goal; mx = tx; my = ty; place(); raf = 0; } else raf = requestAnimationFrame(tickL); }
+  const runL = () => { if(!raf) raf = requestAnimationFrame(tickL); };
+  const aim = (e, jump) => { const r = el.getBoundingClientRect(); tx = e.clientX - r.left; ty = e.clientY - r.top; if(jump){ mx = tx; my = ty; } };
+  el.addEventListener('mouseenter', e => { aim(e, amt < .05); goal = 1; runL(); });
+  el.addEventListener('mousemove', e => { aim(e); runL(); });
+  el.addEventListener('mouseleave', () => { goal = 0; runL(); });
+  new ResizeObserver(buildLens).observe(el); buildLens();
+}
+logo.addEventListener('click', () => wobble(26, 900));
+
+/* ---------- шапка-схема: связи от логотипа к узлам-разделам ---------- */
+const schema = $('#schema'), chips = [...schema.querySelectorAll('.node-chip')];
+function hwires(){
+  const svg = $('#hwires'); if(getComputedStyle(svg).display === 'none') return;
+  const lr = logo.getBoundingClientRect(), x0 = lr.right + 12, y0 = lr.top + lr.height * .5;
+  // строка разделов — по центру страницы; линия от логотипа дотягивается до неё
+  schema.style.setProperty('--sx', Math.round(Math.max(x0 + 36, innerWidth / 2 - schema.offsetWidth / 2)) + 'px');
+  schema.style.setProperty('--sy', Math.round(y0 - chips[0].offsetHeight / 2) + 'px');
+  const rs = chips.map(c => c.getBoundingClientRect()), end = rs[rs.length - 1].right + 26;
+  // одна линия через все узлы; чёрный отрезок — от логотипа до активного (или наведённого) раздела
+  const on = chips.findIndex(c => c.classList.contains('on')), k = hoverK > -1 ? hoverK : on;
+  const reach = k > -1 ? rs[k].left : x0;
+  svg.innerHTML = `<path d="M${x0},${y0} L${end},${y0}"/>`
+    + `<path class="hot" d="M${x0},${y0} L${reach},${y0}"/>`
+    + rs.map((r, j) => j === on ? `<circle class="dot" cx="${r.left - 8}" cy="${y0}" r="3.2"/><circle class="dot" cx="${r.right + 8}" cy="${y0}" r="3.2"/>`
+        : `<circle cx="${r.left}" cy="${y0}" r="2.4"/><circle cx="${r.right}" cy="${y0}" r="2.4"/>`).join('')
+    + `<circle class="dot" cx="${x0}" cy="${y0}" r="3.2"/>`;
+}
+let hoverK = -1;
+const hot = (k, on) => { hoverK = on ? k : -1; hwires(); };
+chips.forEach((c, k) => { c.addEventListener('mouseenter', () => hot(k, true)); c.addEventListener('mouseleave', () => hot(k, false)); });
+$('#contactsN').addEventListener('click', e => { e.stopPropagation(); const w = $('#cwrap'); w.classList.toggle('open'); $('#contactsN').setAttribute('aria-expanded', w.classList.contains('open')); });
+addEventListener('click', e => { if(!e.target.closest('#cwrap')) $('#cwrap').classList.remove('open'); });
+addEventListener('resize', hwires);
+
+/* ---------- «Обо мне»: схема ---------- */
+const FLOW = [
+  { cat:'Чем занимаюсь', items:['Фирменные стили', 'Digital-интерфейсы', 'Визуальные концепции', 'Моушн и 3D'] },
+  { cat:'Бренды', items:['НСПК — Мир и СБП', 'М.Видео и Эльдорадо', 'МузТорг'] },
+  { cat:'Преподавала', items:['Granich School'] },
+  { cat:'Контакты', items:[['Telegram', '@brukwa ↗', 'https://t.me/brukwa'], ['Резюме', 'hh.ru ↗', 'https://himki.hh.ru/resume/be003531ff079394cd0039ed1f4b7554794a5a']] },
+];
+function drawFlow(){
+  const flow = $('#flow'), svg = $('#fwires'); if(!document.body.classList.contains('about-page')) return;
+  const mob = innerWidth <= 860; let k = 0;
+  const pill = (cls, html, href) => `<${href ? `a href="${href}" target="_blank" rel="noopener"` : 'span'} class="fp ${cls}" style="--k:${k++}">${html}</${href ? 'a' : 'span'}>`;
+  flow.innerHTML = pill('main', '<img src="assets/me.webp" alt="">Алиса Брюква') + FLOW.map(g => pill('cat', g.cat) + g.items.map(it => Array.isArray(it) ? pill('', `${it[0]} <b>${it[1]}</b>`, it[2]) : pill('', it)).join('')).join('');
+  if(mob){ svg.innerHTML = ''; requestAnimationFrame(() => flow.classList.add('on')); return; }
+  // раскладка: я — слева, ветки — по центру, их узлы — правее; высота ветки по числу её узлов
+  const W = innerWidth, top = Math.max(300, $('.alead').getBoundingClientRect().bottom + 70), H = innerHeight - top - 60;
+  const step = Math.min(44, H / (FLOW.reduce((a, g) => a + g.items.length, 0) + FLOW.length));
+  const els = [...flow.children], main = els[0];
+  const xMain = W * .14, xCat = W * .40, xIt = W * .58;
+  let y = top + step / 2, idx = 1; const lines = [];
+  const groups = FLOW.map(g => { const h = g.items.length * step; const cy = y + h / 2 - step / 2; const cat = els[idx++];
+    cat.style.left = xCat + 'px'; cat.style.top = cy + 'px';
+    const its = g.items.map((_, j) => { const el = els[idx++]; el.style.left = xIt + (j % 2 ? 18 : 0) + 'px'; el.style.top = (y + j * step) + 'px'; return el; });
+    y += h + step; return { cat, its }; });
+  main.style.left = xMain + 'px'; main.style.top = ((top + y - step) / 2) + 'px';
+  requestAnimationFrame(() => {
+    const R = el => el.getBoundingClientRect(), mr = R(main), mx = mr.right + 8, my = mr.top + mr.height / 2;
+    const curve = (x0, y0, x1, y1) => { const dx = Math.max(40, (x1 - x0) * .5); return `<path pathLength="1" d="M${x0},${y0} C${x0 + dx},${y0} ${x1 - dx},${y1} ${x1},${y1}"/>`; };
+    let out = `<circle class="dot" cx="${mx}" cy="${my}" r="3.2"/>`;
+    for(const g of groups){ const cr = R(g.cat), cl = cr.left - 8, cy = cr.top + cr.height / 2, cx = cr.right + 8;
+      out += curve(mx, my, cl, cy) + `<circle class="dot" cx="${cl}" cy="${cy}" r="3.2"/><circle class="dot" cx="${cx}" cy="${cy}" r="3.2"/>`;
+      for(const it of g.its){ const ir = R(it), il = ir.left, iy = ir.top + ir.height / 2; out += curve(cx, cy, il, iy) + `<circle cx="${il}" cy="${iy}" r="2.4"/>`; } }
+    svg.innerHTML = out; svg.classList.remove('on'); flow.classList.add('on');
+    requestAnimationFrame(() => requestAnimationFrame(() => svg.classList.add('on')));
+  });
+}
+// страница: работы или «обо мне» (адрес #about помнит выбор)
+function setPage(pg){
+  document.body.classList.toggle('about-page', pg === 'about');
+  chips.forEach(c => c.classList.toggle('on', c.dataset.page === (pg === 'about' ? 'about' : 'work')));
+  hwires(); if(pg === 'about'){ $('#flow').classList.remove('on'); drawFlow(); }
+}
+schema.addEventListener('click', e => { const a = e.target.closest('[data-page]'); if(!a) return; e.preventDefault();
+  history.replaceState(null, '', a.dataset.page === 'about' ? '#about' : '#'); setPage(a.dataset.page); });
+addEventListener('resize', () => { if(document.body.classList.contains('about-page')) drawFlow(); });
+
+// вид: сетка карточек или лента со скобками
+function setView(v){
+  view = v; try { localStorage.setItem('v3view', v); } catch(e){}
+  document.body.classList.toggle('grid-view', v === 'grid');
+  $('#view').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  $('#hint').textContent = v === 'grid' ? 'Наведите — работа станет цветной · клик — открыть кейс' : 'Колесо или перетаскивание — листать · клик по работе — открыть';
+  const ab = document.querySelector('.about').getBoundingClientRect();
+  document.documentElement.style.setProperty('--gt', Math.round(ab.bottom + 8) + 'px');
+  if(v === 'strip'){ const k = Math.max(0, active); active = -1; setActive(k); drawBraces(); requestAnimationFrame(wires); }
+}
+$('#view').addEventListener('click', e => { const b = e.target.closest('button'); if(b) setView(b.dataset.v); });
+addEventListener('resize', () => setView(view));
+
+build();
+setView(view);
+if(location.hash === '#about') setPage('about');
+requestAnimationFrame(render);
+document.fonts.ready.then(() => { measure(); drawBraces(); requestAnimationFrame(wires); hwires(); setTimeout(hwires, 1250);
+  wobble(34, 1300); fisheye(logo, 'fishLogo', .5); setTimeout(() => document.body.classList.add('ready'), 120); });
+</script>
+</body>
+</html>
