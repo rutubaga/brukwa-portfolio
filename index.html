@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" class="bw">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -818,7 +818,7 @@
   .w-card b{display:block;margin-top:8px;font-weight:400;font-size:14px;line-height:1.2}
   .w-card i{display:block;margin-top:2px;font-style:normal;font-size:12px;color:rgba(255,255,255,.45)}
   .w-card.cur .ph{box-shadow:0 0 0 2px #fff}
-  .w-card.cur .ph::after{content:'Вы здесь';position:absolute;left:8px;top:8px;padding:4px 8px;border-radius:99px;background:#fff;color:#111;font-size:10px}
+  .w-card.cur .ph::after{content:attr(data-here);position:absolute;left:8px;top:8px;padding:4px 8px;border-radius:99px;background:#fff;color:#111;font-size:10px}
   @media (max-width:760px){
     .works{top:8px;right:8px;bottom:8px;width:calc(100vw - 16px);border-radius:24px}
     .works-list{padding:0 14px 18px}
@@ -1042,6 +1042,148 @@
     .bento.brow > .tx{min-height:120px}
     .bento.brow > .dv{aspect-ratio:auto !important;height:min(70vh,480px)}
   }
+
+  /* ---------- шапка: капсула разделов + круглые CV и язык (по рефу) ---------- */
+  .hdr{position:fixed;top:22px;right:24px;z-index:47;display:flex;align-items:center;gap:8px;color:#1d1c1a}
+  .hdr-pill,.hdr-round,.hdr-pop{background:rgba(238,235,231,.88);backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);
+    box-shadow:inset 0 0 0 1px rgba(20,20,20,.07), 0 8px 24px -14px rgba(0,0,0,.25)}
+  .hdr-pill{display:flex;padding:4px;border-radius:99px}
+  .hdr-pill button{padding:9px 17px;border-radius:99px;font-size:14px;line-height:1;transition:background .25s}
+  .hdr-pill button:hover,.hdr.pop .hdr-pill [data-nav="contact"]{background:rgba(20,20,20,.07)}
+  .hdr-round{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:13px;transition:transform .3s var(--ease)}
+  .hdr-round:hover{transform:scale(1.06)}
+  .hdr-menu{display:none}
+  .hdr-menu i{position:absolute;width:14px;height:1.5px;border-radius:2px;background:currentColor;transition:transform .35s var(--ease)}
+  .hdr-menu i:first-child{transform:translateY(-3px)}.hdr-menu i:last-child{transform:translateY(3px)}
+  .hdr.pop .hdr-menu i:first-child{transform:rotate(45deg)}.hdr.pop .hdr-menu i:last-child{transform:rotate(-45deg)}
+  .hdr-menu{position:relative}
+  .hdr-pop{position:absolute;top:calc(100% + 8px);right:0;min-width:250px;padding:6px;border-radius:22px;display:flex;flex-direction:column;
+    opacity:0;visibility:hidden;transform:translateY(-6px) scale(.98);transform-origin:top right;transition:opacity .25s, transform .35s var(--ease), visibility 0s .35s}
+  .hdr.pop .hdr-pop{opacity:1;visibility:visible;transform:none;transition:opacity .25s, transform .35s var(--ease)}
+  .hdr-pop a,.hdr-pop button{display:flex;justify-content:space-between;align-items:baseline;gap:18px;width:100%;padding:12px 14px;border-radius:16px;font-size:15px;text-align:left;transition:background .25s}
+  .hdr-pop a:hover,.hdr-pop button:hover{background:rgba(20,20,20,.06)}
+  .hdr-pop span{font-size:12px;color:#8a8a86}
+  .hdr-pop b{font-weight:400}
+  .pop-nav{display:none}
+  /* в кейсе разделы — в шапке, поэтому «Все работы» и «Дальше» уходят к логотипу */
+  .case-top{justify-content:flex-start;gap:22px}
+  .case-top .back{display:none}
+  @media (max-width:760px){
+    .hdr{top:14px;right:12px;gap:6px}
+    .hdr-pill,.hdr-cv{display:none}
+    .hdr-menu{display:grid}
+    .hdr-round{width:38px;height:38px}
+    .pop-nav{display:flex;flex-direction:column;border-bottom:1px solid rgba(20,20,20,.08);margin-bottom:4px;padding-bottom:4px}
+    .case-top nav{display:none}
+  }
+
+  /* логотип — у левого края (на экранах проектов он и так уходит влево) */
+  .top{justify-content:flex-start;padding-left:36px}
+  @media (max-width:760px){ .top{padding-left:18px} }
+
+  /* шапка как у stephanreds: подпись прокручивается при наведении, кнопки тянутся за курсором (см. «магнит» в скрипте) */
+  .roll{position:relative;display:block;height:1.2em;line-height:1.2em;overflow:hidden}
+  .roll > span{display:flex;align-items:center;justify-content:center;height:1.2em;transition:transform .52s cubic-bezier(.76,0,.24,1)}
+  .mag:hover .roll > span{transform:translateY(-100%)}
+  .hdr-round:hover{transform:scale(1.09)}
+  .hdr-round{transition:transform .5s cubic-bezier(.22,1,.36,1)}
+
+  /* как на рефе: капсула и CV по центру, язык — у правого края; меню контактов — под капсулой */
+  @media (min-width:761px){
+    .hdr{left:0;right:0;justify-content:center;pointer-events:none}
+    .hdr > *{pointer-events:auto}
+    .hdr-lang{position:absolute;right:24px;top:0}
+    .hdr-pop{right:auto;left:50%;margin-left:-125px;transform-origin:top center}
+  }
+
+  /* шапка в нашем стиле: тёмные капсулы как кнопки контактов, синий акцент при наведении,
+     появление из размытия (как первый экран) и наша кривая --ease */
+  .hdr{color:#fff}
+  .hdr-pill,.hdr-round,.hdr-pop{background:rgba(20,20,20,.92);color:#fff;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.08), 0 12px 32px -18px rgba(0,0,0,.55)}
+  .hdr-pill button{transition:background .35s var(--ease), color .35s}
+  .hdr-pill button:hover,.hdr.pop .hdr-pill [data-nav="contact"]{background:var(--accent)}
+  .hdr-round{transition:transform .5s var(--ease), background .35s var(--ease)}
+  .hdr-round:hover,.hdr.pop .hdr-menu{background:var(--accent)}
+  .roll > span{transition:transform .6s var(--ease)}
+  .hdr-pop a:hover,.hdr-pop button:hover{background:var(--accent)}
+  .hdr-pop span{color:rgba(255,255,255,.55)}
+  .hdr-pop a:hover span{color:rgba(255,255,255,.8)}
+  .pop-nav{border-bottom-color:rgba(255,255,255,.1)}
+  .hdr > *{opacity:0;filter:blur(14px);transform:translateY(-12px);
+    transition:opacity .7s, filter .9s var(--ease), transform .9s var(--ease), background .35s var(--ease)}
+  body.ready .hdr > *{opacity:1;filter:none;transform:none}
+  body.ready .hdr > :nth-child(2){transition-delay:.08s}
+  body.ready .hdr > :nth-child(3){transition-delay:.14s}
+  body.ready .hdr > :nth-child(4){transition-delay:.2s}
+  body.ready .hdr > .hdr-pop{transition-delay:0s}
+  body.ready .hdr-round:hover{transform:scale(1.09);transition-delay:0s}
+  .hdr > .hdr-pop{opacity:0;filter:none}
+  .hdr.pop > .hdr-pop{opacity:1}
+
+  /* ---------- плитки бенто как карточки на рефе: работа по центру с полями, сверху подпись и «ID 001» ---------- */
+  .bento > div:not(.gen) > img{inset:auto;left:7%;top:44px;width:86%;height:calc(100% - 44px - 7%);object-fit:contain !important}
+  .bento .th{position:absolute;left:14px;right:14px;top:13px;z-index:4;display:flex;justify-content:space-between;gap:12px;pointer-events:none;
+    font-size:10px;line-height:1.2;letter-spacing:.06em;text-transform:uppercase;color:#fff;mix-blend-mode:difference}
+  .bento .th .lb{position:static;padding:0;border-radius:0;background:none;color:inherit;font-size:inherit;letter-spacing:inherit;max-width:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bento .th .tid{flex:none}
+  .bento .th .tid i{font-style:normal;opacity:.55;margin-right:10px}
+  @media (max-width:760px){
+    .bento > div:not(.gen) > img{top:32px;left:6%;width:88%;height:calc(100% - 32px - 6%)}
+    .bento .th{left:10px;right:10px;top:10px;font-size:9px}
+    .bento .th .tid i{margin-right:6px}
+  }
+
+  /* =====================================================================
+     ЧБ-палитра новой главной (v3) на весь сайт: белый фон, серые плоскости, чёрный текст, сетка в точку.
+     Включается классом bw на <html>; убрать класс — вернутся прежние цвета и темы кейсов.
+     ===================================================================== */
+  html.bw{--bg:#FFFFFF;--ink:#111111;--mute:#9A9A9A;--accent:#111111}
+  html.bw body{background:#fff}
+  html.bw .pv-stage,html.bw .case-content{background-image:radial-gradient(circle, rgba(0,0,0,.12) 1px, transparent 1.2px);background-size:22px 22px}
+  /* темы кейсов → одна ЧБ-тема (перебивает цвета, которые кейс ставит инлайном) */
+  html.bw .case{--cbg:#FFFFFF !important;--ccard:#F4F4F4 !important;--cink:#111111 !important;--cmute:#9A9A9A !important;
+    --cline:rgba(0,0,0,.09) !important;--cacc:#111111 !important;--cacc-ink:#FFFFFF !important;background:#fff;color:#111}
+  html.bw .case-first{background:#fff}
+  html.bw .case-content{background-color:#fff}
+  html.bw .pv-slide:not(.intro){background:#fff !important}
+  html.bw .pv-hero{color:#111}
+  html.bw .pv-facts span,html.bw .pv-eyebrow,html.bw .case-hint,html.bw .cs h3,html.bw .cs-more h3{color:#9A9A9A}
+  html.bw .pv-eyebrow b{color:#111}
+  html.bw body.on-work .top .logo{color:#111}
+  html.bw .case-top .logo{color:#111}
+  html.bw .case-top.scrolled{background:#fff}
+  html.bw .case-top nav{background:#fff;color:#111;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16)}
+  html.bw .cv-stories,html.bw .cv-cols,html.bw .cv-banners,html.bw .cv-page{background:#F4F4F4}
+  /* плашка проектов, окно «Все работы», конец кейса */
+  html.bw .pv-bar{background:rgba(255,255,255,.92);color:#111;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1),0 12px 30px -18px rgba(0,0,0,.3)}
+  html.bw .pv-thumb .cap i,html.bw .pv-meta span{color:#9A9A9A}
+  html.bw .pv-progress{background:rgba(0,0,0,.06)} html.bw .pv-progress b{background:rgba(0,0,0,.3)}
+  html.bw .pv-open{background:#111;color:#fff} html.bw .pv-open svg{stroke:#fff}
+  html.bw .pv-sep{background:rgba(0,0,0,.15)}
+  html.bw .works{background:rgba(255,255,255,.94);color:#111;box-shadow:0 30px 80px -30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(0,0,0,.08)}
+  html.bw .works-hd span,html.bw .works-list h3,html.bw .w-card i{color:#9A9A9A}
+  html.bw .works-hd button{background:rgba(0,0,0,.06)}
+  html.bw .works .w-card{color:#111}
+  html.bw .w-card.cur .ph{box-shadow:0 0 0 2px #111}
+  html.bw .w-card.cur .ph::after{background:#111;color:#fff}
+  html.bw .works-dim{background:rgba(255,255,255,.5)}
+  html.bw .cs-card{color:#111} html.bw .cs-card i{color:#9A9A9A}
+  html.bw .cs-next{background:#F4F4F4;color:#111}
+  /* плитки: цветные подложки окон, телефонов и пар телефонов → серые */
+  html.bw .bento .dv,html.bw .bento .duo2{--dbg:#EDEDED !important}
+  html.bw .bento .ph-tile{background:#EDEDED !important}
+  html.bw .bento .bw .bar{background:#E4E4E4;color:#8A8A8A}
+  html.bw .bento .bw .bar i{background:rgba(0,0,0,.18)}
+  html.bw .bento .bw{background:#fff;box-shadow:0 -10px 50px -24px rgba(0,0,0,.35)}
+  html.bw .bento .gen{background:#EDEDED}
+  /* шапка — белые капсулы с обводкой, активное и наведённое — чёрное */
+  html.bw .hdr{color:#111}
+  html.bw .hdr-pill,html.bw .hdr-round,html.bw .hdr-pop{background:rgba(255,255,255,.92);color:#111;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16),0 12px 30px -20px rgba(0,0,0,.3)}
+  html.bw .hdr-pill button:hover,html.bw .hdr.pop .hdr-pill [data-nav="contact"],html.bw .hdr-round:hover,html.bw .hdr.pop .hdr-menu{background:#111;color:#fff}
+  html.bw .hdr-pop a:hover,html.bw .hdr-pop button:hover{background:#111;color:#fff}
+  html.bw .hdr-pop span{color:#9A9A9A}
+  html.bw .ctag{background:rgba(255,255,255,.9);color:#111;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
 </style>
 </head>
 <body>
@@ -1055,8 +1197,25 @@
 </svg>
 
 <header class="top">
-  <div class="logo enter" id="logo" role="button" tabindex="0" aria-label="Все работы"></div>
+  <div class="logo enter" id="logo" role="button" tabindex="0" aria-label="Все работы" data-i18n-aria></div>
 </header>
+
+<!-- шапка: капсула разделов, CV и язык; на телефоне — кнопка меню и язык -->
+<nav class="hdr" id="hdr" aria-label="Меню" data-i18n-aria>
+  <div class="hdr-pill">
+    <button data-nav="about" class="mag"><span class="roll"><span data-i18n>Обо мне</span><span data-i18n aria-hidden="true">Обо мне</span></span></button>
+    <button data-nav="work" class="mag"><span class="roll"><span data-i18n>Работы</span><span data-i18n aria-hidden="true">Работы</span></span></button>
+    <button data-nav="contact" class="mag"><span class="roll"><span data-i18n>Контакты</span><span data-i18n aria-hidden="true">Контакты</span></span></button>
+  </div>
+  <a class="hdr-round hdr-cv mag" href="https://himki.hh.ru/resume/be003531ff079394cd0039ed1f4b7554794a5a" target="_blank" rel="noopener"><span class="roll"><span>CV</span><span aria-hidden="true"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span></span></a>
+  <button class="hdr-round hdr-menu" data-nav="contact" aria-label="Меню" data-i18n-aria><i></i><i></i></button>
+  <button class="hdr-round hdr-lang mag" id="langBtn" aria-label="English"><span class="roll"><span class="lb1">EN</span><span class="lb1" aria-hidden="true">EN</span></span></button>
+  <div class="hdr-pop" id="hdrPop">
+    <div class="pop-nav"><button data-nav="about" data-i18n>Обо мне</button><button data-nav="work" data-i18n>Работы</button></div>
+    <a href="https://t.me/brukwa" target="_blank" rel="noopener"><span>Telegram</span><b>@brukwa ↗</b></a>
+    <a href="https://himki.hh.ru/resume/be003531ff079394cd0039ed1f4b7554794a5a" target="_blank" rel="noopener"><span data-i18n>Резюме</span><b>hh.ru ↗</b></a>
+  </div>
+</nav>
 
 <div class="fonts" id="fonts" role="group" aria-label="Шрифт">
   <button data-font="Manrope" data-w="300" style="font-family:Manrope">Manrope</button>
@@ -1071,15 +1230,15 @@
   <div class="pv-bar" id="pvBar">
     <div class="pv-thumbs" id="pvThumbs"></div>
     <div class="pv-meta" id="pvMeta"></div>
-    <button class="pv-open" id="pvOpen" aria-label="Открыть кейс"></button>
+    <button class="pv-open" id="pvOpen" aria-label="Открыть кейс" data-i18n-aria></button>
     <i class="pv-progress"><b id="pvProg"></b></i>
   </div>
 </section>
 
-<div class="ctag" id="ctag" aria-hidden="true">Смотреть</div>
+<div class="ctag" id="ctag" aria-hidden="true" data-i18n>Смотреть</div>
 <div class="works-dim" id="worksDim"></div>
 <aside class="works" id="works" aria-hidden="true" aria-label="Все работы">
-  <div class="works-hd"><h2>Все работы</h2><span id="worksN"></span><button id="worksX" aria-label="Закрыть">×</button></div>
+  <div class="works-hd"><h2 data-i18n>Все работы</h2><span id="worksN"></span><button id="worksX" aria-label="Закрыть" data-i18n-aria>×</button></div>
   <div class="works-list" id="worksList"></div>
 </aside>
 <div class="lbox" id="lbox" aria-hidden="true"><img id="lboxImg" alt=""><button class="lb-x" id="lboxX" aria-label="Закрыть">×</button>
@@ -1099,8 +1258,8 @@
   <!-- в кейсе, когда пролистали первый экран, снизу появляется плашка для перехода к другим проектам -->
   <div class="pv-bar case-bar" id="caseBar"><div class="pv-thumbs" id="caseThumbs"></div><div class="pv-meta" id="caseMeta"></div></div>
   <div class="case-top" id="caseTop">
-    <div class="logo" id="caseLogo" role="button" tabindex="0" aria-label="На главную"></div>
-    <nav><button class="back" id="back">Все работы</button><button class="next" id="next">Дальше →</button></nav>
+    <div class="logo" id="caseLogo" role="button" tabindex="0" aria-label="На главную" data-i18n-aria></div>
+    <nav><button class="back" id="back" data-i18n>Все работы</button><button class="next" id="next">Дальше →</button></nav>
   </div>
 </section>
 
@@ -1278,7 +1437,7 @@ const CASES = [
     blocks:[
       { t:'lead', h:'Задача', text:'Сторис с акциями для мобильного приложения ритейлера: скидка должна читаться за секунду, пока палец не пролистнул дальше.' },
       { t:'grid', cls:'one', cols:2, gap:'24px', r:'28px', imgs:G('stories',2) } ] },
-  { id:'mvideo', type:'comms', name:'М.Видео и Эльдорадо', kind:'ключевые визуалы', status:'Коммерческий проект',
+  { id:'mvideo', hidden:true, type:'comms', name:'М.Видео и Эльдорадо', kind:'ключевые визуалы', status:'Коммерческий проект',
     color:'#1a1a1c', coverType:'banners', gallery:G('mvideo',10),
     theme:{ bg:'#0d0d0e', card:'#18181a', acc:'#e3262f', accInk:'#fff' },
     line:'Ключевые визуалы для сезонных акций на сайте и в приложении.',
@@ -1306,7 +1465,7 @@ const CASES = [
         { img:G('leveraged',6)[4], c:1, r:2 },
         { big:'Стекло и металл', small:'акции, выплаты трейдерам и анонсы — в одной системе', c:2, r:2 },
         { img:G('leveraged',6)[5], c:1, r:2 } ] } ] },
-  { id:'posters', type:'comms', name:'Постеры', kind:'серия постеров', status:'Личные и коммерческие',
+  { id:'posters', hidden:true, type:'comms', name:'Постеры', kind:'серия постеров', status:'Личные и коммерческие',
     color:'#1a1a1c', coverType:'columns', gallery:G('posters',6),
     theme:{ bg:'#111', card:'#1a1a1a', acc:'#fff', accInk:'#111' },
     line:'Постеры в разных стилях — от афиш событий до арт-экспериментов.',
@@ -1341,7 +1500,7 @@ const CASES = [
       { t:'bento', h:'Презентация eCommerce vs iGaming', text:'Для партнёров: как перейти из eCommerce в iGaming — рынок, ROI и источники трафика.', rk:.667, items:[
         { img:'assets/comms/igaming/cover1.jpg', c:2, r:2 }, { img:'assets/comms/igaming/02.jpg', c:2, r:2 },
         { img:'assets/comms/igaming/01.jpg', c:2, r:2 }, { img:'assets/comms/igaming/03.jpg', c:2, r:2 } ] } ] },
-  { id:'anons', type:'comms', name:'Анонсы и розыгрыши', kind:'посты для соцсетей', status:'Коммерческий проект',
+  { id:'anons', hidden:true, type:'comms', name:'Анонсы и розыгрыши', kind:'посты для соцсетей', status:'Коммерческий проект',
     color:'#1a1a1c', coverType:'columns', gallery:G('anons',6),
     theme:{ bg:'#121212', card:'#1c1c1c', acc:'#ffd400', accInk:'#111' },
     line:'Посты для продвижения акций и анонса мероприятий.',
@@ -1485,11 +1644,121 @@ function fisheye(el, id, k){
 }
 
 // hidden: true — кейс скрыт с сайта (данные остаются, можно вернуть)
-function visible(){ return CASES.filter(c=>!c.hidden); }
+/* ---------- английская версия: словарь «русская строка → английская». Русские тексты в CASES — исходник,
+   английские подставляются при переключении (deepL), поэтому кейсы правятся в одном месте ---------- */
+const EN = {
+  // интерфейс
+  'BRUKWA — портфолио':'BRUKWA — portfolio', 'Обо мне':'About', 'Работы':'Work', 'Контакты':'Contact', 'Меню':'Menu',
+  'Все работы':'All work', 'Дальше':'Next', 'Дальше →':'Next →', 'Открыть кейс':'Open case', 'Смотреть':'View', 'Закрыть':'Close',
+  'Предыдущая':'Previous', 'Следующая':'Next', 'На главную':'Home', 'В разработке':'In progress', ' · в разработке':' · in progress',
+  'Продуктовый дизайн':'Product design', 'Коммуникационный дизайн':'Communication design', 'Тип проекта':'Project type', 'Статус':'Status',
+  'Что делала':'My role', 'Живой сайт':'Live site', 'Живой сайт — можно листать':'Live site — scroll it', 'Листайте внутри ↓':'Scroll inside ↓',
+  'Листайте внутри окна ↓':'Scroll inside the window ↓', 'Листайте вбок →':'Scroll sideways →', 'Наведите, чтобы остановить':'Hover to pause',
+  'Главная страница сайта':'Website home page', 'Планшетная версия':'Tablet version', 'Мобильная версия':'Mobile version', 'экранов в проекте':'screens in the project',
+  'До':'Before', 'После':'After', 'Посмотреть':'See it live', 'Листайте вниз ↓':'Scroll down ↓', 'Следующий проект':'Next project', 'Все проекты':'All projects',
+  'Вы здесь':'You are here', 'Работы ↓':'Work ↓', 'Резюме':'Resume', 'Работала с брендами':'Brands I’ve worked with', 'Преподавала':'Taught at',
+  'НСПК — Мир и СБП':'NSPK — Mir & SBP', 'М.Видео и Эльдорадо':'M.Video & Eldorado', 'МузТорг':'Muztorg', 'Алиса Брюква':'Alisa Brukwa',
+  'Привет! Меня зовут Алиса — я мультидисциплинарный дизайнер. Создаю фирменные стили, digital-интерфейсы и визуальные концепции.':
+    'Hi! I’m Alisa, a multidisciplinary designer. I create brand identities, digital interfaces and visual concepts.',
+  'эмоция':'emotion', 'главная':'main', 'Предыдущий слайд':'Previous slide', 'Следующий слайд':'Next slide',
+  // Трейдинг 101
+  'Трейдинг 101':'Trading 101', 'лендинг курса':'course landing page', 'Концепт':'Concept',
+  'Лендинг онлайн-курса по трейдингу для тех, кто давно хотел начать, но боялся.':'A landing page for an online trading course — for people who always wanted to start but were afraid to.',
+  'Дизайн, адаптивы, 3D в первом экране':'Design, responsive layouts, 3D hero', 'Открыть сайт':'Open site', 'Задача':'Task',
+  'Снять страх новичка перед трейдингом и довести до покупки курса.':'Take away a beginner’s fear of trading and lead them to buy the course.',
+  'Аудитория':'Audience', 'Женщины 30–45 лет':'Women aged 30–45', 'Путь':'Journey', 'Игра в телеграм-боте → лендинг → покупка':'Telegram bot game → landing → purchase',
+  'Экраны':'Screens', 'trading-101 · лендинг':'trading-101 · landing', 'Лендинг':'Landing', 'Телефон':'Phone', 'Портрет в 3D':'3D portrait',
+  'Книга автора':'Author’s book', 'Ноутбук':'Laptop', 'заголовки блоков — как в тетради':'section headings look like a notebook', 'Приём':'Device',
+  'Палитра':'Palette', 'адаптива: 1200 · 1024 · 768 · 390':'breakpoints: 1200 · 1024 · 768 · 390',
+  // Revnikoff
+  'сайт мастерской':'workshop website', 'Запущен':'Live',
+  'Сайт мастерской, которая реставрирует брендовые сумки, обувь, часы и украшения.':'A website for a workshop that restores designer bags, shoes, watches and jewellery.',
+  'Структура, путь клиента, визуал, вёрстка':'Structure, customer journey, visuals, build',
+  'Посетитель решает одно: можно ли доверить дорогую вещь незнакомой мастерской.':'A visitor has one question: can I trust an expensive item to a workshop I don’t know?',
+  'Тип':'Type', 'Корпоративный сайт с магазином':'Company website with a shop', 'Объём':'Scope', '8 страниц и адаптивы':'8 pages plus responsive versions',
+  'Платформа':'Platform', 'Тильда — собрала сама':'Tilda — built it myself', 'Главная':'Home page', 'Карточка товара':'Product page',
+  'Choco Boom — подарок клиентам':'Choco Boom — a gift for clients', 'Планшет':'Tablet', 'Брифинг':'Briefing', 'Исследование':'Research',
+  'Прототипирование':'Prototyping', 'Референсы':'References', 'Визуальная концепция':'Visual concept', 'UI-кит и адаптация':'UI kit and adaptation',
+  'Как шла работа':'How it went', 'экранов: десктоп, планшет, телефон и попапы':'screens: desktop, tablet, mobile and pop-ups',
+  'страниц, собрала на Тильде сама':'pages, built on Tilda myself', 'Покрутите коробку':'Spin the box', 'Пакет доставки':'Delivery bag',
+  'Сторис: до / после':'Stories: before / after', 'Потяните шторку.':'Drag the slider.',
+  // Impre
+  'приложение о здоровье':'health app', 'Концепт приложения: сенсор читает состояние организма, а витамины подстраиваются под него.':
+    'An app concept: a sensor reads how your body is doing, and your vitamins adapt to it.',
+  'Концепция, интерфейс, моушн, прототип':'Concept, interface, motion, prototype', 'Открыть прототип':'Open prototype', 'Идея':'Idea',
+  'Тело меняется каждый день. Витамины — нет.':'Your body changes every day. Your vitamins don’t.', 'Продукт':'Product',
+  'Сенсор + адаптивные витамины + приложение':'Sensor + adaptive vitamins + app', 'Эмоция':'Emotion',
+  'Спокойствие и контроль вместо медицинской тревоги':'Calm and control instead of medical anxiety', 'Разделы':'Sections',
+  'Обзор, Капсула, Био, Формула':'Overview, Capsule, Bio, Formula', 'Живой прототип':'Live prototype', 'Витамин D':'Vitamin D',
+  'Шкала из точек':'Dot scale', 'Формула':'Formula', 'Капсула вместо дашборда':'A capsule instead of a dashboard',
+  'Её внутренний свет показывает состояние по биомаркерам.':'Its inner glow shows your state based on biomarkers.', 'Четыре состояния':'Four states',
+  'Баланс, активность, восстановление, фокус — свой цвет и свет.':'Balance, energy, recovery, focus — each with its own colour and light.',
+  'Норму и отклонение видно без красно-зелёной паники.':'Normal and off-range values are clear without red-and-green panic.', 'Тихий интерфейс':'A quiet interface',
+  'Почти без заливок, акцентов на экране — единицы.':'Almost no fills, only a few accents per screen.', 'Лавовая капсула':'Lava capsule',
+  'Капли внутри капсулы: цвет, движение и свет. Экспорт в PNG и видео.':'Blobs inside the capsule: colour, motion and light. Exports to PNG and video.',
+  'Блистер':'Blister', 'Капсулы перекатываются по сетке, палитры формул, запись видео. Он же — обложка этого кейса.':
+    'Capsules roll across a grid, formula palettes, video recording. It’s also this case’s cover.',
+  'Графики показателей':'Biomarker charts', 'Форма, цвет и затухания на ручках, выгрузка в SVG и PNG.':'Shape, colour and fades on sliders, exports to SVG and PNG.',
+  '→ Лавовая капсула':'→ Lava capsule', '→ Блистер':'→ Blister', '→ Графики показателей':'→ Biomarker charts',
+  // TB
+  'айдентика и сайт':'identity and website', 'Коммерческий проект':'Client project',
+  'Фирменный стиль с нуля и сайт для центра терапии и тренировок в Германии.':'A brand identity from scratch and a website for a therapy and training centre in Germany.',
+  'Айдентика, дизайн сайта':'Identity, web design', 'Подать центр как уверенного современного лидера.':'Present the centre as a confident, modern leader.',
+  'Клиент':'Client', 'TZ Blender, Германия':'TZ Blender, Germany', 'Айдентика и веб-дизайн':'Identity and web design', 'Когда':'When', 'Май 2025':'May 2025',
+  'Первый экран':'Hero screen', 'Десктоп':'Desktop', 'Квиз вместо формы':'A quiz instead of a form',
+  'Четыре цели на выбор — без звонка и длинной анкеты.':'Four goals to choose from — no phone call, no long form.', 'Запись под рукой':'Booking always at hand',
+  '«Termin vereinbaren» и вход для участников — в шапке на каждой странице.':'“Termin vereinbaren” and member login sit in the header on every page.',
+  'Истории перед записью':'Stories before booking', 'Истории пациентов снимают страх перед первым визитом.':'Patient stories ease the fear of the first visit.',
+  'Сайт помогает нанимать':'The site helps hiring', 'Блок «Karriere»: центр растёт, и сайт ищет ему команду.':'A “Karriere” section: the centre is growing, and the site helps find its team.',
+  'Визитки и шрифты':'Business cards and type', 'заголовки · текст — Helvetica Neue':'headings · body — Helvetica Neue', 'Шрифты':'Typefaces',
+  'косой штрих из логотипа — на всех носителях':'the slash from the logo, on every touchpoint', 'Знак':'Mark', 'Мерч':'Merch', 'Фотостиль':'Photo style',
+  // М.Видео
+  'ключевые визуалы':'key visuals', 'Ключевые визуалы для сезонных акций на сайте и в приложении.':'Key visuals for seasonal promotions on the website and in the app.',
+  'Баннеры и ключевые визуалы для акций':'Banners and key visuals for promotions', 'Каждый раз новая механика, но стиль узнаётся с первого взгляда.':
+    'A new mechanic every time, but the style is recognisable at first glance.', 'Формат':'Format', 'Баннеры для сайта и приложения':'Banners for the website and app',
+  'Механики':'Mechanics', 'Скидки, рассрочка, промокоды, подборки':'Discounts, instalments, promo codes, collections',
+  'Скидки · рассрочка · промокоды':'Discounts · instalments · promo codes', 'новая механика — тот же узнаваемый стиль':'a new mechanic, the same recognisable style',
+  'Баннеры для сайта и приложения ':'Banners for the website and app',
+  // Leveraged
+  'посты для соцсетей':'social media posts', 'Посты для трейдинг-сервиса: акции, выплаты трейдерам и анонсы мероприятий.':
+    'Posts for a trading service: promotions, trader payouts and event announcements.', 'Ключевые визуалы, посты':'Key visuals, posts',
+  'Разные поводы — один визуальный язык.':'Different occasions, one visual language.', 'Leveraged — трейдинг-сервис':'Leveraged — a trading service',
+  'Посты 4:5 для соцсетей':'4:5 social media posts', 'Стиль':'Style', 'Тёмно-зелёный, стекло и металл':'Dark green, glass and metal', 'Посты 4:5':'4:5 posts',
+  'Стекло и металл':'Glass and metal', 'акции, выплаты трейдерам и анонсы — в одной системе':'promotions, trader payouts and announcements in one system',
+  // Постеры
+  'Постеры':'Posters', 'серия постеров':'poster series', 'Личные и коммерческие':'Personal and client work',
+  'Постеры в разных стилях — от афиш событий до арт-экспериментов.':'Posters in different styles — from event posters to art experiments.',
+  'Графический дизайн, леттеринг':'Graphic design, lettering', 'О серии':'About the series', 'У каждого постера свой графический язык.':'Each poster has its own graphic language.',
+  'События и личные эксперименты':'Events and personal experiments', 'Графика, леттеринг, коллаж':'Graphics, lettering, collage', 'Стили':'Styles',
+  'От шрифтовых постеров до коллажа':'From type posters to collage', 'постеров: афиши, шрифтовые и коллажи':'posters: events, type and collage',
+  // 1WIN
+  'превью, посты и сторис':'thumbnails, posts and stories', 'Превью для YouTube, посты и сторис партнёрской программы — одна фирменная система.':
+    'YouTube thumbnails, posts and stories for an affiliate programme — one brand system.', 'Превью, посты, сторис':'Thumbnails, posts, stories',
+  'У обложки и поста секунда, чтобы их заметили и узнали бренд.':'A thumbnail or a post has one second to be noticed and recognised.',
+  '1WIN и 1WIN Partners':'1WIN and 1WIN Partners', 'Форматы':'Formats', 'Превью 16:9, посты 1:1, сторис 9:16, презентация':'16:9 thumbnails, 1:1 posts, 9:16 stories, a deck',
+  'Темы':'Topics', 'Конференции, итоги года, анонсы, условия':'Conferences, year in review, announcements, terms', 'Превью YouTube':'YouTube thumbnails',
+  'Посты Instagram':'Instagram posts', 'Сторис':'Stories', 'условия, анонсы и итоги — в той же системе, что посты':'terms, announcements and recaps in the same system as the posts',
+  'Презентация eCommerce vs iGaming':'eCommerce vs iGaming deck',
+  'Для партнёров: как перейти из eCommerce в iGaming — рынок, ROI и источники трафика.':'For partners: how to move from eCommerce to iGaming — the market, ROI and traffic sources.',
+  // Анонсы
+  'Анонсы и розыгрыши':'Announcements & giveaways', 'Посты для продвижения акций и анонса мероприятий.':'Posts promoting offers and announcing events.',
+  'Посты, леттеринг':'Posts, lettering', 'Главное — дата, приз и что сделать.':'What matters: the date, the prize and what to do.',
+  'Посты 1:1 для соцсетей':'1:1 social media posts', 'Розыгрыши, экскурсии, праздники':'Giveaways, tours, holidays', 'Дата · приз · действие':'Date · prize · action',
+  'три вещи, которые читаются первыми':'the three things people read first',
+};
+
+let LANG = (()=>{ try { const q = new URLSearchParams(location.search).get('lang'); if(q) return q === 'en' ? 'en' : 'ru';
+  return localStorage.getItem('lang') === 'en' ? 'en' : 'ru'; } catch(e){ return 'ru'; } })();
+const L = s => (LANG === 'en' && EN[s]) || s;
+const deepL = o => typeof o === 'string' ? L(o) : Array.isArray(o) ? o.map(deepL) : (o && typeof o === 'object') ? Object.fromEntries(Object.entries(o).map(([k, v])=>[k, deepL(v)])) : o;
+let VIEW = CASES;
+const buildView = ()=>{ VIEW = LANG === 'en' ? CASES.map(deepL) : CASES; };
+buildView();
+function visible(){ return VIEW.filter(c=>!c.hidden); }
 function linkAttrs(c){ return /^https?:/.test(c.url) ? 'target="_blank" rel="noopener"' : 'target="_blank"'; }
 const lockSVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>';
 // проект в разработке: вместо картинок — цвет проекта и надпись
-const wipCover = c => `<div class="wip-cover" style="background:${c.color}"><span>В разработке</span></div>`;
+const wipCover = c => `<div class="wip-cover" style="background:${c.color}"><span>${L('В разработке')}</span></div>`;
 
 /* ---------- лента проектов ---------- */
 let pvIdx = -1, pvBusy = false;
@@ -1507,22 +1776,23 @@ const pvSrc = c => c.cover || (c.slides && c.slides[0]) || c.img;
 const thumbSrc = c => `assets/thumbs/${c.id}.jpg`;
 const cardSrc = c => `assets/cards/${c.id}.jpg`;
 const introHTML = ()=>`<div class="intro-in">
-  <figure class="intro-photo"><img src="assets/me.webp" alt="Алиса Брюква"></figure>
-  <p class="intro-lead">Привет! Меня зовут Алиса — я&nbsp;мультидисциплинарный дизайнер. Создаю фирменные стили, digital-интерфейсы и&nbsp;визуальные концепции.</p>
+  <figure class="intro-photo"><img src="assets/me.webp" alt="${L('Алиса Брюква')}"></figure>
+  <p class="intro-lead">${LANG === 'en' ? L('Привет! Меня зовут Алиса — я мультидисциплинарный дизайнер. Создаю фирменные стили, digital-интерфейсы и визуальные концепции.')
+    : 'Привет! Меня зовут Алиса — я&nbsp;мультидисциплинарный дизайнер. Создаю фирменные стили, digital-интерфейсы и&nbsp;визуальные концепции.'}</p>
   <div class="intro-brands">
-    <div><p>Работала с брендами</p><ul><li>НСПК — Мир и СБП</li><li>М.Видео и Эльдорадо</li><li>МузТорг</li></ul></div>
-    <div><p>Преподавала</p><ul><li>Granich School</li></ul></div>
+    <div><p>${L('Работала с брендами')}</p><ul><li>${L('НСПК — Мир и СБП')}</li><li>${L('М.Видео и Эльдорадо')}</li><li>${L('МузТорг')}</li></ul></div>
+    <div><p>${L('Преподавала')}</p><ul><li>Granich School</li></ul></div>
   </div>
   <div class="intro-contacts">
     <a class="contact" href="https://t.me/brukwa" target="_blank" rel="noopener"><span>Telegram</span><b>@brukwa ↗</b></a>
-    <a class="contact" href="https://himki.hh.ru/resume/be003531ff079394cd0039ed1f4b7554794a5a" target="_blank" rel="noopener"><span>Резюме</span><b>hh.ru ↗</b></a>
+    <a class="contact" href="https://himki.hh.ru/resume/be003531ff079394cd0039ed1f4b7554794a5a" target="_blank" rel="noopener"><span>${L('Резюме')}</span><b>hh.ru ↗</b></a>
   </div>
-  <button class="intro-go" data-go>Работы ↓</button>
+  <button class="intro-go" data-go>${L('Работы ↓')}</button>
 </div>`;
 // миниатюры проектов — одни и те же в ленте и в кейсе
 // продукт или коммуникации — для номера над названием и разделителя в плашке
 const isProduct = c => c.type !== 'comms';
-const groupName = c => isProduct(c) ? 'Продуктовый дизайн' : 'Коммуникационный дизайн';
+const groupName = c => L(isProduct(c) ? 'Продуктовый дизайн' : 'Коммуникационный дизайн');
 const eyebrowHTML = i => { const list = visible(); return `<b>${String(i+1).padStart(2,'0')}</b> / ${String(list.length).padStart(2,'0')} · ${groupName(list[i])}`; };
 // длинное название (Therapiezentrum) уменьшается, пока не влезет в колонку
 function fitTitles(root = document){
@@ -1535,7 +1805,7 @@ function fitTitles(root = document){
 }
 const thumbsHTML = list => list.map((c,i)=>`${i && isProduct(list[i-1]) && !isProduct(c) ? '<i class="pv-sep" aria-hidden="true"></i>' : ''}<button class="pv-thumb" data-i="${i}" style="--c:${c.color}" aria-label="${c.name}">
     <span class="ph">${c.wip ? lockSVG : `<img src="${thumbSrc(c)}" alt="" loading="lazy">`}</span>
-    <span class="cap"><b>${c.name}</b><i>${c.kind[0].toUpperCase() + c.kind.slice(1)}${c.wip ? ' · в разработке' : ''}</i></span>
+    <span class="cap"><b>${c.name}</b><i>${c.kind[0].toUpperCase() + c.kind.slice(1)}${c.wip ? L(' · в разработке') : ''}</i></span>
   </button>`).join('');
 // start: -1 — первый экран «кто я», 0… — проект
 function renderPreview(start = -1){
@@ -1627,9 +1897,9 @@ function pvShow(i, instant, dir){
 }
 const cap = t => t[0].toUpperCase() + t.slice(1);
 const factsHTML = c => `<div class="pv-facts">
-  <div><b>Тип проекта</b><span>${cap(c.kind)}</span></div>
-  <div><b>Статус</b><span>${c.status}</span></div>
-  <div><b>Что делала</b><span>${c.role}</span></div></div>`;
+  <div><b>${L('Тип проекта')}</b><span>${cap(c.kind)}</span></div>
+  <div><b>${L('Статус')}</b><span>${c.status}</span></div>
+  <div><b>${L('Что делала')}</b><span>${c.role}</span></div></div>`;
 // обложка проекта: картинка (и экран устройства с живым сайтом, если он есть)
 // живые обложки коммуникаций; каждая работа показывается один раз, без повторов
 function motionCover(c){
@@ -1713,7 +1983,7 @@ $('#pvOpen').addEventListener('click', e=>{ e.stopPropagation(); pvOpenCurrent()
     const over = e.target.closest('#pvStage') && !e.target.closest('.pv-bar, .pv-device') && openIdx < 0 && pvIdx >= 0;
     if(over){
       const c = visible()[pvIdx];
-      tag.textContent = c && c.wip ? 'В разработке' : 'Смотреть';
+      tag.textContent = L(c && c.wip ? 'В разработке' : 'Смотреть');
       if(!shown){ x = tx = e.clientX; y = ty = e.clientY; }
     }
     tx = e.clientX; ty = e.clientY;
@@ -1809,17 +2079,20 @@ const nextOpen = i => { const list = visible(); do { i = (i + 1) % list.length; 
 const pad2 = k => String(k + 1).padStart(2, '0');
 const imgT = (src, extra = '') => `<img src="${src}" alt="" loading="lazy" ${extra}>`;
 const headT = b => (b.h || b.text) ? `<header class="b-head"><h3>${b.h || ''}</h3>${b.text ? `<p>${b.text}</p>` : ''}</header>` : '';
-const screenT = (x, vw) => `<div class="scr${x.long ? ' long' : ''}"${x.live ? ` data-live="${x.live}" data-vw="${vw}"` : ''}>${imgT(x.shot || x.src)}${x.live ? '<span class="live">Живой сайт</span>' : ''}</div>`;
+const screenT = (x, vw) => `<div class="scr${x.long ? ' long' : ''}"${x.live ? ` data-live="${x.live}" data-vw="${vw}"` : ''}>${imgT(x.shot || x.src)}${x.live ? `<span class="live">${L('Живой сайт')}</span>` : ''}</div>`;
 const igBar = '<span class="igb"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><svg viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-11.6 7.1L4 20l1.4-4.2A8 8 0 1 1 20 11.5z"/></svg><svg viewBox="0 0 24 24"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4 18-7z"/></svg><svg viewBox="0 0 24 24" class="bm"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></span>';
 // плитка бенто — одна разметка и для сетки, и для рядов
+// сквозной номер плитки в кейсе — «ID 001» в углу карточки, как на рефе; обнуляется в fillCase
+let TILE_N = 0;
 const bentoTile = x=>{
       // размер плитки: c — колонок из 4, r — рядов; старые w/h — то же, что c:2 / r:2
       const cls = [x.c ? 'c' + x.c : x.w ? 'w2' : '', x.r ? 'r' + x.r : x.h ? 'h2' : '', x.cls || ''].join(' ');
-      const lb = x.lb ? `<span class="lb">${x.lb}</span>` : '';
+      // шапка карточки: подпись слева, номер справа (у решений и списка свой номер — не дублируем)
+      const lb = x.step || x.list ? '' : `<span class="th">${x.lb ? `<span class="lb">${x.lb}</span>` : '<span></span>'}<span class="tid"><i>ID</i>${String(++TILE_N).padStart(3, '0')}</span></span>`;
       if(x.img) return `<div class="${cls}">${imgT(x.img, x.pos ? `style="object-position:${x.pos}"` : '')}${lb}</div>`;
       // длинная страница в окне браузера на цветной подложке — листается внутри окна
       // live — вместо картинки встаёт живой сайт (на компьютере), картинка остаётся заглушкой
-      if(x.win) return `<div class="${cls} dv" style="--dbg:${x.bg || 'var(--cacc)'}"><div class="bw"><div class="bar"><i></i><i></i><i></i><span>${x.url || ''}</span><em>${x.live ? 'Живой сайт — можно листать' : 'Листайте внутри ↓'}</em></div>${
+      if(x.win) return `<div class="${cls} dv" style="--dbg:${x.bg || 'var(--cacc)'}"><div class="bw"><div class="bar"><i></i><i></i><i></i><span>${x.url || ''}</span><em>${L(x.live ? 'Живой сайт — можно листать' : 'Листайте внутри ↓')}</em></div>${
           screenT(x.live ? { shot:x.win, live:x.live } : { src:x.win, long:true }, 1440)}</div>${lb}</div>`;
       // генератор целиком (как у Instrument): снимок инструмента с панелью, сверху слева — название со стрелкой и что он делает
       if(x.gen) return `<div class="${cls} gen">${imgT(x.gen)}<div class="gc"><b>→ ${x.e}</b><span>${x.p}</span></div></div>`;
@@ -1827,7 +2100,7 @@ const bentoTile = x=>{
       if(x.box) return `<div class="${cls} bx"><div class="cube-wrap" data-spin><div class="cube">${
           Object.entries(x.box).map(([k, s])=>`<i class="${k}" style="background-image:url('${s}')"></i>`).join('')}</div></div>${lb}</div>`;
       // шторка «до / после»
-      if(x.ba) return `<div class="${cls} b-ba"><div class="cmp" style="--i:${x.k || 0}"><img src="${x.ba[1]}" alt="После" loading="lazy"><div class="bf"><img src="${x.ba[0]}" alt="До" loading="lazy"></div><i class="hd"></i></div>${lb}</div>`;
+      if(x.ba) return `<div class="${cls} b-ba"><div class="cmp" style="--i:${x.k || 0}"><img src="${x.ba[1]}" alt="${L('После')}" loading="lazy"><div class="bf"><img src="${x.ba[0]}" alt="${L('До')}" loading="lazy"></div><i class="hd"></i></div>${lb}</div>`;
       // два телефона-картинки (с прозрачным фоном) на цветной подложке
       if(x.duo) return `<div class="${cls} duo2" style="--dbg:${x.bg || 'var(--cacc)'}">${x.duo.map(s=>imgT(s)).join('')}${lb}</div>`;
       // список (этапы работы)
@@ -1914,7 +2187,7 @@ const BLOCKS = {
   bento: b => `<section class="reveal b-bento">${headT(b)}${b.rows
     ? `<div class="brows">${b.rows.map(r=>`<div class="bento brow">${r.map(x=>rowTile(x)).join('')}</div>`).join('')}</div>`
     : `<div class="bento${b.rk ? ' rk' : ''}"${b.rk ? ` style="--rk:${b.rk}"` : ''}>${b.items.map(x=>bentoTile(x)).join('')}</div>`}</section>`,
-  cta: (b, c) => c.url ? `<section class="cs reveal"><h3>Посмотреть</h3><div><a class="cta" href="${c.url}" ${linkAttrs(c)}>${c.urlLabel} ↗</a></div></section>` : '',
+  cta: (b, c) => c.url ? `<section class="cs reveal"><h3>${L('Посмотреть')}</h3><div><a class="cta" href="${c.url}" ${linkAttrs(c)}>${c.urlLabel} ↗</a></div></section>` : '',
 };
 // кейс без своего набора — общий шаблон
 const defaultBlocks = c => [
@@ -1971,7 +2244,7 @@ function fillCase(i){
   $('#caseEyebrow').innerHTML = eyebrowHTML(i);
   $('#caseTitle').textContent = c.name;
   $('#caseLead').textContent = c.line;
-  $('#caseHint').innerHTML = `${c.url ? `<a class="cta" href="${c.url}" ${linkAttrs(c)}>${c.urlLabel} ↗</a>` : ''}<span>Листайте вниз ↓</span>`;
+  $('#caseHint').innerHTML = `${c.url ? `<a class="cta" href="${c.url}" ${linkAttrs(c)}>${c.urlLabel} ↗</a>` : ''}<span>${L('Листайте вниз ↓')}</span>`;
   $('#caseCover').innerHTML = picHTML(c, i);
   if(c.caseCover){
     const pic = $('#caseCover .pv-pic'); pic.classList.add('rv-cover');
@@ -1981,9 +2254,9 @@ function fillCase(i){
   }
   if(c.device) requestAnimationFrame(()=>placeDevice($('#caseCover .pv-pic'), c));
   watchFrames($('#caseCover'));
-  $('#next').innerHTML = `Дальше<span class="nx-name">: ${nx.name}</span> →`;
+  $('#next').innerHTML = `${L('Дальше')}<span class="nx-name">: ${nx.name}</span> →`;
 
-  spins.clear();
+  spins.clear(); TILE_N = 0;
   // «Задача», факты и этапы, если идут подряд, собираются в одну карточку
   const blocks = [];
   (c.blocks || defaultBlocks(c)).forEach(b=>{
@@ -1998,11 +2271,11 @@ function fillCase(i){
   $('#caseContent').innerHTML = blocks.map(b=>BLOCKS[b.t](b, c)).join('') + `
     <section class="cs-more reveal">
       <button class="cs-next" data-i="${list.indexOf(nx)}"><img src="${nx.thumb || nx.cover || cardSrc(nx)}" alt="" loading="lazy" style="object-position:${nx.coverPos || 'center'}">
-        <span class="tx"><span><small>Следующий проект</small><b>${nx.name}</b></span><span class="go">→</span></span></button>
-      <h3>Все проекты</h3>
+        <span class="tx"><span><small>${L('Следующий проект')}</small><b>${nx.name}</b></span><span class="go">→</span></span></button>
+      <h3>${L('Все проекты')}</h3>
       <div class="cs-cards">
-        ${others(true) ? `<p class="cs-group">Продуктовый дизайн</p>${others(true)}` : ''}
-        <p class="cs-group">Коммуникационный дизайн</p>${others(false)}
+        ${others(true) ? `<p class="cs-group">${L('Продуктовый дизайн')}</p>${others(true)}` : ''}
+        <p class="cs-group">${L('Коммуникационный дизайн')}</p>${others(false)}
       </div></section>`;
   const cc = $('#caseContent');
   cc.querySelectorAll('.cs-card, .cs-next').forEach(b=>b.addEventListener('click', ()=>switchCase(+b.dataset.i)));
@@ -2039,7 +2312,7 @@ function fillCase(i){
   });
   $('#caseMeta').innerHTML = `<b>${c.name}</b><span>${cap(c.kind)} · ${c.status}</span>`;
   $('#caseBar').classList.remove('on');
-  requestAnimationFrame(()=>fitTitles($('#case')));
+  requestAnimationFrame(()=>{ fitTitles($('#case')); caseParallaxReset(); });
   scramble($('#caseLogo'), 'BRUKWA');   // в шапке кейса — логотип, маленький, как на экранах проектов
 }
 function openCase(i){
@@ -2050,8 +2323,11 @@ function openCase(i){
   document.body.classList.add('case-on');
   syncHash();
 }
+// кейс открыт из новой главной (v3.html): закрыть кейс — значит вернуться туда, а не в старую ленту
+const FROM_V3 = new URLSearchParams(location.search).get('from') === 'v3';
 function closeCase(){
   if(openIdx < 0) return;
+  if(FROM_V3){ location.href = 'v3.html'; return; }
   openIdx = -1;
   caseEl.classList.remove('is-open'); caseEl.setAttribute('aria-hidden','true');
   document.body.classList.remove('case-on');
@@ -2074,12 +2350,12 @@ function worksOpen(pin){
   clearTimeout(worksT);
   const list = visible(), cur = openIdx > -1 ? openIdx : pvIdx;
   const card = (o, j, k)=>`<button class="w-card${j === cur ? ' cur' : ''}" data-i="${j}" style="--c:${o.color};--k:${k}">
-    <span class="ph">${o.wip ? lockSVG : `<img src="${cardSrc(o)}" alt="" loading="lazy">`}</span><b>${o.name}</b><i>${cap(o.kind)}${o.wip ? ' · в разработке' : ''}</i></button>`;
+    <span class="ph" data-here="${L('Вы здесь')}">${o.wip ? lockSVG : `<img src="${cardSrc(o)}" alt="" loading="lazy">`}</span><b>${o.name}</b><i>${cap(o.kind)}${o.wip ? L(' · в разработке') : ''}</i></button>`;
   let k = 0;
   const grp = (name, prod)=>{ const cards = list.map((o, j)=>isProduct(o) === prod ? card(o, j, k++) : '').join('');
     return cards ? `<h3>${name}</h3><div class="g">${cards}</div>` : ''; };
   if(!works.classList.contains('on')){
-    $('#worksList').innerHTML = grp('Продуктовый дизайн', true) + grp('Коммуникационный дизайн', false);
+    $('#worksList').innerHTML = grp(L('Продуктовый дизайн'), true) + grp(L('Коммуникационный дизайн'), false);
     $('#worksN').textContent = list.length;
   }
   worksPin = worksPin || pin;
@@ -2100,7 +2376,7 @@ $('#worksList').addEventListener('click', e=>{
 });
 $('#worksX').addEventListener('click', worksClose);
 $('#worksDim').addEventListener('click', worksClose);
-$('#back').addEventListener('click', ()=>worksOpen(true));
+$('#back').addEventListener('click', ()=>FROM_V3 ? (location.href = 'v3.html') : worksOpen(true));
 // наведение: мышь дошла до правого края обложки проекта — окно выглядывает; ушла с окна — прячется
 if(matchMedia('(hover:hover) and (min-width:761px)').matches){
   addEventListener('pointermove', e=>{
@@ -2177,6 +2453,104 @@ function placeLogo(){
   logo.style.setProperty('--ly', (mob ? -2 : -8) + 'px');
 }
 addEventListener('resize', ()=>{ placeLogo(); fitTitles(); });
+
+/* ---------- плавный скролл и параллакс в кейсе (как у stephanreds.com: инерция + слои с разной скоростью) ----------
+   колесо не прыгает, а доплывает; обложка уезжает медленнее страницы; плитки бенто приезжают
+   с отставанием — правые колонки чуть позже левых, а когда плитка на месте, сетка ровная, ничего не обрезается */
+let caseParallaxReset = ()=>{};
+{
+  const smooth = matchMedia('(hover:hover) and (pointer:fine)').matches && !reduceMotion;
+  let target = 0, cur = 0, raf = 0, own = 0, tiles = [];
+  const max = ()=>caseScroll.scrollHeight - caseScroll.clientHeight;
+  // внутри окна сайта, списка и т. п. колесо листает их, а не страницу
+  const inner = (el, dy)=>{ for(let n = el; n && n !== caseScroll; n = n.parentElement){
+    if(n.scrollHeight > n.clientHeight + 1 && /(auto|scroll)/.test(getComputedStyle(n).overflowY)
+      && (dy > 0 ? n.scrollTop + n.clientHeight < n.scrollHeight - 1 : n.scrollTop > 0)) return true; } return false; };
+  const tick = ()=>{ cur += (target - cur) * .1; if(Math.abs(target - cur) < .4) cur = target;
+    own++; caseScroll.scrollTop = cur; raf = cur !== target ? requestAnimationFrame(tick) : 0; };
+  if(smooth) caseScroll.addEventListener('wheel', e=>{
+    if(e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY) || inner(e.target, e.deltaY)) return;
+    e.preventDefault();
+    const d = e.deltaMode === 1 ? e.deltaY * 32 : e.deltaMode === 2 ? e.deltaY * innerHeight : e.deltaY;
+    if(!raf) target = cur = caseScroll.scrollTop;
+    target = Math.max(0, Math.min(max(), target + d));
+    if(!raf) raf = requestAnimationFrame(tick);
+  }, { passive:false });
+  function parallax(){
+    if(reduceMotion) return;
+    const vh = innerHeight, y = caseScroll.scrollTop;
+    const pic = $('#caseCover .pv-pic'); if(pic) pic.style.translate = `0 ${Math.round(Math.min(y, vh) * .3)}px`;
+    for(const o of tiles){
+      const top = o.t.getBoundingClientRect().top - o.off;
+      if(top > vh * 1.3 || top + o.h < -50){ continue; }
+      const k = Math.max(0, Math.min(1, (top - vh * .5) / (vh * .55)));
+      const off = Math.round(k * 110 * o.f);
+      if(off !== o.off){ o.off = off; o.t.style.translate = off ? `0 ${off}px` : ''; }
+    }
+  }
+  caseScroll.addEventListener('scroll', ()=>{
+    if(own) own--; else if(!raf) target = cur = caseScroll.scrollTop;
+    parallax();
+  }, { passive:true });
+  caseParallaxReset = ()=>{
+    tiles = [...caseScroll.querySelectorAll('.case-content .bento > div')].map(t=>{
+      t.style.translate = ''; const p = t.parentElement.getBoundingClientRect(), r = t.getBoundingClientRect();
+      return { t, off:0, h:r.height, f: .45 + (r.left + r.width/2 - p.left) / Math.max(1, p.width) * .9 };
+    });
+    target = cur = caseScroll.scrollTop; parallax();
+  };
+  addEventListener('resize', ()=>{ if(openIdx > -1) caseParallaxReset(); });
+}
+
+/* ---------- язык и шапка ---------- */
+function applyStatic(){
+  document.documentElement.lang = LANG;
+  document.title = L('BRUKWA — портфолио');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ if(el.dataset.ru == null) el.dataset.ru = el.textContent; el.textContent = L(el.dataset.ru); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el=>{ if(el.dataset.ruAria == null) el.dataset.ruAria = el.getAttribute('aria-label'); el.setAttribute('aria-label', L(el.dataset.ruAria)); });
+  const b = $('#langBtn'); b.querySelectorAll('.lb1').forEach(x=>{ x.textContent = LANG === 'en' ? 'RU' : 'EN'; }); b.setAttribute('aria-label', LANG === 'en' ? 'Русский' : 'English');
+}
+function setLang(l){
+  if(l === LANG) return;
+  LANG = l; try { localStorage.setItem('lang', l); } catch(e){}
+  buildView(); applyStatic(); worksClose();
+  const cur = pvIdx, open = openIdx, y = caseScroll.scrollTop;
+  pvIdx = -2; pvBusy = false; renderPreview(cur);
+  if(open > -1){ fillCase(open); caseScroll.scrollTop = y; }
+}
+{
+  const hdr = $('#hdr');
+  $('#langBtn').addEventListener('click', ()=>setLang(LANG === 'en' ? 'ru' : 'en'));
+  hdr.addEventListener('click', e=>{
+    const b = e.target.closest('[data-nav]'); if(!b) return;
+    const nav = b.dataset.nav;
+    if(FROM_V3 && (nav === 'about' || nav === 'work')){ location.href = nav === 'about' ? 'v3.html#about' : 'v3.html'; return; }
+    if(nav === 'contact'){ hdr.classList.toggle('pop'); return; }
+    hdr.classList.remove('pop');
+    if(nav === 'about') goHome();
+    if(nav === 'work') worksOpen(true);
+  });
+  addEventListener('click', e=>{ if(!e.target.closest('#hdr')) hdr.classList.remove('pop'); });
+  addEventListener('keydown', e=>{ if(e.key === 'Escape') hdr.classList.remove('pop'); });
+  // магнит: кнопка смещается к курсору на 15% расстояния от центра и возвращается на пружине
+  if(matchMedia('(hover:hover) and (pointer:fine)').matches && !reduceMotion){
+    const mags = [...hdr.querySelectorAll('.mag')].map(el=>({ el, x:0, y:0, vx:0, vy:0, tx:0, ty:0 }));
+    let raf = 0, last = 0;
+    const step = now=>{ const dt = Math.min(.032, (now - (last || now)) / 1000) || .016; last = now; let moving = false;
+      for(const m of mags){ for(const a of ['x', 'y']){ const v = 'v' + a, t = 't' + a;
+          const f = 220 * (m[t] - m[a]) - 18 * m[v]; m[v] += f / .3 * dt; m[a] += m[v] * dt;
+          if(Math.abs(m[t] - m[a]) > .05 || Math.abs(m[v]) > .05) moving = true; }
+        m.el.style.translate = `${m.x.toFixed(2)}px ${m.y.toFixed(2)}px`; }
+      raf = moving ? requestAnimationFrame(step) : (last = 0); };
+    const kick = ()=>{ if(!raf) raf = requestAnimationFrame(step); };
+    for(const m of mags){
+      m.el.addEventListener('pointermove', e=>{ const r = m.el.getBoundingClientRect();
+        m.tx = (e.clientX - (r.left + r.width/2 - m.x)) * .15; m.ty = (e.clientY - (r.top + r.height/2 - m.y)) * .15; kick(); });
+      m.el.addEventListener('pointerleave', ()=>{ m.tx = m.ty = 0; kick(); });
+    }
+  }
+  applyStatic();
+}
 
 /* ---------- старт ---------- */
 document.fonts.ready.then(()=>{
