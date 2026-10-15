@@ -183,6 +183,10 @@
     gap:8px;align-content:start;grid-auto-rows:max-content;overflow-y:auto;padding:28px 0 96px;scrollbar-width:none;
     -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 40px, #000 100%);mask-image:linear-gradient(to bottom, transparent 0, #000 40px, #000 100%)}
   .grid::-webkit-scrollbar{display:none}
+  /* кейс по запросу — замок поверх обложки */
+  .glock{position:absolute;left:50%;top:50%;z-index:3;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:7px;padding:8px 13px 8px 11px;border-radius:99px;
+    background:rgba(17,17,17,.82);color:#fff;font-size:12px;white-space:nowrap;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);pointer-events:none}
+  .item{position:relative}
   .gcard{position:relative;display:block;border-radius:16px;background:var(--card);overflow:hidden;
     opacity:0;transform:translateY(16px);animation:gin .8s var(--ease) both;animation-delay:calc(var(--k) * 60ms)}
   .gcard::before{content:'';display:block;padding-top:106%}
@@ -310,6 +314,9 @@ const P = [
     task:'Посетитель решает одно: можно ли доверить дорогую вещь незнакомой мастерской.' },
   { id:'impre', type:'product', name:'Impre', kind:'Приложение о здоровье', role:'Концепция, интерфейс, моушн', status:'Концепт', img:'assets/cases/impre/blister.jpg',
     task:'Тело меняется каждый день. Витамины — нет.' },
+  // кейс по запросу: карточка с замком, клик ведёт в Telegram — запросить кейс
+  { id:'privet', lock:true, type:'product', name:'Privet Connector', kind:'Система для дизайнеров НСПК', role:'Схема системы, панель и плагин', status:'По запросу', img:'assets/cases/privet/cover.jpg',
+    task:'Дизайнер занимается макетами, а не копированием текстов и файлов.' },
   { id:'tb', type:'comms', name:'Therapiezentrum Blender', kind:'Айдентика и сайт', role:'Айдентика, дизайн сайта', status:'Коммерческий', img:'assets/cases/tb/hoodie.jpg',
     task:'Подать центр как уверенного современного лидера.' },
   { id:'leveraged', type:'comms', name:'Leveraged', kind:'Посты для соцсетей', role:'Ключевые визуалы, посты', status:'Коммерческий', img:'assets/comms/leveraged/01.jpg',
@@ -347,17 +354,21 @@ function drawBraces(){
     b.style.fontSize = fs + 'px'; b.style.transform = `translate(${left}px, ${top}px)`; });
 }
 const shown = () => P.filter(p => filter === 'all' || p.type === filter);
+const ASK = 'https://t.me/brukwa';
+const hrefOf = p => p.lock ? ASK : `index.html?from=v3#case/${p.id}`;
+const LOCK = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>';
+const lockTag = p => p.lock ? `<span class="glock">${LOCK}По запросу</span>` : '';
 const pad = n => String(n).padStart(2, '0');
 
 function build(){
   const ps = shown();
   // ширины чередуются — лента не похожа на сетку, как у OBYS
   const widths = [1, .78, .9, .7, 1, .84, .74];
-  strip.innerHTML = ps.map((p, k) => `<a class="item" data-k="${k}" style="width:${widths[k % widths.length] * 100}%"><img src="${p.img}" alt="${p.name}" draggable="false"></a>`).join('');
+  strip.innerHTML = ps.map((p, k) => `<a class="item" data-k="${k}" style="width:${widths[k % widths.length] * 100}%"><img src="${p.img}" alt="${p.name}" draggable="false">${lockTag(p)}</a>`).join('');
   let prevType = null;
   list.innerHTML = ps.map((p, k) => { const sep = prevType && prevType !== p.type ? '<i class="sep"></i>' : ''; prevType = p.type; return `${sep}<button data-k="${k}">${p.name}</button>`; }).join('');
-  $('#grid').innerHTML = ps.map((p, k) => `<a class="gcard" href="index.html?from=v3#case/${p.id}" style="--k:${k}"><div class="gh"><span>${p.name}</span><span><i>ID</i>${String(k + 1).padStart(3, '0')}</span></div>
-    <img src="${p.img}" alt="${p.name}" loading="lazy"><span class="gk">${p.kind}</span></a>`).join('');
+  $('#grid').innerHTML = ps.map((p, k) => `<a class="gcard" href="${hrefOf(p)}"${p.lock ? ' target="_blank" rel="noopener"' : ''} style="--k:${k}"><div class="gh"><span>${p.name}</span><span><i>ID</i>${String(k + 1).padStart(3, '0')}</span></div>
+    <img src="${p.img}" alt="${p.name}" loading="lazy">${lockTag(p)}<span class="gk">${p.kind}</span></a>`).join('');
   items = [...strip.children];
   active = -1;
   Promise.all(items.map(it => it.querySelector('img').decode().catch(()=>{}))).then(()=>{ target = y = offsetFor(0); setActive(0); render(); });
@@ -383,7 +394,7 @@ function setActive(k){
   swap($('#task'), `<p>${p.task}</p>`);
   swap($('#facts'), `<div class="row"><span>Проект</span><b>${p.name}</b></div><div class="row"><span>Тип</span><b>${p.kind}</b></div>
     <div class="row"><span>Что делала</span><b>${p.role}</b></div><div class="row"><span>Статус</span><b>${p.status}</b></div>
-    <a class="go" href="index.html?from=v3#case/${p.id}">Открыть кейс <span>→</span></a>`);
+    <a class="go" href="${hrefOf(p)}"${p.lock ? ' target="_blank" rel="noopener"' : ''}>${p.lock ? 'Запросить кейс' : 'Открыть кейс'} <span>→</span></a>`);
   requestAnimationFrame(wires);
 }
 
@@ -414,12 +425,12 @@ addEventListener('wheel', e => { if(view === 'grid' || document.body.classList.c
 strip.addEventListener('pointerdown', e => { drag = { y0:e.clientY, t0:target, moved:0 }; strip.setPointerCapture(e.pointerId); });
 strip.addEventListener('pointermove', e => { if(!drag) return; const d = e.clientY - drag.y0; drag.moved = Math.max(drag.moved, Math.abs(d)); target = clampT(drag.t0 + d); });
 strip.addEventListener('pointerup', e => { const it = e.target.closest('.item'); const was = drag; drag = null;
-  if(was && was.moved < 6 && it){ const k = +it.dataset.k; if(k === active) location.href = `index.html?from=v3#case/${shown()[k].id}`; else target = offsetFor(k); }
+  if(was && was.moved < 6 && it){ const k = +it.dataset.k; if(k === active) { const q = shown()[k]; q.lock ? open(ASK, '_blank') : location.href = hrefOf(q); } else target = offsetFor(k); }
   else snap(); });
 list.addEventListener('click', e => { const b = e.target.closest('button'); if(b) target = offsetFor(+b.dataset.k); });
 $('#prev').addEventListener('click', () => { target = offsetFor(Math.max(0, active - 1)); });
 $('#nextBtn').addEventListener('click', () => { target = offsetFor(Math.min(items.length - 1, active + 1)); });
-addEventListener('keydown', e => { if(e.key === 'ArrowDown') $('#nextBtn').click(); if(e.key === 'ArrowUp') $('#prev').click(); if(e.key === 'Enter') location.href = `index.html?from=v3#case/${shown()[active].id}`; });
+addEventListener('keydown', e => { if(e.key === 'ArrowDown') $('#nextBtn').click(); if(e.key === 'ArrowUp') $('#prev').click(); if(e.key === 'Enter') { const q = shown()[active]; q.lock ? open(ASK, '_blank') : location.href = hrefOf(q); } });
 $('#filter').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; filter = b.dataset.f;
   $('#filter').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); build(); });
 addEventListener('resize', () => { const k = active; active = -1; target = y = offsetFor(Math.max(0, k)); setActive(Math.max(0, k)); drawBraces(); });
