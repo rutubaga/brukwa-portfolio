@@ -63,6 +63,12 @@
   body:not(.ready) .fonts{opacity:0}
 
   /* проект в разработке */
+  /* кейс по запросу: замок поверх обложки */
+  .lock-badge{position:absolute;left:50%;top:50%;z-index:3;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;padding:12px 18px 12px 14px;border-radius:99px;
+    background:rgba(17,17,17,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:#fff;font-size:15px;white-space:nowrap}
+  .lock-badge svg{stroke:#fff}
+  .pv-thumb .ph .lk,.cs-card .ph .lk,.ph em.lk{position:absolute;inset:0;margin:auto;width:24px;height:24px;border-radius:50%;background:rgba(17,17,17,.75);display:grid;place-items:center}
+  .ph .lk svg{width:13px;height:13px;stroke:#fff;position:static;opacity:1}
   .wip-cover{position:absolute;inset:0;display:grid;place-items:center;color:var(--ink)}
   .wip-cover span{font-family:var(--title-font),"Inter Tight",sans-serif;font-weight:var(--title-weight);
     font-size:clamp(28px,3vw,48px);opacity:.6}
@@ -957,6 +963,18 @@
   .bento .bw .bar em{margin-left:auto;font-style:normal}
   .bento .bw .scr{flex:1;height:auto;min-height:0}
   .bento .dv .lb{left:auto;right:12px}
+
+  /* обложка сайта как на рефе xiangyidesign: пастельный градиент с зерном, экран в толстой чёрной рамке, без строки браузера */
+  .bento .dv{align-items:center;padding:clamp(48px,5vw,72px) clamp(18px,6vw,90px) clamp(22px,4vw,56px);
+    background:radial-gradient(60% 80% at 12% 10%,var(--m1,#f6dbe6) 0%,transparent 70%),radial-gradient(55% 75% at 92% 18%,var(--m2,#d6e8d2) 0%,transparent 70%),
+      radial-gradient(70% 90% at 70% 105%,var(--m3,#dfe4f7) 0%,transparent 70%),#efefed}
+  .bento .dv::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;mix-blend-mode:multiply;
+    background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+  .bento .dv .bw{position:relative;z-index:1;width:auto;max-width:100%;height:100%;aspect-ratio:16/10;border:clamp(4px,.55vw,8px) solid #111;border-radius:clamp(14px,1.8vw,26px);
+    background:#111;box-shadow:0 30px 60px -30px rgba(0,0,0,.35)}
+  .bento .dv .bw .bar{display:none}
+  .bento .dv .bw .scr{border-radius:clamp(10px,1.3vw,18px);overflow:hidden}
+  @media (max-width:760px){ .bento .dv{padding:34px 12px 14px} }
   /* решение — текстовая плитка: номер, заголовок, пояснение */
   .bento .st{display:flex;flex-direction:column;padding:20px 20px 22px}
   .bento .st i{font-style:normal;font-size:12px;color:var(--cmute)}
@@ -1184,6 +1202,36 @@
   html.bw .hdr-pop a:hover,html.bw .hdr-pop button:hover{background:#111;color:#fff}
   html.bw .hdr-pop span{color:#9A9A9A}
   html.bw .ctag{background:rgba(255,255,255,.9);color:#111;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+
+  /* ---------- шапка-схема, как в v3: разделы — узлы на одной линии, которая выходит из логотипа ---------- */
+  .hwires{position:fixed;inset:0;z-index:46;pointer-events:none;overflow:visible}
+  .hwires path{fill:none;stroke:#D2D2D2;stroke-width:.9;stroke-linecap:round}
+  .hwires path.hot{stroke:#8E8E8E;stroke-width:1}
+  .hwires circle{fill:#fff;stroke:#9A9A9A;stroke-width:1}
+  .hwires circle.dot{fill:#111;stroke:none}
+  @media (min-width:761px){
+    html.bw .hdr{gap:clamp(22px,2.6vw,40px)}
+    html.bw .hdr-pill{background:none;box-shadow:none;padding:0;gap:clamp(22px,2.6vw,40px);backdrop-filter:none;-webkit-backdrop-filter:none}
+    html.bw .hdr-pill button,html.bw .hdr-cv{width:auto;height:auto;display:inline-flex;align-items:center;padding:7px 13px;border-radius:99px;
+      background:#fff;color:#111;font-size:12px;line-height:1;box-shadow:inset 0 0 0 1px rgba(0,0,0,.4);backdrop-filter:none;-webkit-backdrop-filter:none}
+    html.bw .hdr-pill button:hover,html.bw .hdr-cv:hover,html.bw .hdr.pop .hdr-pill [data-nav="contact"]{background:#F2F2F2;color:#111;transform:none}
+    html.bw .hdr-pill button.on{padding:9px 16px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.06),0 8px 22px -10px rgba(0,0,0,.22)}
+    html.bw .hdr-cv .roll > span{height:1.2em}
+    /* в кейсе «Дальше» мешает линии схемы — следующий проект есть в конце кейса и в плашке */
+    html.bw .case-top nav{display:none}
+  }
+  @media (max-width:760px){ .hwires{display:none} }
+
+  /* книга в бенто: крупнее и без тени — ни ореола вокруг, ни пятна под ней */
+  .bento .cube-wrap.book-wrap{background:none}
+  .bento .cube-wrap::after{display:none}
+  .bento .book{--w:clamp(150px,15vw,240px)}
+  @media (max-width:760px){ .bento .book{--w:min(30vw,130px)} }
+
+  /* заголовки разделов бенто плотнее: подпись, фраза и плитки ближе друг к другу */
+  .b-bento .b-head{gap:4px;margin-bottom:14px}
+  .b-bento .b-head p{font-size:clamp(17px,1.25vw,20px);line-height:1.25}
+  @media (max-width:760px){ .b-bento .b-head{gap:3px;margin-bottom:10px} .b-bento .b-head p{font-size:16px} }
 </style>
 </head>
 <body>
@@ -1201,6 +1249,7 @@
 </header>
 
 <!-- шапка: капсула разделов, CV и язык; на телефоне — кнопка меню и язык -->
+<svg class="hwires" id="hwires" aria-hidden="true"></svg>
 <nav class="hdr" id="hdr" aria-label="Меню" data-i18n-aria>
   <div class="hdr-pill">
     <button data-nav="about" class="mag"><span class="roll"><span data-i18n>Обо мне</span><span data-i18n aria-hidden="true">Обо мне</span></span></button>
@@ -1287,7 +1336,7 @@ const CASES = [
       { t:'kv', items:[['Аудитория','Женщины 30–45 лет'],['Путь','Игра в телеграм-боте → лендинг → покупка'],['Экраны','1200 · 1024 · 768 · 390']] },
       // бенто: сверху живой лендинг в окне браузера (как подача у tatianae.com), дальше телефон, книга, 3D и стиль
       { t:'bento', rows:[
-        [{ win:'assets/trading.jpg', live:'projects/trading-101/index.html', url:'trading-101 · лендинг', bg:'linear-gradient(150deg,#00C2FF,#0a5e8a 70%,#0e1218)', a:2.1, lb:'Лендинг' }],
+        [{ win:'assets/trading.jpg', live:'projects/trading-101/index.html', url:'trading-101 · лендинг', bg:'linear-gradient(150deg,#00C2FF,#0a5e8a 70%,#0e1218)', mesh:['#cfeefa','#e3dcf5','#d5f0e4'], a:2.1, lb:'Лендинг' }],
         [{ phone:'assets/cases/trading/mobile-page.jpg', live:'projects/trading-101/index.html', long:true, a:.6, lb:'Телефон' },
          { img:'assets/cases/trading/hero3d.jpg', a:1.537, lb:'Портрет в 3D' }],
         [{ book:{ f:'assets/cases/trading/book-front.jpg', bk:'assets/cases/trading/book-back.jpg', sp:'assets/cases/trading/book-spine.jpg' }, a:.75, lb:'Книга автора' },
@@ -1314,7 +1363,7 @@ const CASES = [
         ['Платформа','Тильда — собрала сама'] ] },
       // бенто: сайт в окне, экраны, адаптивы, процесс, стиль, сторис «до / после», упаковка
       { t:'bento', rows:[
-        [{ win:RV+'v2/page.jpg', url:'revnikoff.ru', bg:'linear-gradient(150deg,#ff6a13,#9a3a06 65%,#1a0a02)', a:2.1, lb:'Главная' }],
+        [{ win:RV+'v2/page.jpg', url:'revnikoff.ru', bg:'linear-gradient(150deg,#ff6a13,#9a3a06 65%,#1a0a02)', mesh:['#fbdcc8','#e6e7d3','#f3e6dc'], a:2.1, lb:'Главная' }],
         [{ img:RV+'v2/card.jpg', a:1.670, lb:'Карточка товара' }, { img:RV+'box.jpg', a:1.5, lb:'Choco Boom — подарок клиентам' }],
         // ряды по смыслу: адаптивы · процесс и цвет · цифры и подарок
         [{ img:RV+'v2/adapt-bg.jpg', a:1.28, lb:'Планшет' },
@@ -1360,6 +1409,11 @@ const CASES = [
         { gen:'assets/cases/impre/gen-graph.jpg', e:'Графики показателей', p:'Форма, цвет и затухания на ручках, выгрузка в SVG и PNG.', c:4, r:3 } ] },
       { t:'cta' } ] },
 
+  // кейс по запросу: обложка в ленте с замком, сам кейс не открывается (внутренний процесс НСПК)
+  { id:'privet', type:'apps', name:'Privet Connector', kind:'система для дизайнеров программы «Привет»', status:'Внутренний продукт НСПК',
+    wip:true, lock:true, cover:'assets/cases/privet/cover.jpg', color:'#1b1d22', short:'PRIVET',
+    role:'Продуктовый дизайн, интерфейсы панели и плагина', line:'Тексты акций сами попадают из документов в макеты Figma.', blocks:[] },
+
   { id:'verss', hidden:true, type:'apps', name:'Verss.ai', kind:'AI-платформа для инвесторов и стартапов', status:'Коммерческий проект',
     color:'#8b7cf6', cover:'assets/cases/verss/cover.jpg', coverPos:'50% 50%', gallery:G('verss',3),
     theme:{ bg:'#f1f0f7', card:'#ffffff', ink:'#19170b', mute:'#6e6a80', line:'rgba(25,23,11,.1)', acc:'#e51da2', accInk:'#fff' },
@@ -1402,7 +1456,7 @@ const CASES = [
       { t:'kv', items:[['Клиент','TZ Blender, Германия'],['Что делала','Айдентика и веб-дизайн'],['Когда','Май 2025']] },
       // всё в одной бенто-сетке: сверху сайт в окне браузера, дальше экраны, решения и носители
       { t:'bento', rows:[
-        [{ win:'assets/cases/tb/scroll-page.jpg', url:'dein-therapiezentrum.de', bg:'linear-gradient(140deg,#C02D42 0%,#6d1424 60%,#2a0a10 100%)', a:2.1, lb:'Главная' }],
+        [{ win:'assets/cases/tb/scroll-page.jpg', url:'dein-therapiezentrum.de', bg:'linear-gradient(140deg,#C02D42 0%,#6d1424 60%,#2a0a10 100%)', mesh:['#f6d6dc','#efe6dc','#e2def3'], a:2.1, lb:'Главная' }],
         [{ img:'assets/cases/tb/hero.jpg', a:1.684, lb:'Первый экран' }, { img:'assets/cases/tb/laptop.jpg', a:1.348, lb:'Десктоп' }],
         [{ n:'01', step:['Квиз вместо формы','Четыре цели на выбор — без звонка и длинной анкеты.'], a:1.2 },
          { n:'02', step:['Запись под рукой','«Termin vereinbaren» и вход для участников — в шапке на каждой странице.'], a:1.2 },
@@ -1759,6 +1813,7 @@ function linkAttrs(c){ return /^https?:/.test(c.url) ? 'target="_blank" rel="noo
 const lockSVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>';
 // проект в разработке: вместо картинок — цвет проекта и надпись
 const wipCover = c => `<div class="wip-cover" style="background:${c.color}"><span>${L('В разработке')}</span></div>`;
+const lockCover = c => `<img class="cover" src="${pvSrc(c)}" alt="${c.name}" style="object-position:center"><div class="lock-badge">${lockSVG}<span>${L('Кейс по запросу')}</span></div>`;
 
 /* ---------- лента проектов ---------- */
 let pvIdx = -1, pvBusy = false;
@@ -1804,8 +1859,8 @@ function fitTitles(root = document){
   });
 }
 const thumbsHTML = list => list.map((c,i)=>`${i && isProduct(list[i-1]) && !isProduct(c) ? '<i class="pv-sep" aria-hidden="true"></i>' : ''}<button class="pv-thumb" data-i="${i}" style="--c:${c.color}" aria-label="${c.name}">
-    <span class="ph">${c.wip ? lockSVG : `<img src="${thumbSrc(c)}" alt="" loading="lazy">`}</span>
-    <span class="cap"><b>${c.name}</b><i>${c.kind[0].toUpperCase() + c.kind.slice(1)}${c.wip ? L(' · в разработке') : ''}</i></span>
+    <span class="ph">${c.wip && !c.lock ? lockSVG : `<img src="${thumbSrc(c)}" alt="" loading="lazy">`}${c.lock ? `<i class="lk">${lockSVG}</i>` : ''}</span>
+    <span class="cap"><b>${c.name}</b><i>${c.kind[0].toUpperCase() + c.kind.slice(1)}${c.lock ? L(' · по запросу') : c.wip ? L(' · в разработке') : ''}</i></span>
   </button>`).join('');
 // start: -1 — первый экран «кто я», 0… — проект
 function renderPreview(start = -1){
@@ -1916,6 +1971,7 @@ function motionCover(c){
 }
 const picHTML = (c, i) => `<div class="pv-pic" data-i="${i}">${
   c.coverType ? motionCover(c)
+  : c.lock ? lockCover(c)
   : c.wip ? wipCover(c)
   : `<img class="cover" src="${pvSrc(c)}" alt="${c.name}" style="object-position:${c.coverPos || (c.cover ? 'center' : 'center top')}">${
       c.device ? `<div class="pv-device"><img class="pv-shot" src="${c.device.shot}" alt=""><i class="cam"></i><i class="glare"></i></div>` : ''}${
@@ -1983,7 +2039,7 @@ $('#pvOpen').addEventListener('click', e=>{ e.stopPropagation(); pvOpenCurrent()
     const over = e.target.closest('#pvStage') && !e.target.closest('.pv-bar, .pv-device') && openIdx < 0 && pvIdx >= 0;
     if(over){
       const c = visible()[pvIdx];
-      tag.textContent = L(c && c.wip ? 'В разработке' : 'Смотреть');
+      tag.textContent = L(c && c.lock ? 'По запросу' : c && c.wip ? 'В разработке' : 'Смотреть');
       if(!shown){ x = tx = e.clientX; y = ty = e.clientY; }
     }
     tx = e.clientX; ty = e.clientY;
@@ -2092,7 +2148,7 @@ const bentoTile = x=>{
       if(x.img) return `<div class="${cls}">${imgT(x.img, x.pos ? `style="object-position:${x.pos}"` : '')}${lb}</div>`;
       // длинная страница в окне браузера на цветной подложке — листается внутри окна
       // live — вместо картинки встаёт живой сайт (на компьютере), картинка остаётся заглушкой
-      if(x.win) return `<div class="${cls} dv" style="--dbg:${x.bg || 'var(--cacc)'}"><div class="bw"><div class="bar"><i></i><i></i><i></i><span>${x.url || ''}</span><em>${L(x.live ? 'Живой сайт — можно листать' : 'Листайте внутри ↓')}</em></div>${
+      if(x.win) return `<div class="${cls} dv" style="--dbg:${x.bg || 'var(--cacc)'}${x.mesh ? `;--m1:${x.mesh[0]};--m2:${x.mesh[1]};--m3:${x.mesh[2]}` : ''}"><div class="bw"><div class="bar"><i></i><i></i><i></i><span>${x.url || ''}</span><em>${L(x.live ? 'Живой сайт — можно листать' : 'Листайте внутри ↓')}</em></div>${
           screenT(x.live ? { shot:x.win, live:x.live } : { src:x.win, long:true }, 1440)}</div>${lb}</div>`;
       // генератор целиком (как у Instrument): снимок инструмента с панелью, сверху слева — название со стрелкой и что он делает
       if(x.gen) return `<div class="${cls} gen">${imgT(x.gen)}<div class="gc"><b>→ ${x.e}</b><span>${x.p}</span></div></div>`;
@@ -2350,7 +2406,7 @@ function worksOpen(pin){
   clearTimeout(worksT);
   const list = visible(), cur = openIdx > -1 ? openIdx : pvIdx;
   const card = (o, j, k)=>`<button class="w-card${j === cur ? ' cur' : ''}" data-i="${j}" style="--c:${o.color};--k:${k}">
-    <span class="ph" data-here="${L('Вы здесь')}">${o.wip ? lockSVG : `<img src="${cardSrc(o)}" alt="" loading="lazy">`}</span><b>${o.name}</b><i>${cap(o.kind)}${o.wip ? L(' · в разработке') : ''}</i></button>`;
+    <span class="ph" data-here="${L('Вы здесь')}">${o.wip && !o.lock ? lockSVG : `<img src="${cardSrc(o)}" alt="" loading="lazy">`}${o.lock ? `<em class="lk">${lockSVG}</em>` : ''}</span><b>${o.name}</b><i>${cap(o.kind)}${o.lock ? L(' · по запросу') : o.wip ? L(' · в разработке') : ''}</i></button>`;
   let k = 0;
   const grp = (name, prod)=>{ const cards = list.map((o, j)=>isProduct(o) === prod ? card(o, j, k++) : '').join('');
     return cards ? `<h3>${name}</h3><div class="g">${cards}</div>` : ''; };
@@ -2532,6 +2588,33 @@ function setLang(l){
   });
   addEventListener('click', e=>{ if(!e.target.closest('#hdr')) hdr.classList.remove('pop'); });
   addEventListener('keydown', e=>{ if(e.key === 'Escape') hdr.classList.remove('pop'); });
+  // схема: одна линия от логотипа через все узлы; чёрный отрезок — до активного (или наведённого) раздела.
+  // логотип двигается (большой на первом экране, маленький в ленте и кейсе), поэтому линия пересчитывается каждый кадр
+  const svgW = $('#hwires'), nodes = [...hdr.querySelectorAll('.hdr-pill button'), hdr.querySelector('.hdr-cv')];
+  let hovK = -1, lastKey = '';
+  nodes.forEach((n, k)=>{ n.addEventListener('mouseenter', ()=>{ hovK = k; }); n.addEventListener('mouseleave', ()=>{ hovK = -1; }); });
+  (function schemaLoop(){
+    requestAnimationFrame(schemaLoop);
+    if(getComputedStyle(svgW).display === 'none') return;
+    const about = openIdx < 0 && pvIdx === -1;
+    nodes[0].classList.toggle('on', about); nodes[1].classList.toggle('on', !about);
+    const lg = openIdx > -1 ? $('#caseLogo') : logo, lr = lg.getBoundingClientRect();
+    const rs = nodes.map(n=>n.getBoundingClientRect());
+    const on = about ? 0 : 1, k = hovK > -1 ? hovK : on;
+    const key = [lr.right, lr.top, lr.height, ...rs.map(r=>r.left + ',' + r.right + ',' + r.top), k, on].map(v=>typeof v === 'number' ? Math.round(v) : v).join('|');
+    if(key === lastKey) return; lastKey = key;
+    const y = rs[0].top + rs[0].height / 2, x0 = lr.right + 12, y0 = lr.top + lr.height / 2, end = rs[rs.length - 1].right + 26;
+    const a0 = rs[0].left - (on === 0 ? 8 : 0);
+    // от логотипа к первому узлу — кривая (логотип бывает выше строки), дальше — прямые промежутки между узлами
+    const lead = `M${x0},${y0} C${x0 + (a0 - x0) * .5},${y0} ${x0 + (a0 - x0) * .5},${y} ${a0},${y}`;
+    const gaps = rs.slice(1).map((r, j)=>[rs[j].right, r.left]).concat([[rs[rs.length - 1].right, end]]);
+    const seg = lim => gaps.filter(([g])=>g < lim).map(([g, b])=>`M${g},${y} L${Math.min(b, lim)},${y}`).join(' ');
+    const reach = rs[k].left;
+    svgW.innerHTML = `<path d="${lead} ${seg(Infinity)}"/><path class="hot" d="${lead} ${seg(reach)}"/>`
+      + rs.map((r, j)=>j === on ? `<circle class="dot" cx="${r.left - 8}" cy="${y}" r="3.2"/><circle class="dot" cx="${r.right + 8}" cy="${y}" r="3.2"/>`
+          : `<circle cx="${r.left}" cy="${y}" r="2.4"/><circle cx="${r.right}" cy="${y}" r="2.4"/>`).join('')
+      + `<circle class="dot" cx="${x0}" cy="${y0}" r="3.2"/>`;
+  })();
   // магнит: кнопка смещается к курсору на 15% расстояния от центра и возвращается на пружине
   if(matchMedia('(hover:hover) and (pointer:fine)').matches && !reduceMotion){
     const mags = [...hdr.querySelectorAll('.mag')].map(el=>({ el, x:0, y:0, vx:0, vy:0, tx:0, ty:0 }));

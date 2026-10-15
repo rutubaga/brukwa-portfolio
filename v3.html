@@ -204,8 +204,8 @@
   body.about-page .aboutv{display:block}
   body.about-page .grid,body.about-page .stripwrap,body.about-page .br,body.about-page .center-row,body.about-page .kind,body.about-page .list,
   body.about-page .wires,body.about-page .node,body.about-page .tools,body.about-page .hint,body.about-page .about{display:none}
-  .alead{position:absolute;left:30px;top:calc(clamp(56px,7.4vw,118px)*.86 + 70px);width:min(560px,44vw);font-size:clamp(16px,1.35vw,19px);line-height:1.35}
-  .alead .sub{color:var(--mute);margin-top:4px}
+  .alead{position:absolute;left:30px;top:calc(clamp(56px,7.4vw,118px)*.86 + 44px);width:min(270px,22vw);font-size:12px;line-height:1.4}
+  .alead .sub{color:var(--mute);margin-top:12px}
   .flow{position:absolute;left:0;right:0;top:0;bottom:0}
   .fwires{position:absolute;inset:0;overflow:visible;pointer-events:none}
   .fwires path{fill:none;stroke:#CFCFCF;stroke-width:.9;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.1s var(--ease)}
@@ -216,10 +216,20 @@
     padding:7px 13px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.4);background:#fff;opacity:0;translate:0 8px;transition:opacity .6s, translate .8s var(--ease), background .3s}
   .flow.on .fp{opacity:1;translate:none;transition-delay:calc(var(--k) * 45ms)}
   .fp.cat{padding:9px 16px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 8px 22px -10px rgba(0,0,0,.22);font-size:13px}
-  .fp.main{padding:6px 18px 6px 6px;gap:10px;font-size:14px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 10px 28px -12px rgba(0,0,0,.28)}
+  .fp.main{padding:11px 18px;gap:8px;font-size:14px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 10px 28px -12px rgba(0,0,0,.28)}
   .fp.main img{width:34px;height:34px;border-radius:50%;object-fit:cover;background:var(--card)}
   a.fp:hover{background:var(--g2)}
   .fp b{font-weight:400;color:var(--mute)}
+  /* акцент на двух последних местах; остальное бесцветное, пока не долистали */
+  .aboutv{overflow-y:auto;overscroll-behavior:contain}
+  .aboutv.scrolled{-webkit-mask-image:linear-gradient(transparent 0,transparent 124px,#000 200px);mask-image:linear-gradient(transparent 0,transparent 124px,#000 200px)}
+  @media (max-width:860px){ .aboutv{-webkit-mask-image:none;mask-image:none} }
+  .flow{bottom:auto}
+  .fwires{bottom:auto;width:100%}
+  .flow.on .fp.dim{opacity:.16;filter:grayscale(1);translate:0 14px;transition:opacity .9s, translate 1s var(--ease), filter .9s}
+  .flow.on .fp.dim.lit{opacity:1;filter:none;translate:none;transition-delay:calc((var(--k) - 8) * 40ms)}
+  .fwires .dim{opacity:.18;transition:opacity .9s}
+  .fwires .dim.lit{opacity:1}
   @media (max-width:860px){
     .alead{position:static;width:auto;padding:84px 18px 12px;font-size:16px}
     .aboutv{overflow-y:auto}
@@ -280,8 +290,7 @@
 
 <!-- «Обо мне» — схема в стиле user flow: я → направления, бренды, преподавание, контакты -->
 <section class="aboutv" id="aboutv" aria-label="Обо мне">
-  <div class="alead"><p>Я Алиса — мультидисциплинарный дизайнер. Создаю фирменные стили, digital-интерфейсы и визуальные концепции.</p>
-    <p class="sub">Схема — коротко обо мне: чем занимаюсь, с кем работала, где преподавала и как связаться.</p></div>
+  <div class="alead"><p>Шесть лет в дизайне: федеральные акции М.Видео и Эльдорадо, проекты для международных заказчиков в агентстве HDRM, сейчас — дизайн-система коммуникаций «Мир» в НСПК.</p></div>
   <svg class="fwires" id="fwires" aria-hidden="true"></svg>
   <div class="flow" id="flow"></div>
 </section>
@@ -291,7 +300,6 @@
   <div class="chip" id="filter"><button data-f="all" class="on">Все</button><button data-f="product">Продукт</button><button data-f="comms">Коммуникации</button></div>
   <div class="chip only-strip"><button id="prev" aria-label="Предыдущий">−</button><span class="n" id="count">01 / 09</span><button id="nextBtn" aria-label="Следующий">+</button></div>
 </div>
-<div class="hint rv d4" id="hint"></div>
 
 <script>
 /* проекты — те же, что на сайте; картинки разных пропорций дают ленте ритм, как у OBYS */
@@ -476,8 +484,11 @@ function hwires(){
   // одна линия через все узлы; чёрный отрезок — от логотипа до активного (или наведённого) раздела
   const on = chips.findIndex(c => c.classList.contains('on')), k = hoverK > -1 ? hoverK : on;
   const reach = k > -1 ? rs[k].left : x0;
-  svg.innerHTML = `<path d="M${x0},${y0} L${end},${y0}"/>`
-    + `<path class="hot" d="M${x0},${y0} L${reach},${y0}"/>`
+  // линия идёт только в промежутках между кнопками — внутри них не пересекает текст
+  const gaps = [[x0, rs[0].left], ...rs.slice(1).map((r, j) => [rs[j].right, r.left]), [rs[rs.length - 1].right, end]];
+  const seg = lim => gaps.filter(([a]) => a < lim).map(([a, b]) => `M${a},${y0} L${Math.min(b, lim)},${y0}`).join(' ');
+  svg.innerHTML = `<path d="${seg(Infinity)}"/>`
+    + (reach > x0 ? `<path class="hot" d="${seg(reach)}"/>` : '')
     + rs.map((r, j) => j === on ? `<circle class="dot" cx="${r.left - 8}" cy="${y0}" r="3.2"/><circle class="dot" cx="${r.right + 8}" cy="${y0}" r="3.2"/>`
         : `<circle cx="${r.left}" cy="${y0}" r="2.4"/><circle cx="${r.right}" cy="${y0}" r="2.4"/>`).join('')
     + `<circle class="dot" cx="${x0}" cy="${y0}" r="3.2"/>`;
@@ -491,39 +502,61 @@ addEventListener('resize', hwires);
 
 /* ---------- «Обо мне»: схема ---------- */
 const FLOW = [
-  { cat:'Чем занимаюсь', items:['Фирменные стили', 'Digital-интерфейсы', 'Визуальные концепции', 'Моушн и 3D'] },
-  { cat:'Бренды', items:['НСПК — Мир и СБП', 'М.Видео и Эльдорадо', 'МузТорг'] },
-  { cat:'Преподавала', items:['Granich School'] },
-  { cat:'Контакты', items:[['Telegram', '@brukwa ↗', 'https://t.me/brukwa'], ['Резюме', 'hh.ru ↗', 'https://himki.hh.ru/resume/be003531ff079394cd0039ed1f4b7554794a5a']] },
+  { cat:'НСПК', when:'2025 — сейчас', items:['Коммуникационный дизайнер', 'Дизайн-система креативов «Мир» и СБП', 'Менторство и найм дизайнеров'] },
+  { cat:'HDRM', when:'международное агентство', items:[['Дашборды и платформа', 'Verss.ai'], ['Сайты', 'Therapiezentrum Blender ↗', 'https://dein-therapiezentrum.de'], ['Айдентика', 'VERSATIL ↗', 'https://www.vrstl.ai'], ['Соцсети', 'Leveraged ↗', 'https://getleveraged.com']] },
+  { cat:'МузТорг', when:'2024 — 2025', items:['Дизайнер коммуникаций', 'Соцсети, YouTube, стенды для выставок'] },
+  { cat:'М.Видео и Эльдорадо', when:'2022 — 2024', items:['Креативный дизайнер', 'Федеральные акции: Чёрная и Умная пятница'] },
+  { cat:'Granich School', when:'2022 — 2025', items:['Ментор по AI', 'Автор мастер-класса по Midjourney'] },
 ];
+// акцент — на двух последних местах работы; остальное ниже, бесцветное, и проявляется при прокрутке
+const ACC = 2;
 function drawFlow(){
-  const flow = $('#flow'), svg = $('#fwires'); if(!document.body.classList.contains('about-page')) return;
+  const flow = $('#flow'), svg = $('#fwires'), box = $('#aboutv'); if(!document.body.classList.contains('about-page')) return;
   const mob = innerWidth <= 860; let k = 0;
   const pill = (cls, html, href) => `<${href ? `a href="${href}" target="_blank" rel="noopener"` : 'span'} class="fp ${cls}" style="--k:${k++}">${html}</${href ? 'a' : 'span'}>`;
-  flow.innerHTML = pill('main', '<img src="assets/me.webp" alt="">Алиса Брюква') + FLOW.map(g => pill('cat', g.cat) + g.items.map(it => Array.isArray(it) ? pill('', `${it[0]} <b>${it[1]}</b>`, it[2]) : pill('', it)).join('')).join('');
-  if(mob){ svg.innerHTML = ''; requestAnimationFrame(() => flow.classList.add('on')); return; }
-  // раскладка: я — слева, ветки — по центру, их узлы — правее; высота ветки по числу её узлов
-  const W = innerWidth, top = Math.max(300, $('.alead').getBoundingClientRect().bottom + 70), H = innerHeight - top - 60;
-  const step = Math.min(44, H / (FLOW.reduce((a, g) => a + g.items.length, 0) + FLOW.length));
+  flow.innerHTML = pill('main acc', 'Опыт работы <b>6 лет</b>') + FLOW.map((g, gi) => { const c = gi < ACC ? 'acc' : `dim g${gi}`;
+    return pill('cat ' + c, g.when ? `${g.cat} <b>${g.when}</b>` : g.cat) + g.items.map(it => Array.isArray(it) ? pill(c, `${it[0]} <b>${it[1]}</b>`, it[2]) : pill(c, it)).join(''); }).join('');
+  if(mob){ svg.innerHTML = ''; flow.style.height = ''; requestAnimationFrame(() => { flow.classList.add('on'); revealFlow(); }); return; }
+  // раскладка в прокручиваемом окне: я — слева, места работы — по центру, пункты — правее
+  const W = innerWidth, VH = box.clientHeight, top = Math.max(150, $('#schema').getBoundingClientRect().bottom + 50), step = 42;
   const els = [...flow.children], main = els[0];
-  const xMain = W * .14, xCat = W * .40, xIt = W * .58;
-  let y = top + step / 2, idx = 1; const lines = [];
-  const groups = FLOW.map(g => { const h = g.items.length * step; const cy = y + h / 2 - step / 2; const cat = els[idx++];
+  const xMain = 30, xCat = W * .36, xIt = W * .74;
+  // два последних места — на весь первый экран: центры групп на 1/4 и 3/4 высоты
+  const avail = VH - top - 50;
+  let y = top + step / 2, idx = 1; const groups = [];
+  FLOW.forEach((g, gi) => {
+    if(gi < ACC) y = top + avail * (gi * 2 + 1) / (ACC * 2) - (g.items.length - 1) * step / 2;
+    if(gi === ACC) y = Math.max(y + step, VH + 40);   // остальное — ниже первого экрана
+    const h = g.items.length * step, cy = y + h / 2 - step / 2, cat = els[idx++];
     cat.style.left = xCat + 'px'; cat.style.top = cy + 'px';
     const its = g.items.map((_, j) => { const el = els[idx++]; el.style.left = xIt + (j % 2 ? 18 : 0) + 'px'; el.style.top = (y + j * step) + 'px'; return el; });
-    y += h + step; return { cat, its }; });
-  main.style.left = xMain + 'px'; main.style.top = ((top + y - step) / 2) + 'px';
+    y += h + step * (gi < ACC - 1 ? 1.6 : 1); groups.push({ cat, its, gi });
+  });
+  main.style.left = xMain + 'px'; main.style.top = (top + avail / 2) + 'px';
+  flow.style.height = svg.style.height = (y + 60) + 'px';
+  // пункты — не ближе 70px к самому длинному названию, иначе провод закручивается петлёй
+  const catR = Math.max(...groups.map(g => g.cat.offsetLeft + g.cat.offsetWidth));
+  const xIt2 = Math.max(xIt, catR + 70); if(xIt2 > xIt) groups.forEach(g => g.its.forEach((el, j) => { el.style.left = xIt2 + (j % 2 ? 18 : 0) + 'px'; }));
   requestAnimationFrame(() => {
-    const R = el => el.getBoundingClientRect(), mr = R(main), mx = mr.right + 8, my = mr.top + mr.height / 2;
-    const curve = (x0, y0, x1, y1) => { const dx = Math.max(40, (x1 - x0) * .5); return `<path pathLength="1" d="M${x0},${y0} C${x0 + dx},${y0} ${x1 - dx},${y1} ${x1},${y1}"/>`; };
+    // координаты внутри прокручиваемого окна (у пилюль translateY(-50%) — центр = top)
+    const R = el => ({ l:el.offsetLeft, r:el.offsetLeft + el.offsetWidth, cy:el.offsetTop });
+    const mr = R(main), mx = mr.r + 8, my = mr.cy;
+    const curve = (x0, y0, x1, y1, c) => { const dx = Math.max(40, (x1 - x0) * .5); return `<path class="${c}" pathLength="1" d="M${x0},${y0} C${x0 + dx},${y0} ${x1 - dx},${y1} ${x1},${y1}"/>`; };
     let out = `<circle class="dot" cx="${mx}" cy="${my}" r="3.2"/>`;
-    for(const g of groups){ const cr = R(g.cat), cl = cr.left - 8, cy = cr.top + cr.height / 2, cx = cr.right + 8;
-      out += curve(mx, my, cl, cy) + `<circle class="dot" cx="${cl}" cy="${cy}" r="3.2"/><circle class="dot" cx="${cx}" cy="${cy}" r="3.2"/>`;
-      for(const it of g.its){ const ir = R(it), il = ir.left, iy = ir.top + ir.height / 2; out += curve(cx, cy, il, iy) + `<circle cx="${il}" cy="${iy}" r="2.4"/>`; } }
+    for(const g of groups){ const c = g.gi < ACC ? 'acc' : `dim g${g.gi}`, cr = R(g.cat), cl = cr.l - 8, cy = cr.cy, cx = cr.r + 8;
+      out += curve(mx, my, cl, cy, c) + `<circle class="dot ${c}" cx="${cl}" cy="${cy}" r="3.2"/><circle class="dot ${c}" cx="${cx}" cy="${cy}" r="3.2"/>`;
+      for(const it of g.its){ const ir = R(it); out += curve(cx, cy, ir.l, ir.cy, c) + `<circle class="${c}" cx="${ir.l}" cy="${ir.cy}" r="2.4"/>`; } }
     svg.innerHTML = out; svg.classList.remove('on'); flow.classList.add('on');
-    requestAnimationFrame(() => requestAnimationFrame(() => svg.classList.add('on')));
+    requestAnimationFrame(() => requestAnimationFrame(() => { svg.classList.add('on'); revealFlow(); }));
   });
 }
+// бесцветные места работы проявляются, когда до них долистали
+function revealFlow(){
+  const box = $('#aboutv'), lim = (box.scrollHeight > box.clientHeight ? box.getBoundingClientRect().top + box.clientHeight : innerHeight) * .85;
+  FLOW.forEach((_, gi) => { if(gi < ACC) return; const cat = $(`#flow .cat.g${gi}`); if(!cat) return;
+    if(cat.getBoundingClientRect().top < lim) document.querySelectorAll(`#aboutv .g${gi}`).forEach(el => el.classList.add('lit')); });
+}
+$('#aboutv').addEventListener('scroll', e => { revealFlow(); e.target.classList.toggle('scrolled', e.target.scrollTop > 40); }, { passive:true });
 // страница: работы или «обо мне» (адрес #about помнит выбор)
 function setPage(pg){
   document.body.classList.toggle('about-page', pg === 'about');
@@ -533,13 +566,17 @@ function setPage(pg){
 schema.addEventListener('click', e => { const a = e.target.closest('[data-page]'); if(!a) return; e.preventDefault();
   history.replaceState(null, '', a.dataset.page === 'about' ? '#about' : '#'); setPage(a.dataset.page); });
 addEventListener('resize', () => { if(document.body.classList.contains('about-page')) drawFlow(); });
+// логотип — всегда на главную: к работам, в начало
+const goHome = () => { history.replaceState(null, '', location.pathname); setPage('work'); scrollTo(0, 0); const g = $('#grid'); if(g && g.parentElement) g.parentElement.scrollTop = 0; };
+logo.addEventListener('click', goHome);
+logo.addEventListener('keydown', e => { if(e.key === 'Enter') goHome(); });
+logo.style.cursor = 'pointer';
 
 // вид: сетка карточек или лента со скобками
 function setView(v){
   view = v; try { localStorage.setItem('v3view', v); } catch(e){}
   document.body.classList.toggle('grid-view', v === 'grid');
   $('#view').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
-  $('#hint').textContent = v === 'grid' ? 'Наведите — работа станет цветной · клик — открыть кейс' : 'Колесо или перетаскивание — листать · клик по работе — открыть';
   const ab = document.querySelector('.about').getBoundingClientRect();
   document.documentElement.style.setProperty('--gt', Math.round(ab.bottom + 8) + 'px');
   if(v === 'strip'){ const k = Math.max(0, active); active = -1; setActive(k); drawBraces(); requestAnimationFrame(wires); }
