@@ -1232,7 +1232,27 @@
   .b-bento .b-head{gap:4px;margin-bottom:14px}
   .b-bento .b-head p{font-size:clamp(17px,1.25vw,20px);line-height:1.25}
   @media (max-width:760px){ .b-bento .b-head{gap:3px;margin-bottom:10px} .b-bento .b-head p{font-size:16px} }
+
+  /* большие экраны: сайт рассчитан на ~1440 px, на широких мониторах увеличиваем всё целиком */
+  @media (min-width:1800px){ html{zoom:1.2} }
+  @media (min-width:2200px){ html{zoom:1.4} }
+  @media (min-width:2800px){ html{zoom:1.7} }
 </style>
+<script>
+  // большие экраны: html{zoom} в CSS. Браузер отдаёт координаты в увеличенных пикселях, а стили ставит в пикселях вёрстки —
+  // переводим рамки элементов, размер окна и курсор обратно, чтобы провода и схемы считались как без увеличения
+  (() => {
+    const Z = () => parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+    const R = Element.prototype.getBoundingClientRect;
+    Element.prototype.getBoundingClientRect = function(){ const r = R.call(this), z = Z(); return z === 1 ? r : new DOMRect(r.x / z, r.y / z, r.width / z, r.height / z); };
+    const W = Object.getOwnPropertyDescriptor(window, 'innerWidth') || Object.getOwnPropertyDescriptor(Window.prototype, 'innerWidth');
+    const H = Object.getOwnPropertyDescriptor(window, 'innerHeight') || Object.getOwnPropertyDescriptor(Window.prototype, 'innerHeight');
+    Object.defineProperty(window, 'innerWidth', {configurable: true, get(){ return W.get.call(window) / Z(); }});
+    Object.defineProperty(window, 'innerHeight', {configurable: true, get(){ return H.get.call(window) / Z(); }});
+    for (const k of ['clientX', 'clientY']) { const d = Object.getOwnPropertyDescriptor(MouseEvent.prototype, k);
+      Object.defineProperty(MouseEvent.prototype, k, {configurable: true, get(){ return d.get.call(this) / Z(); }}); }
+  })();
+</script>
 </head>
 <body>
 

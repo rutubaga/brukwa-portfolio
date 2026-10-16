@@ -452,9 +452,14 @@
   .pa-scr{width:720px;height:400px;background:linear-gradient(166deg,#dfe3ea 0%,#bfc5d1 71%)}
   .pa-menu{position:absolute;left:0;right:0;top:0;height:32px;background:rgba(255,255,255,.55)}
   .pa-notch{position:absolute;left:268px;top:0;width:184px;height:32px;background:#000;border-radius:0 0 9px 9px}
-  .pa-pan{position:absolute;left:50%;top:0;width:184px;height:32px;transform:translateX(-50%);background:#000;border-radius:0 0 9px 9px;overflow:hidden;
+  .pa-pan{position:absolute;left:50%;top:0;width:184px;height:32px;transform:translateX(-50%);background:#000;border-radius:0 0 9px 9px;overflow:visible;clip-path:inset(0 -12px 0 -12px);
     transition:width .55s cubic-bezier(.3,1.2,.4,1),height .55s cubic-bezier(.3,1.1,.4,1),border-radius .4s}
-  .pa-pan.open{width:620px;border-radius:12px 12px 22px 22px}
+  .pa-pan.open{width:620px;border-radius:0 0 22px 22px}
+  /* вырез сросся с краем экрана: верх ровный, по бокам вогнутые «ушки», как у настоящего выреза MacBook */
+  .pa-pan::before,.pa-pan::after{content:"";position:absolute;top:0;width:10px;height:10px;pointer-events:none}
+  .pa-pan::before{left:-10px;background:radial-gradient(circle at 0 100%,transparent 9.5px,#000 10px)}
+  .pa-pan::after{right:-10px;background:radial-gradient(circle at 100% 100%,transparent 9.5px,#000 10px)}
+  .pa-pan > .pa-in{clip-path:inset(0 round 0 0 22px 22px)}
   .pa-in{width:620px;position:absolute;left:50%;top:0;margin-left:-310px;padding-bottom:14px;opacity:0;transition:opacity .3s .15s}
   .pa-pan.open .pa-in{opacity:1}
   .pa-hd{height:32px;display:flex;align-items:center;padding:0 16px}
@@ -634,7 +639,375 @@
   }
   .facts .contrib{grid-column:1 / -1}
   .facts .contrib b{max-width:760px;display:block}
+
+
+  /* ---------- плагин: до → после; автодайджест; баннеры на главную (префикс pk-) ---------- */
+  .pk-grid .part .pv{min-height:0;padding:6px 0 0}
+  .pk-ba{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .pk-fr{position:relative;aspect-ratio:16/10;border-radius:12px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);overflow:hidden;padding:30px 14px 12px}
+  .pk-tag{position:absolute;left:10px;top:9px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+  .pk-tag.on{color:var(--ink)}
+  .pk-lines{display:grid;gap:6px;width:52%}
+  .pk-lines i{height:7px;border-radius:4px;background:#d9d9d9}
+  .pk-lines i:first-child{height:10px;background:#bdbdbd}
+  .pk-lines i.s{width:70%} .pk-lines i.xs{width:45%}
+  .pk-lines.narrow{width:34%} .pk-lines.wide{width:58%}
+  .pk-logos{position:absolute;left:14px;right:14px;bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:8px;font-weight:600;letter-spacing:.04em;color:#6b6b6b}
+  .pk-logos.tight{justify-content:flex-start;gap:6px}
+  .pk-logos em{width:1px;height:16px;background:#cfcfcf}
+  .pk-logos .mir{color:var(--ink)}
+  .pk-logos .pt{display:grid;place-items:center;height:22px;border-radius:5px}
+  .pk-logos .pt.small{width:58px;background:repeating-conic-gradient(#eee 0 25%,#fff 0 50%) 0 0/8px 8px;box-shadow:inset 0 0 0 1px #ddd}
+  .pk-logos .pt.small u{width:12px;height:5px;border-radius:2px;background:#111}
+  .pk-logos .pt.big{flex:1;background:#111;color:#fff;font-size:9px}
+  .pk-img{position:absolute;border-radius:10px;background:#cfcfcf}
+  .pk-img.off{width:46%;height:62%;right:22%;top:30%}
+  .pk-img.fit{width:36%;height:72%;right:12px;top:18%}
+  .pk-img.mail{width:30%;height:66%;right:12px;top:22%}
+  .pk-fig{position:absolute;border-radius:50%;background:none;box-shadow:inset 0 0 0 1.5px #b5b5b5}
+  .pk-fig.a{width:44px;height:44px;right:16px;top:16px} .pk-fig.b{width:26px;height:26px;right:58px;bottom:14px}
+  .pk-bul{display:grid;gap:5px;margin-top:9px;width:52%}
+  .pk-bul span{display:flex;align-items:center;gap:6px}
+  .pk-bul span::before{content:"";width:4px;height:4px;border-radius:50%;background:#111;flex:none}
+  .pk-bul span::after{content:"";height:6px;flex:1;border-radius:3px;background:#d9d9d9}
+  .pk-rub{display:flex;flex-direction:column;justify-content:center;gap:6px}
+  .pk-rub b{font-weight:600;font-size:clamp(13px,1.4vw,18px);letter-spacing:-.01em}
+  .pk-rub s{text-decoration:none;color:var(--mute);font-weight:400}
+  .pk-rub small{font-size:11px;color:var(--mute)}
+  .pk-rub small.ok{color:var(--ink)}
+  .part .pv.pk-dg{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:clamp(20px,4vw,56px);align-items:center;place-items:initial;padding:6px 6px 0}
+  .pk-stack{position:relative;width:80%;aspect-ratio:721/331;margin:0 0 30% 0;justify-self:start}
+  .pk-stack img{position:absolute;width:100%;height:auto;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line)}
+  .pk-stack img:nth-child(1){left:0;top:0;z-index:3}
+  .pk-stack img{box-shadow:0 0 0 1px rgba(0,0,0,.06),0 10px 30px -18px rgba(0,0,0,.35)}
+  .pk-stack img:nth-child(2){left:12%;top:32%;z-index:2}
+  .pk-stack img:nth-child(3){left:24%;top:64%;z-index:1}
+  .pk-rules{list-style:none;display:grid;gap:10px;align-self:center;align-content:center}
+  .pk-rules li{display:grid;gap:2px;padding:12px 14px;border-radius:12px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font-size:13px;color:var(--text)}
+  .pk-rules b{font-weight:500;color:var(--ink);font-size:14px}
+  .pk-app{width:100%;display:grid;gap:14px}
+  .pk-ab{position:relative;aspect-ratio:2/1;border-radius:14px;background:#eef1f6;overflow:hidden;display:flex;align-items:center;padding:0 8%}
+  .pk-ab .tx{position:relative;z-index:2;display:grid;gap:8%;width:52%}
+  .pk-ab .tx b{font-weight:800;font-size:clamp(16px,2.1vw,30px);line-height:1.05;letter-spacing:-.01em;color:#0d0d0d}
+  .pk-ab .tx span{font-weight:600;font-size:clamp(10px,1.1vw,15px);line-height:1.3;color:#0d0d0d}
+  .pk-ab .vis{position:absolute;right:-4%;top:10%;width:44%;height:90%;border-radius:40% 40% 0 0;background:linear-gradient(160deg,#c6a17a,#7b5132)}
+  .pk-ab .edge{position:absolute;top:8%;bottom:8%;left:56%;border-left:1.5px dashed #2c47f5}
+  .pk-ab .edge::after{content:"край визуала";position:absolute;left:6px;top:0;font:500 10px/1 "Inter",sans-serif;color:#2c47f5;white-space:nowrap}
+  .pk-notes{list-style:none;display:grid;gap:6px;font-size:12.5px;color:var(--text)}
+  .pk-notes li{display:flex;gap:8px}
+  .pk-notes li::before{content:"";flex:none;width:5px;height:5px;margin-top:6px;border-radius:50%;background:var(--ink)}
+  .pk-fold{width:100%;max-width:440px;padding:12px;border-radius:16px;background:#000;color:#fff;font-family:"Inter",system-ui,sans-serif;display:grid;gap:3px}
+  .pk-cap{margin:2px 4px 6px;font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.32)}
+  .pk-fold .r{display:flex;align-items:center;gap:9px;min-height:34px;padding:0 10px;border-radius:7px;background:rgba(255,255,255,.08)}
+  .pk-fold .r i{flex:none;width:14px;height:11px;border-radius:2px 2px 3px 3px;position:relative}
+  .pk-fold .r i::before{content:"";position:absolute;left:0;top:-2px;width:6px;height:3px;border-radius:1px 1px 0 0;background:inherit}
+  .pk-fold .r i.g{background:#30d158} .pk-fold .r i.y{background:#ffd60a} .pk-fold .r i.v{background:#bf5af2}
+  .pk-fold .r b{font-weight:500;font-size:11.5px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pk-fold .r em{font-style:normal;font-size:10px;color:rgba(255,255,255,.4);white-space:nowrap}
+  .pk-fold .r em.w{color:#ffd60a} .pk-fold .r em.v{color:#d49cf5}
+  .pk-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+  .pk-chips span{padding:4px 9px;border-radius:99px;background:rgba(255,255,255,.14);font-size:10px;color:rgba(255,255,255,.8)}
+  @media (max-width:900px){ .part .pv.pk-dg{grid-template-columns:minmax(0,1fr)} .pk-stack{width:78%} }
+  @media (max-width:560px){ .pk-ba{grid-template-columns:1fr} .pk-fr{aspect-ratio:16/9} }
+
+  /* схемы плагина — минимально: рамка, ключевой элемент, стрелка */
+  .sx{width:100%;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px}
+  .sx-ar{font-size:18px;color:var(--mute)}
+  .sx-f{position:relative;aspect-ratio:16/10;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+  .sx-logos{position:absolute;left:12%;right:12%;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:space-between;gap:8%}
+  .sx-logos i{width:16%;aspect-ratio:2/1;border-radius:4px;box-shadow:inset 0 0 0 1.5px #bdbdbd}
+  .sx-logos em{width:1px;height:22px;background:#d6d6d6;flex:none}
+  .sx-logos b{border-radius:4px}
+  .sx-logos b.dot{width:8%;aspect-ratio:2/1;background:#111}
+  .sx-logos b.big{flex:1;height:22px;background:#111}
+  .sx-t{position:absolute;left:10%;top:20%;width:38%;height:8px;border-radius:4px;background:#bdbdbd}
+  .sx-t::after{content:"";position:absolute;left:0;top:16px;width:70%;height:6px;border-radius:3px;background:#dcdcdc}
+  .sx-t.narrow{width:26%}
+  .sx-t.wide{width:46%}
+  .sx-li{position:absolute;left:10%;top:52%;width:40%;height:22px;background:radial-gradient(circle,#111 2px,transparent 2.5px) 0 0/8px 11px repeat-y,linear-gradient(#dcdcdc 0 0) 12px 2px/calc(100% - 12px) 5px no-repeat,linear-gradient(#dcdcdc 0 0) 12px 13px/calc(100% - 12px) 5px no-repeat}
+  .sx-im{position:absolute;border-radius:8px;background:#cfcfcf}
+  .sx-im.over{left:28%;top:34%;width:44%;height:50%}
+  .sx-im.side{right:8%;top:18%;width:30%;height:64%}
+  .sx-r{display:grid;place-items:center}
+  .sx-r b{font-weight:600;font-size:clamp(16px,1.8vw,24px);letter-spacing:-.01em}
+  .sx-r s{text-decoration:none;font-weight:400;color:var(--mute)}
+
+
+  /* плагин: 4 компактные карточки в ряд */
+  .parts.pk-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .pk-grid .part{padding:46px 14px 16px;border-radius:18px}
+  .pk-grid .th{left:14px;right:14px;top:14px}
+  .pk-grid .part p{margin-top:12px;font-size:13px;line-height:1.3}
+  .pk-grid .sx{gap:6px}
+  .pk-grid .sx-ar{font-size:13px}
+  .pk-grid .sx-f{border-radius:8px}
+  .pk-grid .sx-logos em{height:12px}
+  .pk-grid .sx-logos b.big{height:12px}
+  .pk-grid .sx-t{height:5px}
+  .pk-grid .sx-t::after{top:9px;height:4px}
+  .pk-grid .sx-li{height:14px;background:radial-gradient(circle,#111 1.3px,transparent 1.8px) 0 0/5px 7px repeat-y,linear-gradient(#dcdcdc 0 0) 8px 1px/calc(100% - 8px) 3px no-repeat,linear-gradient(#dcdcdc 0 0) 8px 8px/calc(100% - 8px) 3px no-repeat}
+  .pk-grid .sx-im{border-radius:5px}
+  .pk-grid .sx-r b{font-size:clamp(12px,1.1vw,16px)}
+  @media (max-width:1100px){ .parts.pk-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @media (max-width:560px){ .parts.pk-grid{grid-template-columns:1fr} }
+
+  /* баннеры на главную — схемы */
+  .parts.pk-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sx.one{grid-template-columns:minmax(0,320px);justify-content:center}
+  .sx-t.big{top:30%;width:36%;height:12px}
+  .sx-t.big::after{top:20px;height:6px;width:80%}
+  .sx-edge{position:absolute;top:12%;bottom:12%;right:42%;border-left:1.2px dashed #9a9a9a}
+  .sx-st{display:grid;gap:6px;width:100%;max-width:260px}
+  .sx-st span{display:flex;align-items:center;gap:10px;height:34px;padding:0 12px;border-radius:8px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font-size:13px}
+  .sx-st i{width:14px;height:11px;border-radius:2px;flex:none;box-shadow:inset 0 0 0 1.5px #111}
+  .sx-st i.f{background:#111}
+  .sx-st i.h{background:linear-gradient(90deg,#111 50%,transparent 50%)}
+  .pk-dg .pk-rules{order:1} .pk-dg .pk-stack{order:2;justify-self:start;width:74%;margin:0 0 26% 0}
+
+  /* линия прокрутки плеера: главы анимации */
+  .pa-bar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:12px;width:100%;justify-self:stretch}
+  .pa-bar button{display:grid;gap:7px;text-align:left;font:inherit;font-size:12px;color:var(--mute);cursor:pointer;background:none;border:0;padding:0}
+  .pa-bar button i{display:block;height:3px;border-radius:2px;background:rgba(0,0,0,.1);overflow:hidden}
+  .pa-bar button b{display:block;height:100%;width:0;background:var(--ink)}
+  .pa-bar button.on,.pa-bar button:hover{color:var(--ink)}
+  @media (max-width:560px){ .pa-bar span{font-size:10.5px} }
+
+  /* ---------- живые сцены 002–008 (префикс sk-) ---------- */
+  .pa-stage.nt *{transition:none!important;animation:none!important}
+  .sk-scr{position:relative;width:760px;height:456px;background:#e8e8e8;overflow:hidden;color:#111}
+  .sk-scr .fg-top{height:32px;font-size:11px}
+  .sk-canvas{position:absolute;left:0;top:32px;right:0;bottom:0}
+  .sk-fl{position:absolute;left:28px;top:16px;font-size:10px;color:#777}
+  .sk-fr{position:absolute;left:28px;top:34px;width:440px;height:280px}
+  .sk-card{position:absolute;inset:0;background:#fff;border-radius:4px;overflow:hidden;padding:26px 28px}
+  .sk-card .t{display:block;font-weight:700;font-size:24px;line-height:1.1;letter-spacing:-.01em;color:#111;max-width:300px}
+  .sk-card em{display:block;margin-top:10px;font-style:normal;font-size:12px;color:#555;max-width:240px;line-height:1.35}
+  .sk-plg{position:absolute;left:490px;top:48px;width:250px;border-radius:12px;overflow:hidden;color:#fff;box-shadow:0 20px 50px -15px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.2)}
+  .sk-plg .fg-ph{height:32px}
+  .sk-body{background:#000;padding:10px;display:flex;flex-direction:column;gap:8px}
+  .sk-body .pa-blk{padding:10px;gap:8px}
+  .sk-body .pa-btn{height:32px}
+  .sk-body .pa-aux div{transition:background .2s,transform .15s}
+  .sk-body .pa-aux div.press{transform:scale(.95);background:rgba(255,255,255,.22)}
+  .sk-msg{display:flex;align-items:center;gap:7px;padding:2px 4px 2px;font-size:10.5px;color:rgba(255,255,255,.55)}
+  .sk-msg i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.3);flex:none;transition:background .3s}
+  .sk-msg.w i{background:#ffd60a} .sk-msg.ok i{background:#30d158} .sk-msg.ok{color:rgba(255,255,255,.85)}
+  /* 002 логотипы */
+  .sk-logos{position:absolute;left:28px;right:28px;bottom:26px;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:gap .6s}
+  .sk-logos > i{width:1px;height:30px;background:#d4d4d4;flex:none}
+  .sk-logos .mir{font-weight:800;font-size:17px;color:#0f8a4b;letter-spacing:.02em}
+  .sk-logos .bk{font-weight:700;font-size:13px;color:#6b6b6b;letter-spacing:.06em}
+  .sk-logos .pt{width:110px;height:44px;display:grid;place-items:center;border-radius:4px;background:repeating-conic-gradient(#ececec 0 25%,#fff 0 50%) 0 0/10px 10px;box-shadow:inset 0 0 0 1px #d8d8d8;transition:all .7s cubic-bezier(.3,1.2,.4,1)}
+  .sk-logos .pt u{text-decoration:none;font-weight:800;font-size:9px;letter-spacing:.08em;color:#111;transition:font-size .7s cubic-bezier(.3,1.2,.4,1)}
+  .sk-logos.fix{justify-content:flex-start;gap:22px}
+  .sk-logos.fix .pt{width:auto;flex:1;background:none;box-shadow:none}
+  .sk-logos.fix .pt u{font-size:30px}
+  /* 003 визуал */
+  .sk-card.vis .btn{position:absolute;left:28px;bottom:26px;text-decoration:none;font-size:11px;font-weight:600;color:#fff;background:#111;border-radius:99px;padding:7px 14px}
+  .sk-card.vis .im{position:absolute;left:140px;top:70px;width:200px;height:170px;border-radius:8px;background:linear-gradient(140deg,#d2d5dc,#a9aeba);transition:all .8s cubic-bezier(.3,1.1,.4,1)}
+  .sk-card.vis .fig{position:absolute;border-radius:50%;background:#dfe6f3;transition:opacity .5s}
+  .sk-card.vis .fig.a{width:90px;height:90px;right:30px;top:24px} .sk-card.vis .fig.b{width:46px;height:46px;right:120px;bottom:20px;background:#e9e4f2}
+  .sk-card.vis .t,.sk-card.vis em{max-width:220px}
+  .sk-card.vis.fix .im{left:268px;top:20px;width:152px;height:240px}
+  .sk-card.vis.fix .fig{opacity:0}
+  /* 004 письмо */
+  .sk-card.mail{padding:0}
+  .sk-card.mail .mt{position:absolute;left:26px;top:26px;width:150px;transition:width .8s cubic-bezier(.3,1.1,.4,1)}
+  .sk-card.mail .mt b{display:block;font-weight:700;font-size:19px;line-height:1.15}
+  .sk-card.mail .mt span{display:block;margin-top:8px;font-size:11.5px;color:#555;line-height:1.35}
+  .sk-card.mail ul{list-style:none;margin-top:10px;display:grid;gap:5px;font-size:11.5px;color:#333;opacity:0;transform:translateY(4px);transition:opacity .4s .3s,transform .4s .3s}
+  .sk-card.mail li::before{content:"•";margin-right:7px}
+  .sk-card.mail .im{position:absolute;right:20px;top:20px;width:140px;height:240px;border-radius:8px;background:linear-gradient(140deg,#d2d5dc,#a9aeba)}
+  .sk-card.mail.fix .mt{width:236px}
+  .sk-card.mail.fix ul{opacity:1;transform:none}
+  /* 005 знак ₽ */
+  .sk-card.rub{display:flex;flex-direction:column;justify-content:center}
+  .sk-card.rub .t{font-size:30px;max-width:none}
+  .sk-card.rub .t s{text-decoration:none;display:none}
+  .sk-card.rub .t i{font-style:normal;font-weight:400;color:#bbb}
+  .sk-card.rub.fix .t s{display:inline} .sk-card.rub.fix .t i{display:none}
+  /* 006 автодайджест */
+  .sk-scr.dg{width:900px;height:540px;background:linear-gradient(166deg,#dfe3ea 0%,#bfc5d1 71%)}
+  .sk-scr.dg .pa-pan,.sk-tab{z-index:6;color:#fff}
+  .sk-doc{position:absolute;left:90px;top:120px;width:420px;padding:18px 20px;border-radius:12px;background:#fff;color:#111;box-shadow:0 20px 40px -20px rgba(0,0,0,.35);opacity:0;transform:translateY(10px);transition:opacity .4s,transform .4s;z-index:3}
+  .sk-doc.on{opacity:1;transform:none}
+  .sk-doc .dh,.sk-task .dh{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13px}
+  .sk-doc p{font-size:13px;line-height:1.3;padding:7px 0;border-top:1px solid #eee}
+  .sk-doc p i{font-style:normal;color:#999;margin-right:6px}
+  .sk-open{height:22px;border-radius:11px;background:#ff9f0a;color:#111;display:flex;align-items:center;padding:0 10px;font-weight:600;font-size:10px;white-space:nowrap}
+  .sk-finder{position:absolute;left:40px;top:150px;width:820px;border-radius:12px;background:#f6f6f6;color:#111;overflow:hidden;box-shadow:0 30px 60px -25px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.12);
+    opacity:0;transform:scale(.12);transform-origin:var(--ox,70%) var(--oy,0);transition:opacity .2s,transform .55s cubic-bezier(.2,.9,.25,1);z-index:8}
+  .sk-finder.on{opacity:1;transform:none}
+  .sk-finder .fh{height:34px;display:flex;align-items:center;gap:14px;padding:0 12px;background:#ececec;border-bottom:1px solid #ddd;font-size:12px}
+  .sk-finder .fb{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:22px}
+  .sk-finder figure{display:grid;gap:8px;text-align:center;font-size:11px;color:#333}
+  .sk-finder img{width:100%;height:auto;border-radius:6px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+  .sk-finder.on figure{animation:skIn .4s .18s both} .sk-finder.on figure:nth-child(2){animation-delay:.28s} .sk-finder.on figure:nth-child(3){animation-delay:.38s}
+  @keyframes skIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  /* 007 App banner */
+  .sk-scr.ap{background:#e8e8e8}
+  .sk-task{position:absolute;left:24px;top:40px;width:250px;padding:16px;border-radius:12px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.06)}
+  .sk-task label{display:block;font-size:10px;color:#999;margin:10px 0 4px}
+  .sk-task p{font-size:12.5px;line-height:1.3;padding:6px 8px;border-radius:6px;background:#f4f4f4;transition:box-shadow .3s}
+  .sk-task p.on{box-shadow:inset 0 0 0 1.5px #111}
+  .sk-task p.kv{color:#666}
+  .sk-ab{position:absolute;left:300px;top:70px;width:440px;height:220px;border-radius:14px;background:#fff;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.08);transition:background .5s}
+  .sk-ab.on{background:#eef1f6}
+  .sk-ab .vis{position:absolute;right:-10px;top:22px;width:190px;height:210px;border-radius:95px 95px 0 0;background:linear-gradient(160deg,#c9ccd3,#8f949f);opacity:0;transform:translateY(12px);transition:opacity .5s,transform .5s}
+  .sk-ab .edge{position:absolute;top:16px;bottom:16px;left:252px;border-left:1.5px dashed #111;opacity:0;transition:opacity .3s}
+  .sk-ab .tx{position:absolute;left:30px;top:50%;transform:translateY(-50%);display:grid;gap:10px;opacity:0;transition:opacity .5s}
+  .sk-ab .tx b{font-weight:800;font-size:28px;line-height:1.02;letter-spacing:-.01em}
+  .sk-ab .tx span{font-weight:600;font-size:13px;line-height:1.3}
+  .sk-ab .on{opacity:1;transform:none} .sk-ab .tx.on{transform:translateY(-50%)}
+  .sk-log{position:absolute;left:300px;top:306px;width:440px;padding:10px 14px;border-radius:10px;background:#111;color:rgba(255,255,255,.85);font:400 11px/1.6 ui-monospace,"SF Mono",Menlo,monospace}
+  .sk-log p:first-child{color:rgba(255,255,255,.4)}
+  .sk-log p[data-l]{opacity:0;transform:translateX(-4px);transition:opacity .3s,transform .3s}
+  .sk-log p.on{opacity:1;transform:none}
+  /* 008 папки */
+  .sk-scr.fd{background:linear-gradient(166deg,#dfe3ea 0%,#bfc5d1 71%)}
+  .sk-tab{position:absolute;left:40px;top:32px;width:470px;padding-bottom:14px;border-radius:0 0 20px 20px;background:#000;color:#fff}
+  .sk-f .fd{width:15px;height:12px;border-radius:2px 2px 3px 3px;position:relative;flex:none;transition:background .4s}
+  .sk-f .fd::before{content:"";position:absolute;left:0;top:-2px;width:6px;height:3px;border-radius:1px 1px 0 0;background:inherit}
+  .sk-f[data-s="g"] .fd{background:#30d158} .sk-f[data-s="y"] .fd{background:#ffd60a} .sk-f[data-s="v"] .fd{background:#bf5af2}
+  .sk-f[data-s="y"] .sb{color:#ffd60a} .sk-f[data-s="v"] .sb{color:#d49cf5}
+  .sk-finder.sm{left:430px;top:170px;width:300px}
+  .sk-finder .fl{display:grid;padding:8px}
+  .sk-finder .fl span{display:flex;justify-content:space-between;padding:7px 8px;border-radius:5px;font-size:11.5px}
+  .sk-finder .fl em{font-style:normal;color:#999}
+  .sk-finder .fl .nw{opacity:0;background:#dbe9ff;transition:opacity .4s}
+  .sk-finder .fl .nw.on{opacity:1}
+  /* раскладка блоков */
+  .parts.sk-two{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sk-two .part{padding:46px 16px 18px}
+  .sk-two .th{left:16px;right:16px;top:15px}
+  .sk-two .part .pv{min-height:0;display:block}
+  .sk-two .part p{margin-top:12px;font-size:14px}
+  .part .pv .pa-bar{margin-top:10px}
+  @media (max-width:900px){ .parts.sk-two{grid-template-columns:1fr} }
+
+
+  /* 003 — баннер «Золотое яблоко» + настоящее окно плагина */
+  .sk-scr.ga{width:1040px;height:624px;background:#e8e8e8}
+  .ga-fl{left:30px;top:52px}
+  .ga-bn{position:absolute;left:30px;top:72px;width:600px;height:337.5px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+  .ga-bn img{position:absolute}
+  .ga-bn .bg{left:0;top:0;width:600px;height:337.5px}
+  .ga-bn .tb{left:28.1px;top:28.1px;width:283.75px}
+  .ga-bn .dl{left:28.1px;top:224px;width:283.75px}
+  .ga-bn .vi{left:-77px;top:0;width:475.6px;height:337.5px;transition:left .8s cubic-bezier(.2,.8,.2,1)}
+  .ga-bn.fix .vi{left:126.25px}
+  .ga-plg{position:absolute;left:660px;top:40px;width:360px;border-radius:12px;overflow:hidden;color:#fff;box-shadow:0 20px 50px -15px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.2)}
+  .ga-plg .pa-plg{height:auto;border-radius:0}
+  .ga-plg .pa-aux div{position:relative;transition:background .2s,transform .15s}
+  .ga-plg .pa-aux div.press{transform:scale(.95);background:rgba(255,255,255,.22)}
+  .ga-plg .pa-aux div::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);right:0;padding:5px 8px;border-radius:6px;background:#2c2c2e;color:rgba(255,255,255,.9);
+    font-size:10.5px;font-weight:500;white-space:nowrap;pointer-events:none;opacity:0;transform:translateY(3px);transition:opacity .12s,transform .12s;box-shadow:0 6px 16px rgba(0,0,0,.5)}
+  .ga-plg .pa-aux div:not([data-tip])::after{display:none}
+  .ga-plg .pa-aux div.ga-on::after{opacity:1;transform:none}
+
+  /* сцены плагина 002/004/005 — макет 16:9 рядом с настоящим окном плагина */
+  .sk-scr.ga .sk-fr{left:30px;top:72px;width:600px;height:337.5px}
+  .sk-scr.ga .sk-card{padding:34px 36px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+  .sk-scr.ga .sk-card .t{font-size:30px;max-width:380px}
+  .sk-scr.ga .sk-card em{font-size:14px;max-width:320px}
+  .sk-scr.ga .sk-logos{left:36px;right:36px;bottom:32px}
+  .sk-scr.ga .sk-card.mail .mt{left:34px;top:34px;width:190px}
+  .sk-scr.ga .sk-card.mail.fix .mt{width:330px}
+  .sk-scr.ga .sk-card.mail .mt b{font-size:24px} .sk-scr.ga .sk-card.mail .mt span,.sk-scr.ga .sk-card.mail ul{font-size:13.5px}
+  .sk-scr.ga .sk-card.mail .im{right:28px;top:28px;width:200px;height:281px}
+  .sk-scr.ga .sk-card.rub .t{font-size:40px}
+  .ga-plg .sk-msg{padding:0 4px}
+  .ga-plg .pa-aux div:first-child::after{right:auto;left:0}
+
+  /* 002 — баннер Tutu.ru: строка логотипов «Мир | tutu | банк» (координаты из макета ×0.3125) */
+  .tt-bn{position:absolute;inset:0;overflow:hidden;background:#eae9ff;box-shadow:0 0 0 1px rgba(0,0,0,.08);font-family:"Inter",system-ui,sans-serif;color:#141414}
+  .tt-bn .bg{position:absolute;inset:0;width:100%;height:100%}
+  .tt-tx{position:absolute;left:28px;top:28px;width:284px}
+  .tt-tx b{display:block;font-weight:600;font-size:19px;line-height:1.05;letter-spacing:-.01em}
+  .tt-tx span{display:block;margin-top:10px;font-size:11px;line-height:1.3;color:#222}
+  .tt-tx u{display:inline-flex;margin-top:22px;text-decoration:none;padding:9px 30px;border-radius:5px;background:#fff;font-weight:600;font-size:10px}
+  .tt-dc{position:absolute;left:28px;top:237px;width:284px;font-size:6.6px;line-height:1.35;color:#444}
+  .tt-logos{position:absolute;left:28px;top:267px;width:270px;height:51px}
+  .tt-logos > *{position:absolute;transition:all .7s cubic-bezier(.2,.8,.2,1)}
+  .tt-logos .mir{left:0;top:15.6px;width:68.75px;height:19.4px}
+  .tt-logos > i{width:1px;height:33px;top:8.75px;background:rgba(20,20,20,.25)}
+  .tt-logos > i:nth-of-type(1){left:88.75px} .tt-logos > i:nth-of-type(2){left:178.75px}
+  .tt-logos .pt{left:108.75px;top:0;width:50px;height:50.6px;border-radius:0;background:#a181ff;color:#fff;display:grid;place-items:center}
+  .tt-logos .pt svg{width:39px;height:auto;fill:currentColor;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+  .tt-logos em{left:198.75px;top:11.25px;width:71px;height:28px;display:grid;place-items:center;font-style:normal;font-size:7px;color:rgba(20,20,20,.35);box-shadow:inset 0 0 0 1px rgba(20,20,20,.18)}
+  .tt-logos.fix .pt{left:102px;top:8.75px;width:64px;height:33px;background:transparent;color:#7a55f5}
+  .tt-logos.fix .pt svg{width:64px}
+
+  /* 004 — письмо «Лэтуаль»: тексты живые, шапка, баннеры и подвал — из макетов */
+  .sk-scr.le{height:1100px}
+  .le-mail{position:absolute;left:30px;top:72px;width:720px;transform:scale(.8333);transform-origin:0 0;background:#fff;color:#1c1c1c;font-family:"Inter",system-ui,sans-serif;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+  .le-mail img{display:block;width:720px}
+  .le-mail .hd{height:128px}
+  .le-bn{position:relative;height:300px;margin-bottom:60px}
+  .le-bn img{position:absolute;inset:0;height:300px;transition:opacity .4s}
+  .le-bn .f{opacity:0}
+  .le-mail.fix .le-bn .f{opacity:1}
+  .le-mail.fix .le-bn .m{opacity:0;transition:none}
+  .le-body{padding:0 60px 40px}
+  .le-v h4{font-weight:600;font-size:28px;line-height:1.15;margin-bottom:24px;letter-spacing:-.005em}
+  .pa-stage .le-v p{margin-top:0;font-size:20px;line-height:27px;margin-bottom:24px;color:#1c1c1c}
+  .le-v u{display:inline-flex;align-items:center;height:59px;padding:0 48px;margin-bottom:40px;border-radius:6px;background:#4d35af;color:#fff;text-decoration:none;font-weight:600;font-size:22px}
+  .le-v ul{list-style:none;margin:-4px 0 24px;display:grid;gap:4px;font-size:20px;line-height:27px}
+  .le-v li{position:relative;padding-left:24px}
+  .le-v li::before{content:"";position:absolute;left:4px;top:11px;width:6px;height:6px;border-radius:50%;background:#1c1c1c}
+  .le-v.f{display:none}
+  .le-mail.fix .le-v.m{display:none}
+  .le-mail.fix .le-v.f{display:block}
+  .le-mail.fix .le-v.f > *{animation:skIn .4s both}
+  .le-mail.fix .le-v.f > :nth-child(2){animation-delay:.08s} .le-mail.fix .le-v.f > :nth-child(3){animation-delay:.16s} .le-mail.fix .le-v.f > :nth-child(4){animation-delay:.24s} .le-mail.fix .le-v.f > :nth-child(5){animation-delay:.32s}
+  .le-mail.fix .le-v.f li{animation:skIn .35s both} .le-mail.fix .le-v.f li:nth-child(1){animation-delay:.25s} .le-mail.fix .le-v.f li:nth-child(2){animation-delay:.35s} .le-mail.fix .le-v.f li:nth-child(3){animation-delay:.45s}
+  .sk-two .part.wide{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px;align-items:end}
+  .sk-two .part.wide .pv{grid-column:1}
+  .sk-two .part.wide p{grid-column:2;margin:0 0 6px;font-size:15px;max-width:420px}
+  @media (max-width:900px){ .sk-two .part.wide{display:flex} .sk-two .part.wide p{margin-top:12px} }
+
+  /* главная сцена: макеты Лэтуаль в окне Figma */
+  .fg-fr .fg-card{display:block}
+  .lb-in{position:absolute;left:0;top:0;width:1920px;height:1080px;transform:scale(.16667);transform-origin:0 0;font-family:"Inter",system-ui,sans-serif;color:#151515}
+  .lb-in > img{position:absolute;inset:0;width:1920px;height:1080px}
+  .lb-t{position:absolute;left:90px;top:90px;width:908px;transition:opacity .35s}
+  .lb-t > b{display:block;font-weight:600;font-size:60px;line-height:1.1;letter-spacing:-.01em;margin-bottom:36px}
+  .lb-t p{font-size:36px;line-height:48px;margin-bottom:28px}
+  .lb-t .ls span{display:block} .lb-t .ls b{font-weight:700}
+  .lb-t u{display:inline-flex;align-items:center;justify-content:center;width:500px;height:102px;margin-top:20px;border-radius:12px;background:#fff;text-decoration:none;font-weight:600;font-size:32px}
+  .lb-d{position:absolute;left:90px;top:786px;width:908px;font-size:20px;line-height:28px;color:#444;transition:opacity .35s}
+  .lb-t.f,.lb-d.f{opacity:0}
+  .fg-fr.on .lb-t.m,.fg-fr.on .lb-d.m{opacity:0} .fg-fr.on .lb-t.f,.fg-fr.on .lb-d.f{opacity:1}
+  .fg-fr[data-k="m"]{transition:height .45s cubic-bezier(.2,.8,.2,1)}
+  .fg-fr[data-k="m"] .fg-card{overflow:hidden;background:#fff}
+  .fg-fr .le-mail{left:0;top:0;transform:scale(.20833);box-shadow:none}
+
+  /* выделение рамки письма как в Figma */
+  .fg-hs{position:absolute;inset:-1px;pointer-events:none;opacity:0;box-shadow:0 0 0 2px #0d99ff;transition:opacity .2s;z-index:3}
+  .fg-hs b{position:absolute;width:7px;height:7px;background:#fff;box-shadow:0 0 0 1.5px #0d99ff}
+  .fg-hs b:nth-child(1){left:-3px;top:-3px} .fg-hs b:nth-child(2){right:-3px;top:-3px} .fg-hs b:nth-child(3){left:-3px;bottom:-3px} .fg-hs b:nth-child(4){right:-3px;bottom:-3px}
+  .fg-dim{position:absolute;left:50%;top:calc(100% + 6px);transform:translateX(-50%);padding:2px 6px;border-radius:4px;background:#0d99ff;color:#fff;font:500 9px/1.3 "Inter",system-ui,sans-serif;z-index:3;white-space:nowrap;font-variant-numeric:tabular-nums;opacity:0;transition:opacity .2s}
+  .fg-fr.pick .fg-hs,.fg-fr.pick .fg-dim{opacity:1}
+  /* большие экраны: сайт рассчитан на ~1440 px, на широких мониторах увеличиваем всё целиком */
+  @media (min-width:1800px){ html{zoom:1.2} }
+  @media (min-width:2200px){ html{zoom:1.4} }
+  @media (min-width:2800px){ html{zoom:1.7} }
 </style>
+<script>
+  // большие экраны: html{zoom} в CSS. Браузер отдаёт координаты в увеличенных пикселях, а стили ставит в пикселях вёрстки —
+  // переводим рамки элементов, размер окна и курсор обратно, чтобы провода и схемы считались как без увеличения
+  (() => {
+    const Z = () => parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+    const R = Element.prototype.getBoundingClientRect;
+    Element.prototype.getBoundingClientRect = function(){ const r = R.call(this), z = Z(); return z === 1 ? r : new DOMRect(r.x / z, r.y / z, r.width / z, r.height / z); };
+    const W = Object.getOwnPropertyDescriptor(window, 'innerWidth') || Object.getOwnPropertyDescriptor(Window.prototype, 'innerWidth');
+    const H = Object.getOwnPropertyDescriptor(window, 'innerHeight') || Object.getOwnPropertyDescriptor(Window.prototype, 'innerHeight');
+    Object.defineProperty(window, 'innerWidth', {configurable: true, get(){ return W.get.call(window) / Z(); }});
+    Object.defineProperty(window, 'innerHeight', {configurable: true, get(){ return H.get.call(window) / Z(); }});
+    for (const k of ['clientX', 'clientY']) { const d = Object.getOwnPropertyDescriptor(MouseEvent.prototype, k);
+      Object.defineProperty(MouseEvent.prototype, k, {configurable: true, get(){ return d.get.call(this) / Z(); }}); }
+  })();
+</script>
 </head>
 <body>
 <div class="wrap">
@@ -688,6 +1061,54 @@
 
 
   <section>
+    <div class="cap"><i></i>Плагин Privet Sync</div>
+    <h2>Плагин не только вставляет тексты — он доводит макет</h2>
+    <p class="sub">Каждое правило — из реальной поломки макета. Исправлено в плагине один раз, а не руками в каждом файле</p>
+    <div class="parts sk-two">
+      <div class="part">
+        <div class="th"><span class="lb">Логотипы</span><span class="tid"><i>ID</i>002</span></div>
+        <div class="pv"><div class="pa-wrap" id="skLogo"></div></div>
+        <p>Логотип партнёра — максимально крупный, без пустых полей</p>
+      </div>
+      <div class="part">
+        <div class="th"><span class="lb">Визуал</span><span class="tid"><i>ID</i>003</span></div>
+        <div class="pv"><div class="pa-wrap" id="skVis"></div></div>
+        <p>Картинка встаёт в свободную зону, лишние фигуры прячутся</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="cap"><i></i>Автодайджесты</div>
+    <h2>Баннеры для писем-дайджестов собираются сами</h2>
+    <p class="sub">Раз в месяц в рассылку уходят баннеры с подборкой акций. Как только появляется док с «автодайджест» в названии, система сама собирает баннеры и кладёт их в папку — в панели задач появляется кнопка «Открыть баннеры»</p>
+    <div class="parts one">
+      <div class="part">
+        <div class="th"><span class="lb">Док → слежка → сборщик баннеров</span><span class="tid"><i>ID</i>005</span></div>
+        <div class="pv"><div class="pa-wrap" id="skDigest"></div></div>
+        <p>Док с заголовками → баннеры разных цветов в папке. Figma не открывается</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="cap"><i></i>Баннеры на главную</div>
+    <h2>Баннеры на главную — без ручной сборки</h2>
+    <div class="parts sk-two">
+      <div class="part">
+        <div class="th"><span class="lb">Сборщик App banner</span><span class="tid"><i>ID</i>006</span></div>
+        <div class="pv"><div class="pa-wrap" id="skApp"></div></div>
+        <p>Баннер для приложения собирает скрипт — текст не заходит на картинку</p>
+      </div>
+      <div class="part">
+        <div class="th"><span class="lb">Папки партнёров</span><span class="tid"><i>ID</i>007</span></div>
+        <div class="pv"><div class="pa-wrap" id="skFold"></div></div>
+        <p>Папка сама показывает, всё ли готово. Сжатие, WebP и zip — скриптами</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
     <div class="cap"><i></i>Результат</div>
     <h2>Дизайнер занимается макетами, а не копированием</h2>
     <div class="ba-t">
@@ -697,9 +1118,9 @@
     </div>
     <div class="nums one">
       <div class="card rl">Эффект</div>
-      <div class="card"><b>13</b><p>акций в самый загруженный день, в среднем — 5</p></div>
-      <div class="card"><b>2 ч 18 мин</b><p>в такой день освобождается у одного дизайнера</p></div>
-      <div class="card"><b>20 ч 59 мин</b><p>сэкономила команда в сентябре — 119 акций</p></div>
+      <div class="card"><b>404</b><p>акции прошли через систему с 16 июня</p></div>
+      <div class="card"><b>71 ч 16 мин</b><p>сэкономлено на сборке макетов — почти 9 рабочих дней</p></div>
+      <div class="card"><b>2 ч 18 мин</b><p>освобождается в самый загруженный день — 13 акций</p></div>
     </div>
   </section>
 
@@ -826,24 +1247,43 @@
     function stage(wrap, W, H, html, script){
       wrap.innerHTML = `<div class="pa-stage" style="width:${W}px;height:${H}px">${html}${CUR}</div>`;
       const st = wrap.firstChild, cur = st.querySelector('.pa-cur'), rip = st.querySelector('.pa-rip');
-      // на узком экране — «камера»: показываем крупно часть сцены шириной CAM и сдвигаем её за действием
-      const CAM = 640; let camX = 0;
-      const fit = () => { const cw = wrap.clientWidth, mob = cw < 700 && W > CAM, k = mob ? cw / CAM : cw / W;
-        st.style.transform = `translate(${mob ? -camX * k : 0}px,0) scale(${k})`; wrap.style.height = H * k + 'px'; };
-      fit(); addEventListener('resize', fit);
+      // «камера»: в кадре только часть сцены (VW×VH), крупно; едет за действием. Интерфейс в натуральную величину мелкий —
+      // поэтому и на десктопе показываем его с приближением, а не весь экран целиком
+      // zoom — ширина кадра в пикселях сцены: меньше — крупнее. Пропорции кадра постоянные, поэтому высота плеера не прыгает
+      let camX = 0, camY = 0, zoom = 820, VW = W, VH = H;
+      const fit = () => { const cw = wrap.clientWidth, mob = innerWidth < 700, R = mob ? .72 : .6;
+        VW = Math.min(W, mob ? zoom * .78 : zoom); VH = Math.min(H, VW * R);
+        camX = Math.max(0, Math.min(W - VW, camX)); camY = Math.max(0, Math.min(H - VH, camY));
+        const k = cw / VW; st.style.transform = `translate(${-camX * k}px,${-camY * k}px) scale(${k})`; wrap.style.height = Math.round(cw * R) + 'px'; };
+      st.style.transition = 'none'; fit(); void st.offsetWidth; st.style.transition = ''; addEventListener('resize', fit);
       let run = 0, pos = {x: W * .7, y: H * .8};
       const api = {
-        st, $: s => st.querySelector(s),
+        st, W, H, view: () => ({x: camX, y: camY, w: VW, h: VH}), $: s => st.querySelector(s),
         wait: (ms, id) => new Promise((ok, no) => setTimeout(() => id === run ? ok() : no(), ms)),
         at(el, fx = .5, fy = .5){ const s = st.getBoundingClientRect(), r = el.getBoundingClientRect(), k = s.width / W;
           return {x: (r.left - s.left + r.width * fx) / k, y: (r.top - s.top + r.height * fy) / k}; },
-        cam(x){ camX = Math.max(0, Math.min(W - CAM, x)); fit(); },
+        cam(x, y = camY, z = zoom, now = false){ camX = x; camY = y; zoom = z; if (now) { st.style.transition = 'none'; fit(); void st.offsetWidth; st.style.transition = ''; } else fit(); },
         move(p, ms = 800){ pos = p; cur.style.transitionDuration = ms + 'ms'; cur.style.transform = `translate(${p.x - 4}px,${p.y - 2}px)`; },
         click(){ rip.style.left = pos.x + 'px'; rip.style.top = pos.y + 'px'; rip.classList.remove('go'); void rip.offsetWidth; rip.classList.add('go'); },
       };
       api.move(pos, 0);
+      // первый кадр сцены — сразу, без перескока камеры, когда плеер появится на экране
+      if (!reduce && (script.init || script.reset)) { st.classList.add('nt'); (script.init || script.reset).call(script, api); void st.offsetWidth; st.classList.remove('nt'); }
       if (reduce) { script.final(api); cur.style.display = 'none'; return; }
-      const loop = async () => { const id = ++run; try { for (;;) { await script.play(api, id); } } catch (e) { if (e) console.error(e); } };
+      const loop = async () => { const id = ++run; try { for (;;) { await script.play(api, id); script.from = 0; } } catch (e) { if (e) console.error(e); } };
+      wrap._restart = () => loop();
+      // линия прокрутки: главы сценария, заполнение по времени, клик — перемотка
+      if (script.chapters && !wrap.closest('.sk-two')) {
+        let chI = 0, chT = performance.now();
+        script.chapter = i => { chI = i; chT = performance.now(); };
+        wrap.insertAdjacentHTML('afterend', `<div class="pa-bar" style="grid-template-columns:repeat(${script.chapters.length},minmax(0,1fr))">${script.chapters.map((c, i) => `<button type="button" data-i="${i}"><i><b></b></i><span>${c.t}</span></button>`).join('')}</div>`);
+        const bar = wrap.nextElementSibling, bs = [...bar.querySelectorAll('button')];
+        bar.addEventListener('click', e => { const bt = e.target.closest('button'); if (!bt) return; script.from = +bt.dataset.i; loop(); });
+        const tick = () => { const p = Math.min(1, (performance.now() - chT) / script.chapters[chI].ms);
+          bs.forEach((bt, i) => { bt.classList.toggle('on', i === chI); bt.querySelector('b').style.width = (i < chI ? 100 : i > chI ? 0 : p * 100) + '%'; });
+          requestAnimationFrame(tick); };
+        requestAnimationFrame(tick);
+      } else script.chapter = () => {};
       let on = false;
       new IntersectionObserver(es => { const v = es[0].isIntersecting; if (v && !on) loop(); if (!v) run++; on = v; }, {threshold: .25}).observe(wrap);
     }
@@ -861,16 +1301,16 @@
         ${row('vet', 'st-check', 'Самокаты «Ветер»', 'b', 'LPP-70131 · Проверь: в доке поменялась дата — нажми Sync', 'y')}
         <div class="pa-grp"><span class="pa-cap">В работе</span></div>
         ${row('vet2', 'st-ok', 'Самокаты «Ветер»', 'b', 'LPP-70131 · 15.10 14:07 · Собрала таблицу', 'g')}
-        ${row('zer', 'st-ok', 'Кофейня «Зерно»', 'bpm', 'LPP-70112 · 15.10 14:02 · Собрала таблицу', '', true)}
+        ${row('zer', 'a-table', 'ЛЭТУАЛЬ', 'bpm', 'LPP-70231 · 15.10 14:02 · Собрала таблицу', '', true)}
         ${row('pio', 'st-ok', 'Цветы «Пион»', 'm', 'LPP-70125 · 15.10 13:31 · Собрала таблицу')}
         ${row('lip', 'st-ok', 'Аптека «Липа»', 'bm', 'LPP-70140 · 15.10 12:20 · Собрала таблицу')}
       </div></div></div></div>`;
     const trow = (nm, mats, t, k = '') => `<div class="pa-trow" data-k="${k}"><span>${nm}</span><i class="ms">${[...mats].map(m => ic(MAT[m], 10)).join('')}</i><time>${t}</time></div>`;
     const PLUGIN = `<div class="pa-plg">
       <div class="pa-blk">
-        <div class="pa-fld" id="pf"><span class="ph">Вставьте ссылку на таблицу</span><span class="vl"><i>Таблица: </i>Кофейня «Зерно»</span><span class="pa-s"><img class="em" src="${I('st-empty')}" alt=""><img class="ok" src="${I('st-ok')}" alt=""></span></div>
+        <div class="pa-fld" id="pf"><span class="ph">Вставьте ссылку на таблицу</span><span class="vl"><i>Таблица: </i>ЛЭТУАЛЬ</span><span class="pa-s"><img class="em" src="${I('st-empty')}" alt=""><img class="ok" src="${I('st-ok')}" alt=""></span></div>
         <span class="pa-cap">Таблицы</span>
-        <div style="display:flex;flex-direction:column;gap:3px">${trow('Кофейня «Зерно» (LPP-70112)', 'bpm', '14:02', 'zer')}${trow('Цветы «Пион» (LPP-70125)', 'm', '13:31')}${trow('Кино «Ракурс» (LPP-70147)', 'p', '11:42')}</div>
+        <div style="display:flex;flex-direction:column;gap:3px">${trow('ЛЭТУАЛЬ (LPP-70231)', 'bpm', '14:02', 'zer')}${trow('Цветы «Пион» (LPP-70125)', 'm', '13:31')}${trow('Кино «Ракурс» (LPP-70147)', 'p', '11:42')}</div>
         <div class="pa-chg"><b>Изменений: 4</b><div class="pa-chips"><span class="pa-chip">${ic('m-bank', 10)}макет для банка</span><span class="pa-chip">${ic('m-banner', 10)}баннер на главную</span><span class="pa-chip">${ic('m-mail', 10)}письмо</span></div><small>Строк: 3</small></div>
         <div class="pa-btn" id="pb"><span>Обновить макеты</span><i class="bar"></i></div>
         <div class="pa-aux"><div>${ic('pl-split', 18)}</div><div>${ic('pl-logo', 18)}</div></div>
@@ -881,11 +1321,31 @@
       </div></div>`;
 
     // одна сцена: панель открыта → иконка Figma → окно Figma → плагин → «Обновить макеты»
-    const FR = (k, nm, x, y, w, h, btn) => `<div class="fg-fr" data-k="${k}" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px"><span class="fg-fl">${nm}</span>
-      <div class="fg-card"><div class="fg-vis"></div><div class="fg-tx"><i class="ph"></i><i class="ph s"></i><b>Кешбэк 10% на кофе</b><em>При оплате картой Мир до 31 октября</em>${btn ? '<u>Узнать больше</u>' : ''}</div></div></div>`;
-    const FIGMA = `<div class="fg-win" id="fw"><div class="fg-top"><span class="fg-dots"><i></i><i></i><i></i></span>${ic('a-figma', 14)}<span class="fg-file">LPP-70112 Кофейня «Зерно»</span><span class="fg-pl" id="fpl">Плагины</span></div>
-      <div class="fg-body"><div class="fg-left"><span class="fg-h">Страницы</span><i class="on">Банк</i><i>Баннер</i><i>Письмо</i></div>
-        <div class="fg-canvas">${FR('b', 'Банк', 24, 36, 236, 150, true)}${FR('p', 'Баннер', 280, 36, 236, 150, true)}${FR('m', 'Письмо', 24, 222, 492, 150)}</div>
+    // макеты Лэтуаль: картинки из Figma без текстов, тексты живые — сначала из мастер-макета, после «Обновить макеты» — партнёра
+    const L = n => `assets/privet/le/${n}`;
+    const LEMAIL = `<div class="le-mail"><img class="hd" src="${L('header.png')}" alt="">
+        <div class="le-bn"><img class="m" src="${L('banner-master.jpg')}" alt=""><img class="f" src="${L('banner-letual.jpg')}" alt="Баннер письма «Лэтуаль»"></div>
+        <div class="le-body">
+          <div class="le-v m"><h4>Ремонт должен быть выгодным</h4><p>Приобретайте всё для дома, дачи, стройки и&nbsp;ремонта с&nbsp;выгодой. Получайте кешбэк 5% за&nbsp;любые покупки на&nbsp;сайте или в&nbsp;магазине ВсеИнструменты.ру при оплате картой «Мир». Получите промокод до&nbsp;5&nbsp;июля 2024.</p><u>Узнать больше</u><p>Приобретайте всё для дома, дачи, стройки и&nbsp;ремонта с&nbsp;выгодой.</p></div>
+          <div class="le-v f"><h4>Для красоты, ухода и хорошего настроения — большие скидки!</h4><p>Выберите товары на сайте магазина или в приложении «ЛЭТУАЛЬ», примените промокод, оплатите покупку картой «Мир» и&nbsp;получите скидку:</p>
+            <ul><li>25% при заказе от 4&nbsp;000&nbsp;₽;</li><li>35% при заказе от 7&nbsp;000&nbsp;₽;</li><li>45% при заказе от 12&nbsp;000&nbsp;₽.</li></ul>
+            <p>Заберите промокод до 15 декабря 2026 и&nbsp;воспользуйтесь им до 31 декабря 2026.</p><u>Забрать промокод</u></div>
+        </div><img class="ft" src="${L('footer.png')}" alt=""></div>`;
+    const LBANK = `<div class="lb-in"><img src="${L('bank.jpg')}" alt="">
+        <div class="lb-t m"><b>Всё готово к жизни дома</b><p>Получите скидку до 3&nbsp;000&nbsp;₽ в магазинах и на сайте Askona HOME по промокоду, но не более 10% от стоимости чека</p><u>Узнать больше</u></div>
+        <div class="lb-t f"><b>Всё для вашей красоты</b><p>Выберите товары на сайте магазина или в приложении «ЛЭТУАЛЬ», примените промокод, оплатите покупку картой «Мир» и получите скидку:</p>
+          <p class="ls"><span><b>25%</b> при заказе от <b>4&nbsp;000&nbsp;₽</b></span><span><b>35%</b> при заказе от <b>7&nbsp;000&nbsp;₽</b></span><span><b>45%</b> при заказе от <b>12&nbsp;000&nbsp;₽</b></span></p><u>Узнать больше</u></div>
+        <small class="lb-d m">Необходима регистрация на vamprivet.ru. Заберите промокод до 15 декабря 2026 и воспользуйтесь им до 31 декабря 2026.</small>
+        <small class="lb-d f">Перед участием в акции внимательно прочитайте условия её проведения. Необходима регистрация на vamprivet.ru. Заберите промокод до 15 декабря 2026 и воспользуйтесь им до 31 декабря 2026.</small></div>`;
+    // рамка письма обнимает содержимое: высота = высота письма × масштаб 150/720
+    const dimOf = f => Math.round(parseFloat(f.style.height) / .20833);
+    const countDim = (f, from, to) => { const d = f.querySelector('.fg-dim'), t0 = performance.now();
+      const step = () => { const p = Math.min(1, (performance.now() - t0) / 450), e = 1 - Math.pow(1 - p, 3); d.textContent = '720 × ' + Math.round(from + (to - from) * e); if (p < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); };
+    const hugMail = (a, now) => { const m = a.$('#fw .le-mail'), f = m.closest('.fg-fr'); if (now) f.style.transition = 'none'; f.style.height = Math.round(m.offsetHeight * .20833) + 'px'; if (now) { void f.offsetWidth; f.style.transition = ''; } };
+    const FR = (k, nm, x, y, w, h, inner) => `<div class="fg-fr" data-k="${k}" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px"><span class="fg-fl">${nm}</span><div class="fg-card">${inner}</div></div>`;
+    const FIGMA = `<div class="fg-win" id="fw"><div class="fg-top"><span class="fg-dots"><i></i><i></i><i></i></span>${ic('a-figma', 14)}<span class="fg-file">LPP-70231 ЛЭТУАЛЬ</span><span class="fg-pl" id="fpl">Плагины</span></div>
+      <div class="fg-body"><div class="fg-left"><span class="fg-h">Страницы</span><i class="on">Банк</i><i>Письмо</i></div>
+        <div class="fg-canvas">${FR('b', 'Банк · 1920 × 1080', 24, 36, 320, 180, LBANK)}${FR('m', 'Письмо · 720', 368, 36, 150, 354, LEMAIL).slice(0, -6) + '<i class="fg-hs"><b></b><b></b><b></b><b></b></i><span class="fg-dim">720 × 1277</span></div>'}</div>
         <div class="fg-right"><span class="fg-h">Дизайн</span><i></i><i></i><i class="s"></i><i></i><i class="s"></i></div></div>
       <div class="fg-menu" id="fmenu"><i>Недавние</i><i class="hl">Privet Sync</i><i>Найти плагины…</i></div>
       <div class="fg-plg" id="fplg"><div class="fg-ph"><b>Privet Sync</b><span>✕</span></div>${PLUGIN}</div></div>`;
@@ -895,14 +1355,17 @@
         <div class="pa-grp"><span class="pa-cap">Нужно поправить</span></div>
         ${row('abz', 'st-fix', 'Книжный «Абзац»', 'bp', 'LPP-70118 · 15.10 13:48 · В папке нет баннера webp')}
         ${row('vet', 'st-check', 'Самокаты «Ветер»', 'b', 'LPP-70131 · Проверь: в доке поменялась дата — нажми Sync', 'y')}
+        ${row('zer', 'st-fix', 'ЛЭТУАЛЬ', 'bpm', 'LPP-70231 · 15.10 14:02 · В папке нет макетов', '', true)}
         <div class="pa-grp"><span class="pa-cap">В работе</span></div>
         ${row('vet2', 'st-ok', 'Самокаты «Ветер»', 'b', 'LPP-70131 · 15.10 14:07 · Собрала таблицу', 'g')}
-        ${row('zer', 'st-ok', 'Кофейня «Зерно»', 'bpm', 'LPP-70112 · 15.10 14:02 · Собрала таблицу', '', true)}
+        ${row('zok', 'st-ok', 'ЛЭТУАЛЬ', 'bpm', 'LPP-70231 · 15.10 14:38 · Макеты обновлены, папка собрана', 'g')}
         ${row('pio', 'st-ok', 'Цветы «Пион»', 'm', 'LPP-70125 · 15.10 13:31 · Собрала таблицу')}
         ${row('lip', 'st-ok', 'Аптека «Липа»', 'bm', 'LPP-70140 · 15.10 12:20 · Собрала таблицу')}
       </div></div></div>${FIGMA}<div class="pa-ann" id="ann"><svg width="1200" height="700"></svg></div></div>`;
     const wc = document.getElementById('paLink');
-    if (wc) stage(wc, 1200, 700, SCREEN, {
+    const CH = ['Панель задач', 'Макет в Figma', 'Плагин', 'Обновить макеты', 'Готово'], DUR = [10300, 4300, 5200, 11500, 7000];
+    const scr = {
+      chapters: CH.map((t, i) => ({t, ms: DUR[i]})),
       // выноска: подпись сбоку + линии к элементам интерфейса
       note(a, side, y, html, els){ const L = a.$('#ann'), svg = L.querySelector('svg'), d = document.createElement('div');
         d.className = 'pa-note ' + side; d.innerHTML = html; d.style.top = y + 'px'; L.appendChild(d);
@@ -925,7 +1388,8 @@
         // статусы таблиц
         await go(st('abz'), '<b>Нужно поправить</b> — в папке чего-то не хватает', .5, 900);
         await go(st('vet'), '<b>Проверь</b> — в доке поменялся текст или дата', .5, 500);
-        await go(st('zer'), '<b>Готово</b> — таблица собрана, всё на месте', .5, 500);
+        await go(st('pio'), '<b>Готово</b> — в папке все файлы, макеты свежее таблицы', .5, 500);
+        await go(st('zer'), '<b>Нужно поправить</b> — макетов в папке ещё нет', .5, 500);
         // материалы и кнопки акции
         const z = R('zer'), mats = z.querySelector('.nm img:last-of-type');
         await go(mats, 'Материалы акции: <b>банк · баннер · письмо</b>', .5, 600);
@@ -935,44 +1399,260 @@
       open(a, fast){ const p = a.$('.pa-pan'); if (fast) { p.style.transition = 'none'; } p.classList.add('open'); p.style.height = a.$('.pa-in').scrollHeight + 'px';
         if (fast) { void p.offsetWidth; p.style.transition = ''; } },
       close(a){ const p = a.$('.pa-pan'); p.style.height = ''; p.classList.remove('open'); },
-      reset(a){ a.$('[data-k="vet"]').classList.remove('gone'); a.$('[data-k="vet2"]').classList.add('gone');
+      closeNow(a){ const p = a.$('.pa-pan'); p.style.transition = 'none'; this.close(a); void p.offsetWidth; p.style.transition = ''; },
+      reset(a){ a.$('[data-k="vet"]').classList.remove('gone'); a.$('[data-k="vet2"]').classList.add('gone'); a.$('[data-k="zer"]').classList.remove('gone'); a.$('[data-k="zok"]').classList.add('gone');
         a.st.querySelectorAll('.pa-row').forEach(r => r.classList.remove('hov'));
         this.clearNotes(a); this.untip(a); ['#fw', '#fmenu', '#fplg'].forEach(q => a.$(q).classList.remove('on')); a.$('#fpl').classList.remove('hl');
-        a.st.querySelectorAll('.fg-fr').forEach(f => f.classList.remove('on', 'sel'));
+        a.st.querySelectorAll('.fg-fr').forEach(f => f.classList.remove('on', 'sel', 'pick')); a.$('#fw .le-mail').classList.remove('fix'); hugMail(a, true);
         const f = a.$('#pf'); f.classList.remove('on', 'wait'); f.querySelector('.ph').textContent = 'Вставьте ссылку на таблицу'; a.$('.pa-trow[data-k="zer"]').classList.remove('sel');
         a.$('.pa-chg').classList.remove('on'); const b = a.$('#pb'); b.classList.remove('run', 'press'); b.firstChild.textContent = 'Обновить макеты';
-        this.open(a, true); a.cam(280); },
-      final(a){ this.reset(a); a.cam(560); a.$('#fw').classList.add('on'); a.$('#fplg').classList.add('on'); a.$('#pf').classList.add('on');
-        a.$('.pa-trow[data-k="zer"]').classList.add('sel'); a.$('.pa-chg').classList.add('on'); a.st.querySelectorAll('.fg-fr').forEach(f => f.classList.add('on')); },
+        this.closeNow(a); a.cam(190, 0, 820, true); },
+      final(a){ this.reset(a); a.cam(50, 40, 1100); a.$('#fw').classList.add('on'); a.$('#fplg').classList.add('on'); a.$('#pf').classList.add('on');
+        a.$('.pa-trow[data-k="zer"]').classList.add('sel'); a.$('.pa-chg').classList.add('on'); a.st.querySelectorAll('.fg-fr').forEach(f => f.classList.add('on')); a.$('#fw .le-mail').classList.add('fix'); hugMail(a, true); },
+      from: 0,
       async play(a, id){
-        this.reset(a); a.move({x: 980, y: 600}, 0); await a.wait(700, id);
-        await this.tour(a, id);
-        // 1. панель открыта; система сама закрыла правку «Ветра»
-        a.$('[data-k="vet"]').classList.add('gone'); a.$('[data-k="vet2"]').classList.remove('gone'); setTimeout(() => this.open(a), 460); await a.wait(1300, id);
-        // 2. иконка Figma у акции — открывается её макет
+        const from = this.from || 0; this.from = 0;
+        this.reset(a); a.move({x: 700, y: 360}, 0);
+        const w = a.$('#fw'), b = a.$('#pb');
+        if (from === 0) {
+          this.chapter(0); await a.wait(600, id);
+          // 0. панель спрятана в вырезе — курсор к вырезу, панель раскрывается вниз
+          a.move({x: 600, y: 14}, 900); await a.wait(950, id); this.open(a); await a.wait(1100, id);
+          await this.tour(a, id);
+          // система сама закрыла правку «Ветра»
+          a.$('[data-k="vet"]').classList.add('gone'); a.$('[data-k="vet2"]').classList.remove('gone'); setTimeout(() => this.open(a), 460); await a.wait(1300, id);
+        } else { this.open(a, true); a.$('[data-k="vet"]').classList.add('gone'); a.$('[data-k="vet2"]').classList.remove('gone'); this.open(a, true); }
+        if (from <= 1) {
+        this.chapter(1);
+        // 1. иконка Figma у акции — открывается её макет
         const z = a.$('.pa-row[data-k="zer"]'); z.classList.add('hov'); await a.wait(150, id);
         const fg = z.querySelector('.pa-c:last-child'), o = a.at(fg); a.move(o, 600); await a.wait(660, id);
         this.tip(a, fg, 'Открыть <b>макет в Figma</b>'); await a.wait(1100, id); this.untip(a);
-        a.click(); const w = a.$('#fw'); w.style.setProperty('--ox', (o.x - 50) + 'px'); w.style.setProperty('--oy', (o.y - 64) + 'px');
-        await a.wait(150, id); w.classList.add('on'); this.close(a); z.classList.remove('hov'); await a.wait(500, id); a.cam(560); await a.wait(700, id);
+        a.click(); w.style.setProperty('--ox', (o.x - 50) + 'px'); w.style.setProperty('--oy', (o.y - 64) + 'px');
+        await a.wait(150, id); w.classList.add('on'); this.close(a); z.classList.remove('hov'); await a.wait(500, id); a.cam(50, 40, 1100); await a.wait(700, id);
+        } else { this.closeNow(a); w.classList.add('on'); a.cam(50, 40, 1100, true); a.move({x: 700, y: 360}, 0); }
+        if (from <= 2) {
+        this.chapter(2);
         // 3. в Figma: Плагины → Privet Sync
         const pl = a.$('#fpl'); a.move(a.at(pl), 900); await a.wait(950, id); a.click(); pl.classList.add('hl'); a.$('#fmenu').classList.add('on'); await a.wait(500, id);
         const it = a.$('#fmenu .hl'); a.move(a.at(it, .4), 500); await a.wait(600, id); a.click(); await a.wait(120, id);
-        a.$('#fmenu').classList.remove('on'); pl.classList.remove('hl'); a.$('#fplg').classList.add('on'); await a.wait(500, id);
+        a.$('#fmenu').classList.remove('on'); pl.classList.remove('hl'); a.$('#fplg').classList.add('on'); a.cam(340, 100, 860); await a.wait(900, id);
         // таблица акции подключается сама
         const pf = a.$('#pf'), ph = pf.querySelector('.ph'); ph.textContent = 'Ищу таблицу акции…'; pf.classList.add('wait'); await a.wait(1100, id);
         pf.classList.remove('wait'); pf.classList.add('on'); a.$('.pa-trow[data-k="zer"]').classList.add('sel');
-        this.tip(a, pf, 'Таблица <b>подключилась сама</b> — по номеру задачи LPP-70112'); await a.wait(1900, id); this.untip(a);
-        a.$('.pa-chg').classList.add('on'); await a.wait(1000, id);
+        this.tip(a, pf, 'Таблица <b>подключилась сама</b> — по номеру задачи LPP-70231'); await a.wait(1900, id); this.untip(a);
+        } else { a.$('#fplg').classList.add('on'); a.$('#pf').classList.add('on'); a.$('.pa-trow[data-k="zer"]').classList.add('sel'); a.cam(340, 100, 860, true); a.move({x: 900, y: 300}, 0); }
+        if (from <= 3) {
+        this.chapter(3);
         // 4. одна кнопка — тексты во всех макетах
-        const b = a.$('#pb'); a.move(a.at(b, .55), 900); await a.wait(950, id);
+        a.move(a.at(b, .55), 900); await a.wait(950, id);
         a.click(); b.classList.add('press'); await a.wait(150, id); b.classList.remove('press');
         b.classList.add('run'); b.firstChild.textContent = 'Обновляю макеты…';
         const frs = [...a.st.querySelectorAll('.fg-fr')];
-        for (const f of frs) { await a.wait(330, id); f.classList.add('sel', 'on'); setTimeout(() => f.classList.remove('sel'), 600); }
-        await a.wait(250, id); b.classList.remove('run'); b.firstChild.textContent = 'Макеты обновлены'; await a.wait(2400, id);
-        a.move({x: 980, y: 600}, 900); await a.wait(500, id); w.classList.remove('on'); a.$('#fplg').classList.remove('on'); await a.wait(900, id);
-      }});
+        a.cam(50, 40, 1100); await a.wait(500, id);
+        for (const f of frs) { await a.wait(420, id); f.classList.add('sel', 'on'); const m = f.querySelector('.le-mail'); if (m) m.classList.add('fix'); setTimeout(() => f.classList.remove('sel'), 600); }
+        await a.wait(700, id);
+        b.classList.remove('run'); b.firstChild.textContent = 'Макеты обновлены'; a.$('.pa-chg').classList.add('on'); await a.wait(1200, id);
+        // рамка письма подстраивается под новый текст — показываем это крупно
+        const mf = a.$('#fw .fg-fr[data-k="m"]'), mp = a.at(mf, .5, 0); a.cam(mp.x - 330, mp.y - 30, 660); await a.wait(1000, id);
+        mf.querySelector('.fg-dim').textContent = '720 × ' + dimOf(mf); mf.classList.add('pick'); await a.wait(700, id);
+        const h0 = dimOf(mf); hugMail(a); countDim(mf, h0, dimOf(mf)); await a.wait(650, id);
+        await a.wait(1400, id); mf.classList.remove('pick');
+        // в письме скидки встали пунктами — камера к ним
+        const ul = a.$('#fw .le-v.f ul'), up = a.at(ul, 0, .5); a.cam(up.x - 60, up.y - 150, 440); await a.wait(1100, id);
+        a.move(a.at(ul, .2, .5), 600); await a.wait(650, id); this.tip(a, ul, 'В письме скидки — <b>пунктами списка</b>');
+        const t = a.$('.pa-tip'), lp = a.at(ul, 0, 1); t.classList.remove('r'); t.style.left = (lp.x + 14) + 'px'; await a.wait(2300, id); this.untip(a);
+        a.cam(50, 40, 1100); await a.wait(700, id);
+        } else { a.$('#fplg').classList.add('on'); a.$('#pf').classList.add('on'); a.$('.pa-trow[data-k="zer"]').classList.add('sel'); a.$('.pa-chg').classList.add('on');
+          b.firstChild.textContent = 'Макеты обновлены'; a.st.querySelectorAll('.fg-fr').forEach(f => f.classList.add('on')); a.$('#fw .le-mail').classList.add('fix'); hugMail(a, true); a.cam(50, 40, 1100, true); a.move({x: 900, y: 400}, 0); }
+        this.chapter(4);
+        // 5. окно Figma закрыто — в панели задач ЛЭТУАЛЬ перешла в готовые
+        a.move({x: 980, y: 600}, 900); await a.wait(500, id); w.classList.remove('on'); a.$('#fplg').classList.remove('on'); a.cam(190, 0, 820); await a.wait(900, id);
+        a.$('[data-k="zer"]').classList.add('gone'); a.$('[data-k="zok"]').classList.remove('gone');
+        a.move({x: 600, y: 14}, 800); await a.wait(850, id); this.open(a); await a.wait(500, id); this.open(a); await a.wait(500, id);
+        const ok = a.$('[data-k="zok"] .pa-st'); a.move(a.at(ok, .5, .55), 700); await a.wait(760, id);
+        this.tip(a, ok, 'ЛЭТУАЛЬ — <b>в готовых</b>: макеты обновлены, папка собрана'); await a.wait(2400, id); this.untip(a);
+        a.move({x: 700, y: 600}, 700); await a.wait(400, id); this.close(a); await a.wait(900, id);
+      }};
+    if (wc) stage(wc, 1200, 700, SCREEN, scr);
+
+    // ---------- живые сцены остальных блоков (002–008): та же обвязка stage(), главы и камера ----------
+    // общие подсказки: под элементом, у правого края — влево
+    const skTip = (a, el, html) => { let t = a.$('.pa-tip'); if (!t) { t = document.createElement('div'); t.className = 'pa-tip'; a.st.appendChild(t); }
+      t.innerHTML = html; const p = a.at(el, .5, 1), v = a.view(); t.style.left = p.x + 'px'; t.style.top = (p.y + 8) + 'px'; t.classList.toggle('r', p.x > v.x + v.w * .5);
+      t.classList.remove('on'); void t.offsetWidth; t.classList.add('on'); };
+    const skUntip = a => { const t = a.$('.pa-tip'); if (t) t.classList.remove('on'); };
+    // сценарий из глав: run — анимация, set — конечное состояние главы (для перемотки)
+    const chapters = (steps, reset) => ({
+      chapters: steps.map(s => ({t: s.t, ms: s.ms})), from: 0, init: a => reset(a),
+      final(a){ reset(a); steps.forEach(s => s.set && s.set(a)); },
+      async play(a, id){ const from = this.from || 0; this.from = 0; a.st.classList.add('nt'); reset(a); void a.st.offsetWidth; a.st.classList.remove('nt');
+        for (let i = 0; i < steps.length; i++) { if (i < from) { steps[i].set && steps[i].set(a); continue; } this.chapter(i); await steps[i].run(a, id); }
+        await a.wait(400, id); }
+    });
+    const go = async (a, id, el, fx = .5, fy = .5, ms = 700) => { a.move(a.at(el, fx, fy), ms); await a.wait(ms + 60, id); };
+    const press = async (a, id, el) => { a.click(); el.classList.add('press'); setTimeout(() => el.classList.remove('press'), 150); };
+
+    // окно Figma с одним макетом и плагином справа
+    const SKPLG = `<div class="ga-plg"><div class="fg-ph"><b>Privet Sync</b><span>✕</span></div><div class="pa-plg"><div class="pa-blk">
+        <div class="pa-fld on"><span class="ph">Вставьте ссылку на таблицу</span><span class="vl"><i>Таблица: </i>Кофейня «Зерно»</span><span class="pa-s"><img class="em" src="${I('st-empty')}" alt=""><img class="ok" src="${I('st-ok')}" alt=""></span></div>
+        <span class="pa-cap">Таблицы</span>
+        <div style="display:flex;flex-direction:column;gap:3px">${trow('Кофейня «Зерно» (LPP-70112)', 'bpm', '14:02').replace('class="pa-trow"', 'class="pa-trow sel"')}${trow('Цветы «Пион» (LPP-70125)', 'm', '13:31')}</div>
+        <div class="pa-btn sk-up"><span>Обновить макеты</span><i class="bar"></i></div>
+        <div class="pa-aux"><div class="sk-lg" data-tip="Поправить логотипы">${ic('pl-split', 18)}</div><div class="sk-vs" data-tip="Поправить визуал">${ic('pl-logo', 18)}</div></div></div>
+        <div class="sk-msg"><i></i><span>Готово к обновлению</span></div></div></div>`;
+    const skFigma = (label, card) => `<div class="sk-scr ga"><span class="sk-fl ga-fl">${label}</span><div class="sk-fr">${card}</div>${SKPLG}</div>`;
+    const msg = (a, text, kind = '') => { const m = a.$('.sk-msg'); m.className = 'sk-msg ' + kind; m.querySelector('span').textContent = text; };
+    const resetPlg = a => { msg(a, 'Готово к обновлению'); const b = a.$('.sk-up'); b.classList.remove('run'); b.firstChild.textContent = 'Обновить макеты'; };
+    const FOCUS_FR = [0, 30, 700], FOCUS_PLG = [380, 20, 660];
+
+    // 002 — логотипы: баннер Tutu.ru — логотип пришёл на плашке, плагин убирает фон и ставит его по строке логотипов
+    const wLogo = document.getElementById('skLogo');
+    if (wLogo) {
+      const TUTU = `<path d="M47.6771 81.9634H37.8317C37.4228 81.9634 37.1578 82.1315 37.1578 82.575V84.4326C37.1915 84.7577 37.1535 85.0863 37.0465 85.3946C36.9395 85.703 36.766 85.9835 36.5384 86.2161C36.3111 86.4486 36.0353 86.6272 35.7312 86.7391C35.4269 86.8511 35.102 86.8937 34.7797 86.8638C34.4556 86.8942 34.1287 86.8522 33.8225 86.741C33.516 86.6296 33.2379 86.4518 33.0074 86.2198C32.7768 85.9878 32.5995 85.7073 32.4882 85.3984C32.3773 85.0898 32.3347 84.7599 32.3639 84.4326V79.494C32.3644 79.426 32.3791 79.3588 32.4072 79.2971C32.4356 79.235 32.4762 79.18 32.527 79.1352C32.5778 79.0904 32.6375 79.057 32.7022 79.037C32.7667 79.0173 32.8346 79.0114 32.9014 79.0203H45.0947C45.5338 79.0203 45.7686 78.8519 45.7686 78.4084V70.7638C45.7686 70.3281 45.5338 70.1598 45.0947 70.1598H32.8637C32.5305 70.1598 32.3259 70.0222 32.3259 69.6861V64.8467C32.3259 64.3727 32.0911 64.2047 31.6594 64.2047H21.8141C21.4354 64.2047 21.1703 64.3727 21.1703 64.8162V69.6861C21.1703 70.0222 20.9659 70.1598 20.6327 70.1598H18.0501C17.6487 70.1598 17.3837 70.3205 17.3837 70.7638V78.4084C17.3837 78.8519 17.6487 79.0203 18.0501 79.0203H20.6327C20.9659 79.0203 21.1703 79.1579 21.1703 79.494V84.4326C21.1703 92.2073 26.9035 97.9256 34.7417 97.9256C42.5802 97.9256 48.3133 92.2073 48.3133 84.4326V82.6055C48.3133 82.1315 48.0785 81.9634 47.6771 81.9634Z"/><path d="M76.63 70.1598H66.7847C66.3832 70.1598 66.1182 70.3281 66.1182 70.7638V84.4326C66.0837 85.0547 65.8147 85.6401 65.3659 86.0682C64.9174 86.4964 64.3234 86.7348 63.7062 86.7348C63.0889 86.7348 62.4949 86.4964 62.0464 86.0682C61.5976 85.6401 61.3286 85.0547 61.2941 84.4326V70.8021C61.2941 70.3281 61.0593 70.1598 60.6199 70.1598H50.7745C50.3731 70.1598 50.1006 70.3281 50.1006 70.7638V84.4326C50.1006 92.2073 55.8337 97.9256 63.6722 97.9256C71.5106 97.9256 77.2435 92.2073 77.2435 84.4326V70.8021C77.2965 70.3206 77.0619 70.1598 76.63 70.1598Z"/><path d="M142.132 70.091H132.083C131.583 70.091 131.378 70.2289 131.242 70.7026L127.198 84.5702C127.014 85.2465 126.61 85.8408 126.051 86.2571C125.491 86.6731 124.81 86.887 124.115 86.8638C122.873 86.8638 121.843 86.0534 122.275 84.4631L126.327 70.8709C126.493 70.3281 126.258 70.1064 125.721 70.1064H115.466C115.276 70.0816 115.082 70.1307 114.926 70.2442C114.77 70.3581 114.663 70.5272 114.626 70.7179L111.036 83.1941C108.325 92.5972 114.656 97.941 122.434 97.941C131.075 97.941 136.24 93.6447 138.785 84.7844L142.768 70.8863C142.905 70.3969 142.738 70.091 142.132 70.091Z"/><path d="M109.294 70.1598H97.4039C97.0024 70.1598 96.8283 69.9917 96.9647 69.579L98.4792 64.7474C98.5779 64.4415 98.4792 64.2047 98.146 64.2047H88.1191C87.6192 64.2047 87.4146 64.3039 87.2782 64.7779L85.7108 69.6861C85.683 69.8387 85.5966 69.9742 85.4703 70.0629C85.3441 70.1519 85.1882 70.1867 85.0365 70.1598H82.3255C81.8559 70.1598 81.621 70.2898 81.4847 70.7333L79.3414 78.1411C79.1748 78.7527 79.243 79.0203 79.811 79.0203H82.4239C82.7948 79.0203 82.9238 79.2188 82.8556 79.5631L82.0982 82.705C79.6444 92.6813 85.5441 97.9256 92.913 97.9256C100.282 97.9256 106.113 93.7364 108.264 86.2215L109.241 82.8426C109.408 82.2998 109.241 82.0781 108.666 82.0781H99.0473C98.8451 82.0481 98.6386 82.0937 98.4672 82.2062C98.2958 82.319 98.1709 82.4908 98.1158 82.6897L97.5403 84.5473C97.3894 85.24 97.0048 85.8581 96.452 86.2959C95.8995 86.734 95.2132 86.9644 94.5109 86.9477C93.2082 86.9477 92.2995 86.1831 92.7691 84.5168L94.2079 79.4711C94.3141 79.173 94.4427 79.0354 94.9124 79.0354H106.78C107.446 79.0354 107.681 78.8978 107.848 78.2709L109.93 70.9321C110.104 70.3969 109.93 70.1598 109.294 70.1598Z"/>`, MIR = `<path d="M156.695 29.3622V61.7961H176.448V43.5521H196.317C206.714 43.5521 215.551 37.6445 218.958 29.3622H156.695Z" fill="#006848"/><path d="M212.896 5.73409C209.026 2.20112 203.943 0.000244141 198.283 0.000244141H155.831C155.889 1.67986 156.178 3.24363 156.524 4.80741C156.64 5.15492 156.697 5.50242 156.813 5.84993C156.871 5.96576 156.871 6.13952 156.928 6.25535C160.452 17.4335 170.906 25.5998 183.208 25.5998H219.653C219.884 24.3257 220 23.0515 220 21.7773C220 15.4063 217.228 9.73041 212.896 5.73409Z" fill="#1C7FE8"/><path d="M121.753 6.54494L107.949 36.5463H106.563V0.000244141H86.925V61.8563H103.559C107.949 61.8563 111.934 59.3079 113.725 55.3116L127.529 25.3103H128.915V61.8563H148.553V0.000244141H131.918C127.529 0.000244141 123.601 2.54862 121.753 6.54494Z" fill="#006848"/><path d="M30.3806 8.10847L38.5822 36.546H39.9684L48.1123 8.10847C49.4984 3.30131 53.888 0 58.913 0H78.4929V61.8561H58.8552V25.31H57.469L46.264 61.8561H32.2289L21.0238 25.31H19.6377V61.8561H0V0H19.5799C24.6048 0 28.9944 3.30131 30.3806 8.10847Z" fill="#006848"/>`;
+      const card = `<div class="tt-bn"><img class="bg" src="assets/privet/tt/banner.jpg" alt="">
+        <div class="tt-tx"><b>В дорогу со скидкой</b><span>Скидка до 1 000 ₽ на билеты на поезд на tutu.ru при оплате картой «Мир»</span><u>Узнать больше</u></div>
+        <small class="tt-dc">Необходима регистрация на vamprivet.ru. Акция действует до 31 декабря 2026</small>
+        <div class="tt-logos"><svg class="mir" viewBox="0 0 220 62">${MIR}</svg><i></i><span class="pt"><svg viewBox="17.38 64.2 125.43 33.73">${TUTU}</svg></span><i></i><em>Лого банка</em></div></div>`;
+      const html = skFigma('Баннер · 1920 × 1080', card).replace(/Кофейня «Зерно» \(LPP-70112\)/, 'Tutu.ru (LPP-68809)').replace('<i>Таблица: </i>Кофейня «Зерно»', '<i>Таблица: </i>Tutu.ru');
+      const reset = a => { a.$('.tt-logos').classList.remove('fix'); resetPlg(a); skUntip(a); a.cam(...FOCUS_FR, true); a.move({x: 420, y: 330}, 0); };
+      stage(wLogo, 1040, 624, html, chapters([
+        {t: 'Логотип на плашке', ms: 3200, run: async (a, id) => { await a.wait(500, id); const t = a.$('.tt-logos .pt'); await go(a, id, t);
+          skTip(a, t, 'Логотип пришёл <b>на плашке</b> — мелкий и чужой'); await a.wait(2000, id); skUntip(a); }},
+        {t: 'Поправить логотипы', ms: 2600, set: a => a.cam(...FOCUS_PLG, true), run: async (a, id) => { a.cam(...FOCUS_PLG); await a.wait(600, id);
+          const b = a.$('.sk-lg'); await go(a, id, b); b.classList.add('ga-on'); await a.wait(900, id); b.classList.remove('ga-on'); await press(a, id, b);
+          msg(a, 'Убираю фон логотипа…', 'w'); await a.wait(500, id); }},
+        {t: 'Готово', ms: 3800, set: a => { a.$('.tt-logos').classList.add('fix'); msg(a, 'Логотипы поправлены: 1', 'ok'); a.cam(...FOCUS_FR, true); },
+          run: async (a, id) => { a.cam(...FOCUS_FR); await a.wait(700, id); a.$('.tt-logos').classList.add('fix'); msg(a, 'Логотипы поправлены: 1', 'ok'); await a.wait(1000, id);
+          const t = a.$('.tt-logos .pt'); await go(a, id, t, .5, .5, 600); skTip(a, t, 'Без плашки — <b>по высоте строки</b> логотипов'); await a.wait(2100, id); skUntip(a); }},
+      ], reset)); }
+
+    // 003 — визуал: настоящий баннер «Золотое яблоко» (слои из Figma) и настоящее окно плагина
+    const wVis = document.getElementById('skVis');
+    if (wVis) {
+      const G = n => `assets/privet/ga/${n}`;
+      const html = `<div class="sk-scr ga"><span class="sk-fl ga-fl">Баннер · 1920 × 1080</span>
+        <div class="ga-bn"><img class="bg" src="${G('bg.jpg')}" alt=""><img class="tb" src="${G('text_button.png')}" alt=""><img class="dl" src="${G('disclaimer_logo.png')}" alt=""><img class="vi" src="${G('visual.png')}" alt="Визуал баннера"></div>
+        <div class="ga-plg"><div class="fg-ph"><b>Privet Sync</b><span>✕</span></div><div class="pa-plg">
+          <div class="pa-blk">
+            <div class="pa-fld on"><span class="ph">Вставьте ссылку на таблицу</span><span class="vl"><i>Таблица: </i>Золотое яблоко</span><span class="pa-s"><img class="em" src="${I('st-empty')}" alt=""><img class="ok" src="${I('st-ok')}" alt=""></span></div>
+            <span class="pa-cap">Таблицы</span>
+            <div style="display:flex;flex-direction:column;gap:3px">${trow('Золотое яблоко (LPP-70188)', 'bp', '14:20', 'ga').replace('class="pa-trow"', 'class="pa-trow sel"')}${trow('Кофейня «Зерно» (LPP-70112)', 'bpm', '14:02')}</div>
+            <div class="pa-btn"><span>Обновить макеты</span><i class="bar"></i></div>
+            <div class="pa-aux"><div class="ga-lg">${ic('pl-split', 18)}</div><div class="ga-vs" data-tip="Поправить визуал">${ic('pl-logo', 18)}</div></div>
+          </div>
+          <div class="sk-msg"><i></i><span>Готово к обновлению</span></div>
+        </div></div></div>`;
+      const reset = a => { a.$('.ga-bn').classList.remove('fix'); msg(a, 'Готово к обновлению'); a.$('.ga-vs').classList.remove('ga-on'); skUntip(a);
+        a.cam(0, 30, 700, true); a.move({x: 520, y: 360}, 0); };
+      const BN = [0, 30, 700], PL = [380, 20, 660];
+      stage(wVis, 1040, 624, html, chapters([
+        {t: 'Визуал налез', ms: 3000, run: async (a, id) => { await a.wait(500, id); const v = a.$('.ga-bn .vi'); await go(a, id, v, .35, .45);
+          skTip(a, a.$('.ga-bn .tb'), 'Картинка <b>налезла на текст</b>'); await a.wait(1900, id); skUntip(a); }},
+        {t: 'Поправить визуал', ms: 2800, set: a => a.cam(...PL, true), run: async (a, id) => { a.cam(...PL); await a.wait(700, id);
+          const b = a.$('.ga-vs'); await go(a, id, b); b.classList.add('ga-on'); await a.wait(900, id); b.classList.remove('ga-on'); await press(a, id, b);
+          msg(a, 'Ищу свободную зону…', 'w'); await a.wait(500, id); }},
+        {t: 'Готово', ms: 3800, set: a => { a.$('.ga-bn').classList.add('fix'); msg(a, 'Визуал на месте: 1', 'ok'); a.cam(...BN, true); },
+          run: async (a, id) => { a.cam(...BN); await a.wait(700, id); a.$('.ga-bn').classList.add('fix'); msg(a, 'Визуал на месте: 1', 'ok'); await a.wait(1000, id);
+          const v = a.$('.ga-bn .vi'); await go(a, id, v, .62, .55, 600); skTip(a, v, 'Картинка в <b>свободной зоне</b>'); await a.wait(2100, id); skUntip(a); }},
+      ], reset)); }
+
+    // 005 — знак ₽
+    const wRub = document.getElementById('skRub');
+    if (wRub) { const reset = a => { a.$('.sk-card').classList.remove('fix'); resetPlg(a); skUntip(a); a.cam(...FOCUS_FR, true); a.move({x: 420, y: 330}, 0); };
+      stage(wRub, 1040, 624, skFigma('Банк · 1080 × 1080', `<div class="sk-card rub"><b class="t">Кешбэк до 500 <s>₽</s><i>□</i></b><em>За покупки в кофейнях при оплате картой «Мир»</em></div>`), chapters([
+        {t: 'Нет знака ₽', ms: 3000, run: async (a, id) => { await a.wait(500, id); const r = a.$('.rub i'); await go(a, id, r);
+          skTip(a, r, 'В шрифте макета <b>нет знака рубля</b>'); await a.wait(1900, id); skUntip(a); }},
+        {t: 'Обновить макеты', ms: 3200, set: a => { a.cam(...FOCUS_PLG, true); msg(a, 'Нет ₽ в шрифте — перерисовываю', 'w'); }, run: async (a, id) => { a.cam(...FOCUS_PLG); await a.wait(500, id);
+          const b = a.$('.sk-up'); await go(a, id, b, .55); await press(a, id, b); b.classList.add('run'); b.firstChild.textContent = 'Обновляю макеты…';
+          await a.wait(500, id); msg(a, 'Нет ₽ в шрифте — перерисовываю', 'w'); const m = a.$('.sk-msg'); await go(a, id, m, .4, .5, 500); await a.wait(1200, id); }},
+        {t: 'Готово', ms: 3400, set: a => { a.$('.sk-card').classList.add('fix'); msg(a, 'Знак ₽ на месте', 'ok'); const b = a.$('.sk-up'); b.classList.remove('run'); b.firstChild.textContent = 'Макеты обновлены'; a.cam(...FOCUS_FR, true); },
+          run: async (a, id) => { const b = a.$('.sk-up'); b.classList.remove('run'); b.firstChild.textContent = 'Макеты обновлены'; msg(a, 'Знак ₽ на месте', 'ok');
+          a.cam(...FOCUS_FR); await a.wait(400, id); a.$('.sk-card').classList.add('fix'); await a.wait(700, id);
+          const r = a.$('.rub s'); await go(a, id, r, .5, .5, 600); skTip(a, r, 'Знак <b>перерисован</b>, остальное без изменений'); await a.wait(2000, id); skUntip(a); }},
+      ], reset)); }
+
+    // 006 — автодайджест: док → панель задач → папка с баннерами
+    const wDig = document.getElementById('skDigest');
+    if (wDig) {
+      const DIG = ['автодайджест 02.10+09.10', 'автодайджест 16.10+23.10', 'автодайджест ЯНАО 05.10+19.10'];
+      const html = `<div class="sk-scr dg"><div class="pa-menu"></div><div class="pa-notch" style="left:358px"></div>
+        <div class="sk-doc"><div class="dh">${ic('a-gdoc', 14)}<b>Автодайджест октябрь — тексты</b></div>
+          <p><i>баннер:</i> Осенний шопинг с выгодой</p><p><i>баннер:</i> Осень с кешбэком</p><p><i>баннер:</i> Осенний кешбэк с «Морошкой»</p></div>
+        <div class="pa-pan"><div class="pa-in"><div class="pa-hd"><span class="pa-cap">Таблицы</span></div><div class="pa-list">
+          <div class="pa-row sk-new"><span class="pa-st">${ic('st-ok', 13)}</span><div class="tx"><div class="nm">Автодайджест октябрь${ic('m-mail', 9)}</div><div class="sb g">15.10 14:10 · Собрала баннеры — 3 шт.</div></div><div class="pa-acts"><span class="sk-open">Открыть баннеры</span></div></div>
+          ${row('zer', 'st-ok', 'Кофейня «Зерно»', 'bpm', 'LPP-70112 · 15.10 14:02 · Собрала таблицу')}
+          ${row('pio', 'st-ok', 'Цветы «Пион»', 'm', 'LPP-70125 · 15.10 13:31 · Собрала таблицу')}
+        </div></div></div>
+        <div class="sk-finder"><div class="fh"><span class="fg-dots"><i></i><i></i><i></i></span><b>автодайджест октябрь</b></div>
+          <div class="fb">${DIG.map((n, i) => `<figure><img src="assets/privet/digest-${i + 1}.jpg" alt=""><figcaption>${n}.png</figcaption></figure>`).join('')}</div></div></div>`;
+      const P = (a, on, now) => { const p = a.$('.pa-pan'); if (now) p.style.transition = 'none';
+        if (on) { p.classList.add('open'); p.style.height = a.$('.pa-in').scrollHeight + 'px'; } else { p.classList.remove('open'); p.style.height = ''; }
+        if (now) { void p.offsetWidth; p.style.transition = ''; } };
+      const reset = a => { P(a, false, true); a.$('.sk-new').classList.add('gone'); a.$('.sk-finder').classList.remove('on'); a.$('.sk-doc').classList.remove('on'); skUntip(a);
+        a.cam(60, 60, 700, true); a.move({x: 520, y: 420}, 0); };
+      stage(wDig, 900, 540, html, chapters([
+        {t: 'Док с текстами', ms: 3400, set: a => a.$('.sk-doc').classList.add('on'), run: async (a, id) => { a.$('.sk-doc').classList.add('on'); await a.wait(700, id);
+          await go(a, id, a.$('.sk-doc p'), .4); skTip(a, a.$('.sk-doc p:last-child'), 'Менеджер положил <b>док с заголовками</b> баннеров'); await a.wait(2000, id); skUntip(a); }},
+        {t: 'Баннеры собрались', ms: 4200, set: a => { const n = a.$('.sk-new'); n.style.transition = 'none'; n.classList.remove('gone'); void n.offsetWidth; n.style.transition = ''; P(a, true, true); a.cam(130, 0, 640, true); },
+          run: async (a, id) => { a.cam(130, 0, 640); await go(a, id, a.$('.pa-notch'), .5, .5, 800); P(a, true); await a.wait(900, id);
+          a.$('.sk-new').classList.remove('gone'); P(a, true); await a.wait(500, id); P(a, true); await a.wait(300, id); const r = a.$('.sk-new .pa-st');
+          await go(a, id, r, .5, .5, 600); skTip(a, r, 'Собрались <b>сами</b>: разные цвета, без повторов прошлого месяца'); await a.wait(2100, id); skUntip(a); }},
+        {t: 'Открыть баннеры', ms: 4400, set: a => { a.$('.sk-finder').classList.add('on'); a.$('.sk-doc').classList.remove('on'); a.cam(30, 0, 840, true); },
+          run: async (a, id) => { a.cam(30, 0, 840); await a.wait(800, id); const o = a.$('.sk-open'); await go(a, id, o, .5); skTip(a, o, 'Открыть <b>папку с баннерами</b>'); await a.wait(900, id); skUntip(a);
+          const f = a.$('.sk-finder'), op = a.at(o); f.style.setProperty('--ox', (op.x - 40) + 'px'); f.style.setProperty('--oy', (op.y - 150) + 'px');
+          a.click(); f.classList.add('on'); a.$('.sk-doc').classList.remove('on'); P(a, false); await a.wait(1300, id);
+          await go(a, id, a.$('.sk-finder figure:nth-child(2)'), .5, .8, 700); await a.wait(1800, id); }},
+      ], reset)); }
+
+    // 007 — сборщик App banner
+    const wApp = document.getElementById('skApp');
+    if (wApp) {
+      const html = `<div class="sk-scr ap"><div class="sk-task"><div class="dh">${ic('a-gdoc', 13)}<b>Задача LPP-70112</b></div>
+          <label>Заголовок</label><p data-f="t">Кешбэк 10% на кофе</p><label>Подзаголовок</label><p data-f="s">При оплате картой «Мир» до 31 октября</p><label>Визуал</label><p class="kv">kv.png</p></div>
+        <div class="sk-ab"><span class="vis"></span><i class="edge"></i><div class="tx"><b>Кешбэк 10%<br>на&nbsp;кофе</b><span>При оплате картой «Мир»<br>до&nbsp;31&nbsp;октября</span></div></div>
+        <div class="sk-log"><p>app_banner.py</p><p data-l="1">текст из задачи — сверен с доком ✓</p><p data-l="2">край визуала по каждой строке ✓</p><p data-l="3">неразрывные пробелы: 3 ✓</p><p data-l="4">App banner.png · App banner.webp ✓</p></div></div>`;
+      const reset = a => { a.st.querySelectorAll('.sk-ab, .sk-ab .vis, .sk-ab .edge, .sk-ab .tx, .sk-log p, .sk-task p').forEach(e => e.classList.remove('on')); skUntip(a);
+        a.cam(0, 30, 560, true); a.move({x: 380, y: 360}, 0); };
+      const L = (a, n) => a.$(`.sk-log p[data-l="${n}"]`).classList.add('on');
+      stage(wApp, 760, 456, html, chapters([
+        {t: 'Текст из задачи', ms: 3200, run: async (a, id) => { await a.wait(400, id); for (const f of ['t', 's']) { const p = a.$(`.sk-task p[data-f="${f}"]`); await go(a, id, p, .3); p.classList.add('on'); await a.wait(500, id); }
+          skTip(a, a.$('.sk-task p[data-f="s"]'), 'Тексты <b>из задачи</b> — формулировки сверены с доком'); await a.wait(1700, id); skUntip(a); }},
+        {t: 'Сборка', ms: 4200, set: a => { a.st.querySelectorAll('.sk-ab, .sk-ab .vis, .sk-ab .edge, .sk-ab .tx').forEach(e => e.classList.add('on')); [1, 2, 3].forEach(n => L(a, n)); a.cam(200, 50, 560, true); },
+          run: async (a, id) => { a.cam(200, 50, 560); await a.wait(500, id); a.$('.sk-ab').classList.add('on'); L(a, 1); await a.wait(600, id);
+          a.$('.sk-ab .vis').classList.add('on'); await a.wait(600, id); a.$('.sk-ab .edge').classList.add('on'); L(a, 2); await a.wait(600, id);
+          a.$('.sk-ab .tx').classList.add('on'); L(a, 3); await a.wait(500, id); const e = a.$('.sk-ab .edge');
+          await go(a, id, e, .5, .3, 600); skTip(a, e, 'Текст <b>не заходит на картинку</b>'); await a.wait(1600, id); skUntip(a); }},
+        {t: 'Готово', ms: 3000, set: a => { L(a, 4); a.cam(0, 0, 760, true); }, run: async (a, id) => { L(a, 4); a.cam(0, 0, 760); await a.wait(700, id);
+          await go(a, id, a.$('.sk-log p[data-l="4"]'), .4); skTip(a, a.$('.sk-log p[data-l="4"]'), 'PNG и WebP <b>без Figma</b>'); await a.wait(1900, id); skUntip(a); }},
+      ], reset)); }
+
+    // 008 — папки партнёров: вкладка «Баннеры» панели задач
+    const wFold = document.getElementById('skFold');
+    if (wFold) {
+      const fr = (k, nm, st, sb) => `<div class="pa-row sk-f" data-k="${k}" data-s="${st}"><i class="fd"></i><div class="tx"><div class="nm">${nm}</div><div class="sb">${sb}</div></div><div class="pa-acts"><i class="pa-c">${ic('a-figma', 11)}</i></div></div>`;
+      const html = `<div class="sk-scr fd"><div class="pa-menu"></div>
+        <div class="sk-tab"><div class="pa-hd"><span class="pa-cap">Баннеры · 14.10–30.10 · Мир</span></div><div class="pa-list">
+          ${fr('zer', 'Кофейня «Зерно»', 'g', 'Desktop · Mobile · App banner · webp')}
+          ${fr('abz', 'Книжный «Абзац»', 'y', 'нет: App banner.webp')}
+          ${fr('pio', 'Цветы «Пион»', 'v', 'неверный текст в App banner')}
+          ${fr('lip', 'Аптека «Липа»', 'g', 'Desktop · Mobile · App banner · webp')}</div></div>
+        <div class="sk-finder sm"><div class="fh"><span class="fg-dots"><i></i><i></i><i></i></span><b>Книжный «Абзац»</b></div>
+          <div class="fl"><span>Desktop-img.jpg <em>98 КБ</em></span><span>Mobile-img.jpg <em>47 КБ</em></span><span>App banner.png</span><span class="nw">App banner.webp</span></div></div></div>`;
+      const S = (a, k, st, sb) => { const r = a.$(`.sk-f[data-k="${k}"]`); r.dataset.s = st; r.querySelector('.sb').textContent = sb; };
+      const reset = a => { S(a, 'abz', 'y', 'нет: App banner.webp'); S(a, 'pio', 'v', 'неверный текст в App banner'); a.$('.sk-finder').classList.remove('on'); a.$('.nw').classList.remove('on'); skUntip(a);
+        a.cam(0, 0, 560, true); a.move({x: 300, y: 380}, 0); };
+      stage(wFold, 760, 456, html, chapters([
+        {t: 'Статусы папок', ms: 3600, run: async (a, id) => { await a.wait(400, id); for (const k of ['abz', 'pio']) { const f = a.$(`.sk-f[data-k="${k}"] .fd`); await go(a, id, f);
+          skTip(a, f, k === 'abz' ? '<b>Жёлтая</b> — не хватает файла' : '<b>Фиолетовая</b> — текст надо поправить'); await a.wait(1300, id); skUntip(a); } }},
+        {t: 'Скрипт сделал WebP', ms: 3600, set: a => { a.$('.nw').classList.add('on'); S(a, 'abz', 'g', 'Desktop · Mobile · App banner · webp'); a.cam(0, 0, 560, true); },
+          run: async (a, id) => { a.$('.sk-finder').classList.add('on'); a.cam(200, 40, 560); await a.wait(900, id); a.$('.nw').classList.add('on');
+          skTip(a, a.$('.nw'), 'Скрипт сжал файлы и <b>сделал WebP</b> сам'); await a.wait(1500, id); skUntip(a);
+          a.$('.sk-finder').classList.remove('on'); a.cam(0, 0, 560); await a.wait(500, id); S(a, 'abz', 'g', 'Desktop · Mobile · App banner · webp'); await a.wait(700, id); }},
+        {t: 'Всё готово', ms: 3200, set: a => { S(a, 'pio', 'g', 'Desktop · Mobile · App banner · webp'); a.cam(0, 0, 560, true); },
+          run: async (a, id) => { const f = a.$('.sk-f[data-k="pio"] .fd'); await go(a, id, f); await a.wait(400, id); S(a, 'pio', 'g', 'Desktop · Mobile · App banner · webp');
+          skTip(a, f, 'Текст поправили — папка <b>зелёная</b>'); await a.wait(1900, id); skUntip(a); }},
+      ], reset)); }
   })();
 </script>
 </body>

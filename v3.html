@@ -199,6 +199,14 @@
   .lp-tx dt{color:#9a9a9a} .lp-tx dd{margin:0;display:flex;gap:6px;align-items:flex-start}
   .lp-tx dd svg{flex:none;margin-top:1px}
   .lp-go{margin-top:auto;align-self:flex-start;display:inline-flex;gap:8px;align-items:center;height:42px;padding:0 18px;border-radius:99px;background:#111;color:#fff;font-size:14px;text-decoration:none}
+  .lp-pw{display:flex;gap:6px;margin-top:auto}
+  .lp-pw input{flex:1;min-width:0;height:42px;padding:0 16px;border:0;border-radius:99px;background:#f2f2f2;font:inherit;font-size:14px;outline:none;letter-spacing:.2em}
+  .lp-pw input::placeholder{letter-spacing:0;color:#9a9a9a}
+  .lp-pw input:focus{background:#ebebeb}
+  .lp-pw button{height:42px;padding:0 18px;border:0;border-radius:99px;background:#111;color:#fff;font:inherit;font-size:14px;cursor:pointer}
+  .lp-pw.bad{animation:lpShake .35s}
+  @keyframes lpShake{25%{transform:translateX(-6px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+  .lp-pw + .lp-go{margin-top:0;background:none;color:#111;height:auto;padding:4px 2px;font-size:13px}
   .lp-x{position:absolute;right:12px;top:12px;width:32px;height:32px;border-radius:50%;border:0;background:rgba(0,0,0,.06);font-size:13px;cursor:pointer;z-index:2}
   @media (max-width:760px){ .lp-card{grid-template-columns:1fr} .lp-img{padding:16px} .lp-tx{padding:20px} .lp-tx h3{font-size:24px} }
   /* кейс по запросу — замок поверх обложки */
@@ -261,7 +269,27 @@
     .fp.cat{flex-basis:100%;width:max-content;margin-top:10px}
     .fp.main{display:none}
   }
+
+  /* большие экраны: сайт рассчитан на ~1440 px, на широких мониторах увеличиваем всё целиком */
+  @media (min-width:1800px){ html{zoom:1.2} }
+  @media (min-width:2200px){ html{zoom:1.4} }
+  @media (min-width:2800px){ html{zoom:1.7} }
 </style>
+<script>
+  // большие экраны: html{zoom} в CSS. Браузер отдаёт координаты в увеличенных пикселях, а стили ставит в пикселях вёрстки —
+  // переводим рамки элементов, размер окна и курсор обратно, чтобы провода и схемы считались как без увеличения
+  (() => {
+    const Z = () => parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+    const R = Element.prototype.getBoundingClientRect;
+    Element.prototype.getBoundingClientRect = function(){ const r = R.call(this), z = Z(); return z === 1 ? r : new DOMRect(r.x / z, r.y / z, r.width / z, r.height / z); };
+    const W = Object.getOwnPropertyDescriptor(window, 'innerWidth') || Object.getOwnPropertyDescriptor(Window.prototype, 'innerWidth');
+    const H = Object.getOwnPropertyDescriptor(window, 'innerHeight') || Object.getOwnPropertyDescriptor(Window.prototype, 'innerHeight');
+    Object.defineProperty(window, 'innerWidth', {configurable: true, get(){ return W.get.call(window) / Z(); }});
+    Object.defineProperty(window, 'innerHeight', {configurable: true, get(){ return H.get.call(window) / Z(); }});
+    for (const k of ['clientX', 'clientY']) { const d = Object.getOwnPropertyDescriptor(MouseEvent.prototype, k);
+      Object.defineProperty(MouseEvent.prototype, k, {configurable: true, get(){ return d.get.call(this) / Z(); }}); }
+  })();
+</script>
 </head>
 <body>
 <div class="canvas" id="canvas"></div>
@@ -333,7 +361,7 @@ const P = [
   { id:'impre', type:'product', name:'Impre', kind:'Приложение о здоровье', role:'Концепция, интерфейс, моушн', status:'Концепт', img:'assets/cases/impre/blister.jpg',
     task:'Тело меняется каждый день. Витамины — нет.' },
   // кейс по запросу: карточка с замком, клик ведёт в Telegram — запросить кейс
-  { id:'privet', lock:true, type:'product', name:'Privet Connector', kind:'Система для дизайнеров НСПК', role:'Схема системы, панель и плагин', status:'По запросу', img:'assets/cases/privet/cover.jpg',
+  { id:'privet', lock:true, url:'privet-short.html', type:'product', name:'Privet Connector', kind:'Система для дизайнеров НСПК', role:'Схема системы, панель и плагин', status:'По запросу', img:'assets/cases/privet/cover.jpg',
     task:'Дизайнер занимается макетами, а не копированием текстов и файлов.' },
   { id:'tb', type:'comms', name:'Therapiezentrum Blender', kind:'Айдентика и сайт', role:'Айдентика, дизайн сайта', status:'Коммерческий', img:'assets/cases/tb/hoodie.jpg',
     task:'Подать центр как уверенного современного лидера.' },
@@ -443,12 +471,12 @@ addEventListener('wheel', e => { if(view === 'grid' || document.body.classList.c
 strip.addEventListener('pointerdown', e => { drag = { y0:e.clientY, t0:target, moved:0 }; strip.setPointerCapture(e.pointerId); });
 strip.addEventListener('pointermove', e => { if(!drag) return; const d = e.clientY - drag.y0; drag.moved = Math.max(drag.moved, Math.abs(d)); target = clampT(drag.t0 + d); });
 strip.addEventListener('pointerup', e => { const it = e.target.closest('.item'); const was = drag; drag = null;
-  if(was && was.moved < 6 && it){ const k = +it.dataset.k; if(k === active) { const q = shown()[k]; q.lock ? lockPreview(q) : location.href = hrefOf(q); } else target = offsetFor(k); }
+  if(was && was.moved < 6 && it){ const k = +it.dataset.k; if(k === active) { const q = shown()[k]; q.lock ? openLocked(q) : location.href = hrefOf(q); } else target = offsetFor(k); }
   else snap(); });
 list.addEventListener('click', e => { const b = e.target.closest('button'); if(b) target = offsetFor(+b.dataset.k); });
 $('#prev').addEventListener('click', () => { target = offsetFor(Math.max(0, active - 1)); });
 $('#nextBtn').addEventListener('click', () => { target = offsetFor(Math.min(items.length - 1, active + 1)); });
-addEventListener('keydown', e => { if(e.key === 'ArrowDown') $('#nextBtn').click(); if(e.key === 'ArrowUp') $('#prev').click(); if(e.key === 'Enter') { const q = shown()[active]; if(q) q.lock ? lockPreview(q) : location.href = hrefOf(q); } });
+addEventListener('keydown', e => { if(e.key === 'ArrowDown') $('#nextBtn').click(); if(e.key === 'ArrowUp') $('#prev').click(); if(e.key === 'Enter') { const q = shown()[active]; if(q) q.lock ? openLocked(q) : location.href = hrefOf(q); } });
 $('#filter').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; filter = b.dataset.f;
   $('#filter').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); build(); });
 addEventListener('resize', () => { const k = active; active = -1; target = y = offsetFor(Math.max(0, k)); setActive(Math.max(0, k)); drawBraces(); });
@@ -622,16 +650,27 @@ document.fonts.ready.then(() => { measure(); drawBraces(); requestAnimationFrame
 
 // превью кейса по запросу: обложка, задача, роль — и кнопка «Запросить кейс»
 const lp = document.createElement('div'); lp.className = 'lockpv'; lp.innerHTML = '<div class="lp-card"><button class="lp-x" aria-label="Закрыть">✕</button><div class="lp-img"><img alt=""></div><div class="lp-tx"></div></div>'; document.body.appendChild(lp);
+// пароль к кейсам по запросу: хэш SHA-256, после верного ввода браузер запоминает доступ
+const PW = 'd54123de468bd42ea00dafbd777f85fe5fa1ff6404d9838c007953c25c92a1c5';
+const unlocked = () => { try { return localStorage.getItem('caseUnlock') === '1'; } catch (e) { return false; } };
+const openLocked = q => { if (q.url && unlocked()) location.href = q.url; else lockPreview(q); };
+const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map(b => b.toString(16).padStart(2, '0')).join('');
 function lockPreview(p){
   lp.querySelector('img').src = p.img; lp.querySelector('img').alt = p.name;
   lp.querySelector('.lp-tx').innerHTML = `<span class="lp-k">${p.kind}</span><h3>${p.name}</h3><p>${p.task}</p>
     <dl><dt>Роль</dt><dd>${p.role}</dd><dt>Статус</dt><dd>${LOCK} Кейс по запросу — внутренний процесс компании</dd></dl>
+    ${p.url ? `<form class="lp-pw"><input type="password" inputmode="numeric" placeholder="Пароль" autocomplete="off" aria-label="Пароль к кейсу"><button type="submit">Открыть</button></form>` : ''}
     <a class="lp-go" href="${ASK}" target="_blank" rel="noopener">Запросить кейс в Telegram <span>→</span></a>`;
+  const f = lp.querySelector('.lp-pw');
+  if (f) { f.onsubmit = async e => { e.preventDefault(); const i = f.querySelector('input');
+    if (await sha(i.value.trim()) === PW) { try { localStorage.setItem('caseUnlock', '1'); } catch (e) {} location.href = p.url; }
+    else { f.classList.remove('bad'); void f.offsetWidth; f.classList.add('bad'); i.value = ''; i.placeholder = 'Неверный пароль'; } }; }
   lp.classList.add('on');
+  if (f) setTimeout(() => f.querySelector('input').focus(), 250);
 }
 lp.addEventListener('click', e => { if (e.target === lp || e.target.closest('.lp-x')) lp.classList.remove('on'); });
 addEventListener('keydown', e => { if (e.key === 'Escape') lp.classList.remove('on'); });
-document.addEventListener('click', e => { const a = e.target.closest('[data-lock]'); if (!a) return; e.preventDefault(); const q = P.find(x => x.id === a.dataset.lock); if (q) lockPreview(q); }, true);
+document.addEventListener('click', e => { const a = e.target.closest('[data-lock]'); if (!a) return; e.preventDefault(); const q = P.find(x => x.id === a.dataset.lock); if (q) openLocked(q); }, true);
 </script>
 </body>
 </html>
