@@ -114,9 +114,9 @@ for(let i=0;i<6;i++){const {p,n}=face(i);
   sk.position.copy(n.clone().multiplyScalar(LAP+.15));sk.position.y=-LH/2+T;lid.add(sk)}
 const LID_CLOSED=new THREE.Vector3(0,H,0);lid.position.copy(LID_CLOSED);
 
-/* маленькая коробочка внутри: просто жёлтая */
+/* маленькая коробочка внутри: жёлтая, щит на крышке */
 const CB=112,CHh=116;
-const cubeMats=yel;
+const cubeMats=[yel,yel,new THREE.MeshStandardMaterial({map:tCubeTop,roughness:.8}),yel,yel,yel];
 const cube=new THREE.Mesh(new THREE.BoxGeometry(CB,CHh,CB),cubeMats);cube.position.set(-6,T+.6+CHh/2,10);cube.rotation.y=-.35;cube.castShadow=cube.receiveShadow=true;box.add(cube);
 /* открытка стоит за коробочкой; при открытии подлетает к зрителю */
 const card=new THREE.Group();scene.add(card);

@@ -92,6 +92,12 @@
   .duo{margin-top:30px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:16px;align-items:stretch}
   .duo .stage{margin-top:0;height:auto;min-height:440px}
   .duo .cardimg{border-radius:22px;overflow:hidden;box-shadow:0 0 0 1px var(--line);align-self:center}
+  .gh{margin:0;align-self:stretch;display:flex;flex-direction:column}
+  .gh img{width:100%;flex:1;object-fit:cover;border-radius:22px}
+  .gh figcaption{margin-top:10px;font-size:12.5px;color:var(--mute)}
+  .cards2{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .cards2 img{width:100%;border-radius:12px;box-shadow:0 0 0 1px var(--line)}
+  @media (max-width:720px){.cards2{grid-template-columns:1fr}}
   .live2{margin-top:30px;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1fr);gap:16px;align-items:start}
   .live2>img{width:100%;border-radius:14px}
   .live2 figure{margin:0}
@@ -151,7 +157,7 @@
   <!-- ===== 02 · Т-Бизнес, 8 Марта ===== -->
   <section class="chap" id="march8">
     <div class="chap-h"><span class="chap-n">02</span><span class="lock2"><img class="chap-logo biz" src="assets/cases/tbiz-8march/logo-tbiz.svg" alt="Т-Бизнес"><i>×</i><b>Аптекарский огород</b></span><span class="chap-k">8 Марта</span></div>
-    <div class="stage"><iframe src="projects/tbiz-hexbox/index.html?v=9" title="3D-модель шестиугольной коробки Т-Бизнес" loading="lazy"></iframe></div>
+    <div class="stage"><iframe src="projects/tbiz-hexbox/index.html?v=11" title="3D-модель шестиугольной коробки Т-Бизнес" loading="lazy"></iframe></div>
     <p class="stage-cap">Распадающаяся шестиугольная коробка 246 × 213 × 123 по печатному макету: откройте — стенки раскроются, а открытка подлетит ближе</p>
     <h2 class="chap-t">Орхидея, которая находит опору в своей природе</h2>
     <div class="txt3">
@@ -161,7 +167,11 @@
     </div>
     <div class="duo">
       <div class="stage s2"><iframe src="projects/tbiz-plaque/index.html?v=4" title="3D-модель таблички в оранжерее" loading="lazy"></iframe></div>
-      <div class="cardimg"><img src="assets/cases/tbiz-8march/card.jpg" alt="Открытка Т-Бизнес к 8 Марта" loading="lazy"></div>
+      <figure class="gh"><img src="assets/cases/tbiz-8march/greenhouse.jpg" alt="Оранжерея «Аптекарского огорода»: таблички на колоннах" loading="lazy"><figcaption>Где стоят таблички: на колоннах главной оранжереи, рядом с высаженными орхидеями</figcaption></figure>
+    </div>
+    <div class="cards2">
+      <img src="assets/cases/tbiz-8march/card-color.jpg" alt="Открытка: орхидеи и «Поздравляем с 8 марта!»" loading="lazy">
+      <img src="assets/cases/tbiz-8march/card-color-back.jpg" alt="Оборот открытки с текстом и фото орхидей" loading="lazy">
     </div>
     <div class="cap sub-cap">В канале Т-Бизнеса</div>
     <div class="live2 solo">
