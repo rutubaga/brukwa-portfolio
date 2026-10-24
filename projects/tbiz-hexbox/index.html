@@ -69,23 +69,23 @@ const face=i=>{const p=Math.PI/6+i*Math.PI/3;return {p,n:new THREE.Vector3(Math.
 
 const box=new THREE.Group();scene.add(box);
 box.add(hexSlab(R,T,yel));                                     // дно
-const liner=hexSlab(R-6,.6,blk);liner.position.y=T;box.add(liner);  // чёрная кашировка внутреннего дна
+const liner=hexSlab(R-.3,.6,blk);liner.position.y=T;box.add(liner);  // чёрная кашировка внутреннего дна
 
 /* чёрный вкладыш: невысокие стенки внутреннего дна */
 for(let i=0;i<6;i++){const {p,n}=face(i);const w=new THREE.Mesh(new THREE.BoxGeometry(2,60,(R-8)),blk);
   w.position.copy(n.clone().multiplyScalar(AP-8));w.position.y=T+30;w.rotation.y=p;w.castShadow=w.receiveShadow=true;box.add(w)}
 
-/* шесть стенок на петлях у дна: снаружи жёлтые, внутри через одну чёрные и жёлтые */
+/* шесть стенок на петлях у дна: снаружи жёлтые, внутри чёрные */
 const walls=[];
 for(let i=0;i<6;i++){
   const {p,n}=face(i);
   const piv=new THREE.Group();piv.position.copy(n.clone().multiplyScalar(AP));piv.rotation.y=p;box.add(piv);
-  const inner=i%2===0?blk:yel;                                 // внутри: три створки чёрные, три жёлтые
+  const inner=blk;                                             // внутри все створки чёрные
   const m=new THREE.Mesh(new THREE.BoxGeometry(T,H,R),[yel,inner,yel,yel,yel,yel]);
   m.position.set(-T/2,H/2,0);m.castShadow=m.receiveShadow=true;piv.add(m);walls.push(piv);
 }
 
-/* конверт на внутренней стороне задней жёлтой створки, в нём сложенная открытка */
+/* конверт на внутренней стороне задней створки, в нём сложенная открытка */
 const envWall=walls[1];
 const envM=new THREE.Mesh(new THREE.PlaneGeometry(96,120),new THREE.MeshStandardMaterial({map:tEnv,transparent:true,alphaTest:.5,roughness:.8}));
 envM.rotation.y=-Math.PI/2;envM.position.set(-T-1.2,64,0);envM.receiveShadow=true;envWall.add(envM);
@@ -148,15 +148,16 @@ function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);c
 addEventListener('resize',resize);resize();
 
 const sm=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x)};
-const LID_OPEN=new THREE.Vector3(30,LR*.86,-330);
+/* открытая крышка лежит рядом на столе рисунком вверх — низкая, не заслоняет коробку ни с какого ракурса */
+const LID_OPEN=new THREE.Vector3(-390,LH-T,-120);
 const clock=new THREE.Clock();
 renderer.setAnimationLoop(()=>{
   const dt=Math.min(.05,clock.getDelta());
   ang+=(target-ang)*Math.min(1,dt*2.4);
   /* 0–0.4: крышка уходит; 0.3–0.8: стенки раскрываются; дальше — открытка */
   const kl=sm(0,.42,ang), kw=sm(.3,.8,ang);
-  lid.position.lerpVectors(LID_CLOSED,LID_OPEN,kl);lid.position.y=H+(LID_OPEN.y-H)*kl+Math.sin(kl*Math.PI)*120;
-  lid.rotation.set(kl*1.35,kl*-.15,0);
+  lid.position.lerpVectors(LID_CLOSED,LID_OPEN,kl);lid.position.y=H+(LID_OPEN.y-H)*kl+Math.sin(kl*Math.PI)*90;
+  lid.rotation.set(0,kl*.55,0);
   walls.forEach((w,i)=>{w.children[0].parent.rotation.z=0;w.rotation.set(0,face(i).p,0);w.rotateZ(-THREE.MathUtils.degToRad(90)*kw)});
   ctl.target.y=55-30*kw;
   cv+=(cardT-cv)*Math.min(1,dt*2.6);
