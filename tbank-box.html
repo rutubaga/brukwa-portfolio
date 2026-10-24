@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Спецпроекты Т-Банка</title>
+<link rel="icon" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400;500&display=swap&subset=cyrillic" rel="stylesheet">
+<style>
+  /* Кейс подарочной коробки Т-Банка в стиле v3 «холст», как privet-landing.html.
+     Сверху — живая 3D-модель по печатному макету, дальше идея, открытка, фото готовой коробки и процесс. */
+  :root{
+    --bg:#FFFFFF; --ink:#111111; --mute:#9A9A9A; --line:rgba(0,0,0,.09); --card:#F4F4F4;
+    --g2:#E9E9E9; --text:#4A4A4A; --ease:cubic-bezier(.2,.8,.2,1); --y:#FFF495;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:var(--bg)}
+  body{background:var(--bg);color:var(--ink);font:400 15px/1.45 "Inter Tight",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:clip;
+    background-image:radial-gradient(circle, rgba(0,0,0,.13) 1px, transparent 1.2px);background-size:22px 22px}
+  a{color:inherit}
+  img{display:block;max-width:100%}
+  .wrap{max-width:1360px;margin:0 auto;padding:24px clamp(16px,2.4vw,32px) 120px}
+
+  .back{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mute);text-decoration:none}
+  .back:hover{color:var(--ink)}
+  h1{margin-top:56px;font-weight:300;font-size:clamp(40px,5vw,68px);line-height:1;letter-spacing:-.025em;max-width:900px}
+  .lead{margin-top:16px;max-width:700px;font-weight:300;font-size:clamp(18px,1.6vw,22px);line-height:1.35}
+  .facts{margin-top:40px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-top:16px;border-top:1px solid var(--line)}
+  .facts span{display:block;font-size:12px;color:var(--mute);margin-bottom:4px}
+  .facts b{font-weight:400;font-size:14px;line-height:1.35}
+
+  h1.logos{margin-top:56px}
+  h1.logos img{height:clamp(56px,6.4vw,96px);width:auto;max-width:100%}
+  h1.logos+.lead{margin-top:28px}
+  section{margin-top:120px}
+  .cap{margin:0 0 14px 2px;font-size:12px;color:var(--mute)}
+  h2{font-weight:300;font-size:clamp(28px,3vw,40px);line-height:1.1;letter-spacing:-.02em;max-width:780px}
+  .sub{margin-top:14px;max-width:640px;color:var(--text)}
+  .pc{background:var(--card);border-radius:18px;padding:20px;box-shadow:inset 0 0 0 1px var(--line);display:flex;flex-direction:column;gap:12px;min-width:0}
+  .pc b{font-weight:500;font-size:16px}
+  .pc p{font-size:13.5px;color:var(--text)}
+  .pc small{font-size:12px;color:var(--mute)}
+
+  /* 3D */
+  .stage{margin-top:56px;position:relative;border-radius:22px;overflow:hidden;background:#F3F2EE;box-shadow:inset 0 0 0 1px var(--line);height:min(78vh,720px)}
+  .stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .stage-cap{margin-top:12px;font-size:12.5px;color:var(--mute)}
+
+  /* сетки */
+  .two{margin-top:30px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
+  .lid{border-radius:18px;overflow:hidden;background:var(--y)}
+  .cities{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .cities span{padding:5px 10px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);font-size:12.5px}
+
+  .cardrow{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:16px;margin-top:30px;align-items:start}
+  .cardimg{border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px var(--line)}
+
+  .photos{margin-top:30px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .photos img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:14px}
+
+
+  .txt3{margin-top:30px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px;padding-top:18px;border-top:1px solid var(--line)}
+  .txt3 b{display:block;font-weight:500;font-size:16px;margin-bottom:8px}
+  .txt3 p{font-size:14.5px;color:var(--text);max-width:420px}
+  @media (max-width:980px){.txt3{grid-template-columns:1fr;gap:20px}}
+  .toc{margin-top:28px;display:flex;gap:8px;flex-wrap:wrap}
+  .toc a{padding:8px 14px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);font-size:13px;text-decoration:none}
+  .toc a:hover{box-shadow:inset 0 0 0 1px var(--ink)}
+  .chap{margin-top:120px;scroll-margin-top:24px}
+  .chap-h{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1px solid var(--line)}
+  .chap-n{font-weight:200;font-size:clamp(32px,3.6vw,48px);line-height:1;color:var(--mute)}
+  .chap-logo{height:clamp(40px,4.4vw,60px);width:auto}
+  .chap-logo.biz{height:clamp(30px,3.2vw,44px)}
+  .lock2{display:flex;align-items:center;gap:clamp(10px,1.4vw,18px);flex-wrap:wrap}
+  .lock2 i{font-style:normal;font-weight:200;font-size:clamp(24px,2.6vw,34px);color:var(--mute);line-height:1}
+  .lock2 b{font-weight:400;font-size:clamp(22px,2.4vw,32px);letter-spacing:-.02em;line-height:1}
+  .chap-logo.prem{height:clamp(28px,3vw,40px)}
+  .trio{margin-top:28px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .trio img{width:100%;border-radius:14px;aspect-ratio:1126/1397;object-fit:cover}
+  @media (max-width:720px){.trio{grid-template-columns:1fr}}
+  .circ{margin-top:28px;display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+  .circ-v{position:relative;width:clamp(220px,28vw,360px);aspect-ratio:1;border-radius:50%;overflow:hidden;border:0;padding:0;cursor:pointer;background:#222;box-shadow:0 0 0 1px var(--line)}
+  .circ-v video{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.04);pointer-events:none}
+  .circ-s{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);padding:6px 12px;border-radius:99px;background:rgba(17,17,17,.72);color:#fff;font:500 12px "Inter Tight",sans-serif;white-space:nowrap;pointer-events:none;transition:opacity .3s}
+  .circ-c{max-width:340px;font-size:14px;color:var(--text)}
+  .chap-k{margin-left:auto;font-size:13px;color:var(--mute)}
+  .chap .stage{margin-top:28px}
+  .chap-t{margin-top:56px}
+  .sub-cap{margin-top:48px}
+  .duo{margin-top:30px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:16px;align-items:stretch}
+  .duo .stage{margin-top:0;height:auto;min-height:440px}
+  .duo .cardimg{border-radius:22px;overflow:hidden;box-shadow:0 0 0 1px var(--line);align-self:center}
+  .live2{margin-top:30px;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1fr);gap:16px;align-items:start}
+  .live2>img{width:100%;border-radius:14px}
+  .live2 figure{margin:0}
+  .live2 figure img{width:100%;border-radius:14px;background:#1c1f26}
+  .live2 figcaption{margin-top:10px;font-size:12.5px;color:var(--mute)}
+  .live2.solo{grid-template-columns:minmax(0,640px)}
+  @media (max-width:980px){.live2{grid-template-columns:1fr}}
+  @media (max-width:980px){.duo{grid-template-columns:1fr}.duo .stage{min-height:420px}}
+  .end{margin-top:60px;display:flex;gap:12px;flex-wrap:wrap}
+  .btn-p{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:99px;background:var(--ink);color:#fff;text-decoration:none;font-size:14px}
+
+  @media (max-width:980px){
+    .facts{grid-template-columns:1fr 1fr}
+    .two,.cardrow{grid-template-columns:1fr}
+    .photos{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:560px){ h1{font-size:36px} .stage{height:70vh} }
+  @media (min-width:1800px){ html{zoom:1.2} }
+  @media (min-width:2200px){ html{zoom:1.4} }
+  @media (min-width:2800px){ html{zoom:1.7} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="v3.html">← Все проекты</a>
+  <h1>Спецпроекты Т-Банка</h1>
+  <p class="lead">Подарки и офлайн-активации для Т-Банка и Т-Бизнеса: под каждый повод — свой концепт, упаковка, открытки и всё, что человек держит в руках</p>
+  <div class="facts">
+    <div><span>Клиент</span><b>Т-Банк, Т-Бизнес</b></div>
+    <div><span>Форматы</span><b>Подарочные коробки, открытки, таблички</b></div>
+    <div><span>Что сделано</span><b>Концепт, дизайн, подготовка к печати</b></div>
+    <div><span>Год</span><b>2026</b></div>
+  </div>
+  <nav class="toc"><a href="#otba">01 · Т-Банк × «от ба»</a><a href="#march8">02 · Т-Бизнес × Аптекарский огород</a><a href="#capsule">03 · Т-Бизнес × Т-Премиум</a></nav>
+
+  <!-- ===== 01 · Т-Банк × «от ба» ===== -->
+  <section class="chap" id="otba">
+    <div class="chap-h"><span class="chap-n">01</span><img class="chap-logo" src="assets/cases/tbank-box/logo-lockup.svg" alt="Т-Банк × от ба"><span class="chap-k">Подарочная коробка</span></div>
+    <div class="stage"><iframe src="projects/tbank-box/index.html?v=9" title="3D-модель коробки Т-Банк × от ба" loading="lazy"></iframe></div>
+    <p class="stage-cap">Модель по печатному макету: покрутите и откройте коробку — открытка подлетит ближе, клик по ней кладёт её обратно</p>
+    <h2 class="chap-t">Т-Банк там, где ты — нить через города мастериц</h2>
+    <div class="txt3">
+      <div><b>Акция</b><p>Т-Банк вместе с «от ба» дарил наборы вязаных вещей. Каждую вещь связала мастерица из своего города, а в коробке лежит открытка с именем получателя</p></div>
+      <div><b>Концепт</b><p>Нить идёт через города мастериц — от Рыбинска до Пензы — и в центре складывается в сердце. Слоган связывает это с банком: «Т-Банк там, где ты — от Владивостока до Калининграда». Внутри крышки игра слов: «Вещи, связанные с вами — это вещи, связанные с любовью»</p></div>
+      <div><b>Открытка</b><p>Руки со спицами нарисованы одной линией — та же нить, что на крышке. 34 открытки, на каждой имя получателя</p></div>
+    </div>
+    <div class="cap sub-cap">Так коробка выглядит вживую</div>
+    <div class="photos">
+      <img src="assets/cases/tbank-box/photo-1.jpg" alt="Закрытая коробка с джутом и биркой" loading="lazy">
+      <img src="assets/cases/tbank-box/photo-2.jpg" alt="Открытая коробка с вязаными вещами и открыткой" loading="lazy">
+      <img src="assets/cases/tbank-box/photo-3.jpg" alt="Содержимое коробки сверху" loading="lazy">
+      <img src="assets/cases/tbank-box/photo-4.jpg" alt="Открытка на вязаной сумке" loading="lazy">
+    </div>
+  </section>
+
+  <!-- ===== 02 · Т-Бизнес, 8 Марта ===== -->
+  <section class="chap" id="march8">
+    <div class="chap-h"><span class="chap-n">02</span><span class="lock2"><img class="chap-logo biz" src="assets/cases/tbiz-8march/logo-tbiz.svg" alt="Т-Бизнес"><i>×</i><b>Аптекарский огород</b></span><span class="chap-k">8 Марта</span></div>
+    <div class="stage"><iframe src="projects/tbiz-hexbox/index.html?v=9" title="3D-модель шестиугольной коробки Т-Бизнес" loading="lazy"></iframe></div>
+    <p class="stage-cap">Распадающаяся шестиугольная коробка 246 × 213 × 123 по печатному макету: откройте — стенки раскроются, а открытка подлетит ближе</p>
+    <h2 class="chap-t">Орхидея, которая находит опору в своей природе</h2>
+    <div class="txt3">
+      <div><b>Акция</b><p>Подарить цветы лично каждой из 1,8 млн предпринимательниц невозможно, поэтому к 8 Марта Т-Бизнес высадил орхидеи в их честь в главной оранжерее «Аптекарского огорода». В подарок — коробка с открыткой и приглашением прийти посмотреть на цветы</p></div>
+      <div><b>Концепт</b><p>В дикой природе фаленопсис растёт на деревьях и берёт влагу из воздуха — находит возможности там, где их не видно. Как женщины в бизнесе: «Спасибо за то, что показываете пример, как женщина может строить успешный бизнес, опираясь на свою природу»</p></div>
+      <div><b>Коробка и таблички</b><p>Орхидея нарисована одной линией на крышке и продолжается на её бортах, внутри стенок — фото цветов. В оранжерее рядом с высаженными орхидеями — жёлтые таблички на колоннах</p></div>
+    </div>
+    <div class="duo">
+      <div class="stage s2"><iframe src="projects/tbiz-plaque/index.html?v=4" title="3D-модель таблички в оранжерее" loading="lazy"></iframe></div>
+      <div class="cardimg"><img src="assets/cases/tbiz-8march/card.jpg" alt="Открытка Т-Бизнес к 8 Марта" loading="lazy"></div>
+    </div>
+    <div class="cap sub-cap">В канале Т-Бизнеса</div>
+    <div class="live2 solo">
+      <figure><img src="assets/cases/tbiz-8march/tg-post.png" alt="Пост Т-Бизнеса «Цветы от Т-Бизнеса для вас» в Telegram" loading="lazy"><figcaption>Пост об акции в канале Т-Бизнеса: «Подарить цветы лично каждой невозможно… поэтому мы сделали иначе»</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- ===== 03 · Т-Бизнес × Т-Премиум ===== -->
+  <section class="chap" id="capsule">
+    <div class="chap-h"><span class="chap-n">03</span><span class="lock2"><img class="chap-logo biz" src="assets/cases/tbiz-8march/logo-tbiz.svg" alt="Т-Бизнес"><i>×</i><img class="chap-logo prem" src="assets/cases/tpremium-capsule/logo-premium.png" alt="Т-Премиум"></span><span class="chap-k">Открытки для вечера в Петербурге</span></div>
+    <div class="trio">
+      <img src="assets/cases/tpremium-capsule/capsule.jpg" alt="Открытка «В ваших руках — капсула времени»" loading="lazy">
+      <img src="assets/cases/tpremium-capsule/invite-front.jpg" alt="Приглашение «Private вечеринка 22:00»" loading="lazy">
+      <img src="assets/cases/tpremium-capsule/invite-back.jpg" alt="Оборот приглашения «Дорогой друг»" loading="lazy">
+    </div>
+    <div class="circ">
+      <button class="circ-v" id="circ" aria-label="Включить звук">
+        <video src="assets/cases/tpremium-capsule/invite-circle.mp4?v=2" poster="assets/cases/tpremium-capsule/invite-circle.jpg" autoplay muted loop playsinline preload="metadata"></video>
+        <span class="circ-s" id="circS">Со звуком</span>
+      </button>
+      <p class="circ-c">Так приглашение выглядит вживую</p>
+    </div>
+    <h2 class="chap-t">Капсула времени и приглашение в экосистему</h2>
+    <div class="txt3">
+      <div><b>Акция</b><p>Т-Бизнес и Т-Премиум собрали клиентов на вечере в Петербурге. Гостям дарили флорариум с приглашением на private-часть вечера — вечеринку на лодке Cruise by Kuznyahouse — и «капсулу времени» с ручкой</p></div>
+      <div><b>Флорариум</b><p>Закрытая экосистема, которая даёт растению всё для роста. Отсюда текст приглашения: «Самой ценной частью нашей экосистемы остаётесь вы»</p></div>
+      <div><b>Капсула времени</b><p>Записать мысли и планы образца 2026 года и перечитать через год, на следующей встрече на Т-Дворе. В комплекте Fisher Space Pen — ручка, которая пишет даже в невесомости</p></div>
+    </div>
+  </section>
+
+  <div class="end"><a class="btn-p" href="v3.html">← Все проекты</a></div>
+</div>
+<script>
+/* кружок: играет без звука, клик включает и выключает звук */
+const cb=document.getElementById('circ'),cv=cb.querySelector('video');
+function setSound(on){cv.muted=!on;if(on){cv.currentTime=0;cv.play()}cb.classList.toggle('on',on);
+  document.getElementById('circS').textContent=on?'Выключить звук':'Со звуком';cb.setAttribute('aria-label',on?'Выключить звук':'Включить звук')}
+cb.addEventListener('click',e=>{e.preventDefault();setSound(cv.muted)});
+/* ушли со страницы или прокрутили мимо — звук выключается сам */
+new IntersectionObserver(en=>{if(!en[0].isIntersecting&&!cv.muted)setSound(false)},{threshold:.2}).observe(cb);
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&!cv.muted)setSound(false)});
+</script>
+</body>
+</html>

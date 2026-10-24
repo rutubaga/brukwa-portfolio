@@ -363,6 +363,12 @@ const P = [
   // кейс по запросу: карточка с замком, клик ведёт в Telegram — запросить кейс
   { id:'privet', lock:true, url:'privet-short.html', type:'product', name:'Privet Connector', kind:'Система для дизайнеров НСПК', role:'Схема системы, панель и плагин', status:'По запросу', img:'assets/cases/privet/cover.jpg',
     task:'Дизайнер занимается макетами, а не копированием текстов и файлов.' },
+  { id:'privet-audit', lock:true, url:'privet-audit.html', type:'product', name:'Регистрация в «Привет»', kind:'Аудит и редизайн регистрации', role:'UX-аудит, редизайн, прототип', status:'По запросу', img:'assets/cases/privet-audit/cover.jpg',
+    task:'Довести человека до первой покупки по акции, а не до экрана «Ок».' },
+  { id:'privet-landing', lock:true, url:'privet-landing.html', type:'product', name:'Лендинг «Привет!»', kind:'Редизайн лендинга приложения', role:'Редизайн, адаптив, макет для разработки', status:'По запросу', img:'assets/cases/privet-landing/cover.jpg',
+    task:'С первого экрана понятно, что внутри приложения, и его можно сразу скачать.' },
+  { id:'tbank-box', type:'comms', url:'tbank-box.html', name:'Спецпроекты Т-Банка', kind:'Подарочные коробки, открытки, таблички', role:'Концепт, дизайн, подготовка к печати', status:'Напечатано', img:'assets/cases/tbank-box/photo-1.jpg',
+    task:'Под каждый повод — свой концепт: нить через города мастериц, орхидея к 8 Марта, капсула времени.' },
   { id:'tb', type:'comms', name:'Therapiezentrum Blender', kind:'Айдентика и сайт', role:'Айдентика, дизайн сайта', status:'Коммерческий', img:'assets/cases/tb/hoodie.jpg',
     task:'Подать центр как уверенного современного лидера.' },
   { id:'leveraged', type:'comms', name:'Leveraged', kind:'Посты для соцсетей', role:'Ключевые визуалы, посты', status:'Коммерческий', img:'assets/comms/leveraged/01.jpg',
@@ -401,7 +407,7 @@ function drawBraces(){
 }
 const shown = () => P.filter(p => filter === 'all' || p.type === filter);
 const ASK = 'https://t.me/brukwa';
-const hrefOf = p => p.lock ? ASK : `index.html?from=v3#case/${p.id}`;
+const hrefOf = p => p.lock ? ASK : (p.url || `index.html?from=v3#case/${p.id}`);
 const LOCK = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>';
 const lockTag = p => p.lock ? `<span class="glock">${LOCK}По запросу</span>` : '';
 const pad = n => String(n).padStart(2, '0');
@@ -467,6 +473,12 @@ function render(){
   requestAnimationFrame(render);
 }
 const snap = () => { clearTimeout(snapT); snapT = setTimeout(() => { if(!drag) target = offsetFor(nearest()); }, 140); };
+// в сетке колесо листает кейсы, где бы ни была мышь (сетка — отдельная прокручиваемая область)
+addEventListener('wheel', e => {
+  if(view !== 'grid' || document.body.classList.contains('about-page')) return;
+  const g = $('#grid'); if(!g || e.target.closest('#grid, .lockpv, .aboutv')) return;
+  e.preventDefault(); g.scrollTop += (e.deltaMode === 1 ? e.deltaY * 32 : e.deltaY);
+}, { passive:false });
 addEventListener('wheel', e => { if(view === 'grid' || document.body.classList.contains('about-page')) return; e.preventDefault(); target = clampT(target - (e.deltaMode === 1 ? e.deltaY * 32 : e.deltaY)); snap(); }, { passive:false });
 strip.addEventListener('pointerdown', e => { drag = { y0:e.clientY, t0:target, moved:0 }; strip.setPointerCapture(e.pointerId); });
 strip.addEventListener('pointermove', e => { if(!drag) return; const d = e.clientY - drag.y0; drag.moved = Math.max(drag.moved, Math.abs(d)); target = clampT(drag.t0 + d); });

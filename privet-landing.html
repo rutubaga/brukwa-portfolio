@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Лендинг приложения «Привет!» — редизайн</title>
+<link rel="icon" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400;500&family=Inter:wght@400;500&family=Raleway:wght@700;800&display=swap&subset=cyrillic" rel="stylesheet">
+<style>
+  /* Кейс редизайна лендинга в стиле v3 «холст», как privet-audit.html.
+     Сверху — старая и новая страница рядом: слева снимок vamprivet.ru/mobile с метками-комментариями,
+     справа живая новая страница. Метка прокручивает обе страницы к одному блоку. Ниже — почему так. */
+  :root{
+    --bg:#FFFFFF; --ink:#111111; --mute:#9A9A9A; --line:rgba(0,0,0,.09); --card:#F4F4F4;
+    --g2:#E9E9E9; --text:#4A4A4A; --ease:cubic-bezier(.2,.8,.2,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:var(--bg)}
+  body{background:var(--bg);color:var(--ink);font:400 15px/1.45 "Inter Tight",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:clip;
+    background-image:radial-gradient(circle, rgba(0,0,0,.13) 1px, transparent 1.2px);background-size:22px 22px}
+  a{color:inherit}
+  img{display:block;max-width:100%}
+  .wrap{max-width:1360px;margin:0 auto;padding:24px clamp(16px,2.4vw,32px) 120px}
+
+  /* ---------- шапка ---------- */
+  .back{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mute);text-decoration:none}
+  .back:hover{color:var(--ink)}
+  h1{margin-top:56px;font-weight:300;font-size:clamp(40px,5vw,68px);line-height:1;letter-spacing:-.025em;max-width:900px}
+  .lead{margin-top:16px;max-width:700px;font-weight:300;font-size:clamp(18px,1.6vw,22px);line-height:1.35}
+  .facts{margin-top:40px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-top:16px;border-top:1px solid var(--line)}
+  .facts span{display:block;font-size:12px;color:var(--mute);margin-bottom:4px}
+  .facts b{font-weight:400;font-size:14px;line-height:1.35}
+  .links{margin-top:24px;display:flex;gap:10px;flex-wrap:wrap}
+  .lnk{display:inline-flex;align-items:center;gap:10px;height:40px;padding:0 16px 0 14px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);text-decoration:none;font-size:14px;transition:box-shadow .2s}
+  .lnk:hover{box-shadow:inset 0 0 0 1px var(--ink)}
+  .lnk span{color:var(--mute)}
+
+  /* ---------- общее ---------- */
+  section{margin-top:120px}
+  .cap{margin:0 0 14px 2px;font-size:12px;color:var(--mute)}
+  h2{font-weight:300;font-size:clamp(28px,3vw,40px);line-height:1.1;letter-spacing:-.02em;max-width:780px}
+  .sub{margin-top:14px;max-width:640px;color:var(--text)}
+  .pc{background:var(--card);border-radius:14px;padding:18px 20px;box-shadow:inset 0 0 0 1px var(--line)}
+  .pt{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:99px;font-size:11.5px;background:var(--g2);color:var(--text);white-space:nowrap}
+  .pt.new{background:var(--ink);color:#fff}
+
+  /* ---------- было | стало ---------- */
+  .cmpx{margin-top:72px}
+  .ctl{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+  .seg{display:inline-flex;padding:3px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
+  .seg button{height:34px;padding:0 16px;border:0;border-radius:99px;background:none;font:14px "Inter Tight",sans-serif;color:var(--text);cursor:pointer}
+  .seg button.on{background:var(--ink);color:#fff}
+  .ctl .hint{font-size:13px;color:var(--mute);max-width:560px}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 270px;gap:clamp(20px,3vw,44px);align-items:start}
+  .cmpx.d .grid,.cmpx.t .grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .cmpx.d .cl,.cmpx.t .cl{grid-column:1/-1;position:static;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px}
+  .cmpx.d .cl-h,.cmpx.t .cl-h{grid-column:1/-1}
+  .colh{display:flex;align-items:center;gap:10px;margin-bottom:16px;min-height:28px;font-size:13px;color:var(--mute)}
+  .colh>.pt{height:auto;padding:0;background:none;font-size:14px;font-weight:500;color:var(--mute)}
+  .colh>.pt.new{color:var(--ink)}
+  .colh a{margin-left:auto;color:var(--mute);text-decoration:none}
+  .colh a:hover{color:var(--ink)}
+  .col{position:relative;min-width:0}
+
+  /* рамки: телефон и окно браузера */
+  .frame{position:relative;display:inline-block;vertical-align:top}
+  .frame.ph{padding:9px;background:#151515;border-radius:48px}
+  .frame.ph .scr{border-radius:39px}
+  .frame.br{border-radius:14px;background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16);padding:0 1px 1px}
+  .frame.br .bar{height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;font-size:11.5px;color:var(--mute)}
+  .frame.br .bar i{width:9px;height:9px;border-radius:50%;background:#E2E2E2}
+  .frame.br .bar span{margin-left:10px;padding:3px 10px;border-radius:6px;background:var(--card)}
+  .frame:not(.br) .bar{display:none}
+  .frame.br .scr{border-radius:0 0 13px 13px}
+  .scr{position:relative;overflow:hidden;background:#fff}
+  .sc{position:relative}
+  .hl2{position:absolute;z-index:2;left:6px;right:6px;border:2px dashed #2B77EC;border-radius:10px;pointer-events:none;opacity:0;transition:opacity .2s,top .3s var(--ease),height .3s var(--ease)}
+  .hl2.on{opacity:1}
+  .inner{position:relative}
+  .inner img{width:100%;height:auto;transition:opacity .2s}
+  .vp iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;background:#fff}
+
+  /* метки-комментарии как в Figma */
+  .pin{position:absolute;z-index:3;transform:translate(-5px,-100%);height:30px;min-width:30px;padding:0 9px;border-radius:15px 15px 15px 3px;border:2px solid #fff;
+    background:var(--ink);color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.28);display:flex;align-items:center;cursor:pointer;
+    font:500 12px/1 "Inter Tight",sans-serif;white-space:nowrap}
+  .pin b{font-weight:500;min-width:8px;text-align:center}
+  .pin .pt-t{max-width:0;overflow:hidden;transition:max-width .3s var(--ease),margin .3s}
+  .pin:hover{z-index:6}
+  .pin:hover:not(.on) .pt-t{max-width:240px;margin-left:7px}
+  .pin.on{background:#2B77EC;z-index:6}
+  .hl{position:absolute;z-index:2;left:0;right:0;border:2px dashed #2B77EC;border-radius:8px;pointer-events:none;opacity:0;transition:opacity .2s}
+  .hl.on{opacity:1}
+
+  .pop{position:absolute;z-index:20;width:310px;background:#fff;border-radius:14px;padding:14px 16px 12px;line-height:1.45;
+    box-shadow:0 0 0 1px rgba(0,0,0,.06),0 12px 40px rgba(0,0,0,.18);animation:popin .22s var(--ease)}
+  @keyframes popin{from{opacity:0;transform:translateY(4px)}}
+  .pop-hd{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute)}
+  .pop-hd .dotn{width:22px;height:22px;border-radius:11px 11px 11px 3px;background:#2B77EC;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:500}
+  .pop-hd b{font-weight:500;color:var(--ink)}
+  .pop-x{margin-left:auto;width:26px;height:26px;border-radius:50%;border:0;background:var(--card);cursor:pointer;color:var(--text);font-size:15px;line-height:1}
+  .pop-r{margin-top:10px;display:grid;grid-template-columns:52px 1fr;gap:4px 10px;font-size:13.5px}
+  .pop-r dt{color:var(--mute);font-size:12px;padding-top:1px}
+  .pop-r dd s{color:var(--mute);text-decoration-color:rgba(0,0,0,.35)}
+  .pop-r dd.why{color:var(--text)}
+  .pop-ft{margin-top:12px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mute)}
+  .pop-ft button{width:26px;height:26px;border-radius:50%;border:0;background:var(--card);cursor:pointer;font-size:14px;color:var(--ink)}
+  .pop-ft span{margin:0 4px}
+
+  .cl{position:sticky;top:20px;background:#fff;border-radius:14px;box-shadow:inset 0 0 0 1px var(--line);padding:8px}
+  .cl-h{display:flex;justify-content:space-between;padding:8px 10px 10px;font-size:13px;font-weight:500}
+  .cl-h span{color:var(--mute);font-weight:400}
+  .cl-i{display:flex;gap:10px;width:100%;text-align:left;border:0;background:none;padding:10px;border-radius:10px;cursor:pointer;font:inherit;color:var(--ink)}
+  .cl-i:hover,.cl-i.on{background:var(--card)}
+  .cl-i i{flex-shrink:0;width:22px;height:22px;border-radius:11px 11px 11px 3px;background:var(--ink);color:#fff;display:grid;place-items:center;font:500 11px "Inter Tight";font-style:normal}
+  .cl-i.on i{background:#2B77EC}
+  .cl-i b{display:block;font-weight:400;font-size:13.5px;line-height:1.3}
+  .cl-i small{display:block;margin-top:2px;font-size:11.5px;color:var(--mute);line-height:1.3}
+
+  /* ---------- почему так ---------- */
+  .bento{margin-top:30px;display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+  .bento .pc{display:flex;flex-direction:column;gap:10px}
+  .bento .pc b{font-weight:500;font-size:16px}
+  .bento .pc p{font-size:13.5px;color:var(--text);max-width:560px}
+  .s3{grid-column:span 3}.s2{grid-column:span 2}.s4{grid-column:span 4}.s6{grid-column:span 6}
+  .sw{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .sw i{width:34px;height:34px;border-radius:9px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+  .swl{font-size:11.5px;color:var(--mute);margin-top:8px}
+  .d3{margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .d3 img{width:100%;aspect-ratio:1;object-fit:contain;border-radius:10px;background:#fff}
+  .stepsimg{margin-top:auto;border-radius:10px;background:#fff;overflow:hidden}
+  .bp{margin-top:auto;display:grid;gap:7px}
+  .bp div{display:grid;grid-template-columns:minmax(0,1fr) 170px;align-items:center;gap:10px;font-size:12.5px;color:var(--text)}
+  .bp i{height:10px;border-radius:5px;background:var(--ink)}
+  .bp span{white-space:nowrap}
+  .tx{margin-top:4px;display:grid;gap:8px}
+  .tx div{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:baseline;font-size:13.5px;padding:10px 12px;border-radius:10px;background:#fff}
+  .tx s{color:var(--mute);text-decoration-color:rgba(0,0,0,.3)}
+  .tx em{font-style:normal;color:var(--mute)}
+  .note{margin-top:18px;font-size:12.5px;color:var(--mute)}
+
+
+  /* ---------- визуальный стиль ---------- */
+  .vhero{margin-top:30px;position:relative;border-radius:18px;overflow:hidden;background:#1f73e0}
+  .vhero img{width:100%}
+  .vhero span{position:absolute;left:18px;bottom:16px;font-size:12px;color:rgba(255,255,255,.85)}
+  .vgrid{margin-top:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .vcard{background:var(--card);border-radius:18px;padding:20px;box-shadow:inset 0 0 0 1px var(--line);display:flex;flex-direction:column;gap:12px;min-width:0}
+  .vcard p{font-size:13.5px;color:var(--text)}
+  .v-wide,.v-final{grid-column:1/-1}
+  .vh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .vh b{font-weight:500;font-size:16px}
+  .vh span{font-size:12.5px;color:var(--mute)}
+  .vdir small{display:block;font-size:12px;color:var(--mute);margin:6px 0 8px}
+  .vrow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+  .vrow img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px}
+  .v-final{background:linear-gradient(160deg,#eaf4ff,#d9ebff)}
+  .vfin{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+  .vfin figure{margin:0;background:rgba(255,255,255,.6);border-radius:14px;padding:12px 10px 10px;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .vfin img{width:100%;aspect-ratio:1;object-fit:contain}
+  .vfin figcaption{font-size:12px;color:var(--text);text-align:center}
+  .ty{display:flex;gap:16px;align-items:center;padding:12px 14px;border-radius:12px;background:#fff}
+  .ty>span{flex-shrink:0;width:64px;font-size:46px;line-height:1;color:#34373D}
+  .ty-r{font-family:"Raleway",sans-serif;font-weight:800}
+  .ty-i{font-family:"Inter",sans-serif;font-weight:500}
+  .ty b{font-weight:500;font-size:14px}
+  .ty small{display:block;font-size:11.5px;color:var(--mute)}
+  .ty-rs{margin-top:6px;font:700 18px/1.2 "Raleway",sans-serif!important;color:#34373D!important}
+  .ty-is{margin-top:6px;font:400 14px/1.35 "Inter",sans-serif!important;color:#474a50!important}
+  @media (max-width:720px){
+    .vgrid{grid-template-columns:1fr}
+    .vrow{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .vfin{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  .end{margin-top:60px;display:flex;gap:12px;flex-wrap:wrap}
+  .btn-p{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:99px;background:var(--ink);color:#fff;text-decoration:none;font-size:14px}
+  .btn-p.ghost{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px rgba(0,0,0,.16)}
+
+  @media (max-width:1180px){
+    .grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+    .cl{grid-column:1/-1;position:static}
+    .s2{grid-column:span 3}.s4{grid-column:span 6}
+  }
+  @media (max-width:980px){ .facts{grid-template-columns:1fr 1fr} }
+  @media (max-width:720px){
+    .grid,.cmpx.d .grid,.cmpx.t .grid{grid-template-columns:1fr}
+    .bento{grid-template-columns:1fr}
+    .s2,.s3,.s4,.s6{grid-column:auto}
+    .tx div{grid-template-columns:1fr}
+    .tx em{display:none}
+    .pop.fixed{position:fixed;left:12px!important;right:12px;top:auto!important;bottom:12px;width:auto}
+  }
+  @media (max-width:560px){ h1{font-size:36px} }
+  @media (min-width:1800px){ html{zoom:1.2} }
+  @media (min-width:2200px){ html{zoom:1.4} }
+  @media (min-width:2800px){ html{zoom:1.7} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="v3.html">← Все проекты</a>
+  <h1>Лендинг приложения «Привет!»</h1>
+  <p class="lead">Задача страницы та же: скачать приложение и начать получать кешбэк. Поменяла порядок, графику и тексты: с первого экрана понятно, что внутри, и можно сразу скачать</p>
+  <div class="facts">
+    <div><span>Компания</span><b>НСПК, программа лояльности «Привет!»</b></div>
+    <div><span>Страница</span><b>vamprivet.ru/mobile</b></div>
+    <div><span>Что сделано</span><b>Редизайн, визуальный стиль, адаптив 360–1920, макет для разработки</b></div>
+    <div><span>Год</span><b>2026</b></div>
+  </div>
+  <div class="links">
+    <a class="lnk" href="https://www.figma.com/design/HciWYhRHOLoQnKYPqm70h5?node-id=16-1154" target="_blank" rel="noopener"><svg width="12" height="18" viewBox="0 0 38 57" aria-hidden="true"><path fill="#1ABCFE" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0ACF83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#FF7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#F24E1E" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#A259FF" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg>Лендинг в Figma <span>↗</span></a>
+    <a class="lnk" href="projects/privet-landing/" target="_blank" rel="noopener">Новая страница <span>↗</span></a>
+  </div>
+
+  <!-- было | стало -->
+  <div class="cmpx d" id="cmp">
+    <div class="ctl">
+      <div class="seg" id="mode"><button data-m="d" class="on">Компьютер</button><button data-m="t">Планшет</button><button data-m="m">Телефон</button></div>
+      <span class="hint">Обе страницы целиком: слева до редизайна, справа новая, живая. Нажмите на метку или пункт в списке — подсветится один и тот же блок на обеих</span>
+    </div>
+    <div class="grid">
+      <div class="col" id="wcol">
+        <div class="colh"><span class="pt">Было</span>vamprivet.ru/mobile</div>
+        <div class="frame br" id="fOld"><div class="bar"><i></i><i></i><i></i><span>vamprivet.ru/mobile</span></div><div class="scr"><div class="sc" id="scOld"><div class="inner" id="inOld"><img id="imgOld" alt="Страница vamprivet.ru/mobile до редизайна"><div class="hl" id="hl"></div></div></div></div></div>
+      </div>
+      <div class="col">
+        <div class="colh"><span class="pt new">Стало</span><a href="projects/privet-landing/" target="_blank" rel="noopener">Открыть ↗</a></div>
+        <div class="frame br" id="fNew"><div class="bar"><i></i><i></i><i></i><span>новая страница</span></div><div class="scr vp" id="vp"><iframe id="ifr" src="projects/privet-landing/index.html?v=5" title="Новая страница" scrolling="no"></iframe><div class="hl2" id="hl2"></div></div></div>
+      </div>
+      <div class="cl" id="cl"></div>
+    </div>
+  </div>
+
+  <!-- визуальный стиль -->
+  <section class="vis">
+    <div class="cap">Визуальный стиль</div>
+    <h2>Придумала визуальный язык с нуля — в цветах «Мир»</h2>
+    <p class="sub">Программа переходит на айдентику «Мир», а готовой графики для лендинга не было. Стиль разработала сама: полупрозрачное «желе» с блёстками, зелёная фактура и голубые детали — в нём все иллюстрации страницы</p>
+
+    <div class="vhero"><img src="assets/cases/privet-landing/cover.jpg" alt="Главная иллюстрация: телефон в желейной рамке и пакет" loading="lazy"><span>Главная иллюстрация первого экрана</span></div>
+
+    <div class="vgrid">
+      <div class="vcard v-final">
+        <div class="vh"><b>Иллюстрации лендинга</b><span>одна гамма и один материал на всей странице</span></div>
+        <div class="vfin">
+          <figure><img src="assets/cases/privet-landing/style/f-phone.png" alt="" loading="lazy"><figcaption>Первый экран</figcaption></figure>
+          <figure><img src="projects/privet-landing/для лендоса обрезанные/figma-0810/promo-desktop.png" alt="" loading="lazy"><figcaption>Акции партнёров</figcaption></figure>
+          <figure><img src="projects/privet-landing/для лендоса обрезанные/figma-0810/cashback-desktop.png" alt="" loading="lazy"><figcaption>Кешбэк рублями</figcaption></figure>
+          <figure><img src="projects/privet-landing/для лендоса обрезанные/figma-0810/history-desktop.png" alt="" loading="lazy"><figcaption>История кешбэка</figcaption></figure>
+          <figure><img src="projects/privet-landing/для лендоса обрезанные/figma-0810/qr-desktop.png" alt="" loading="lazy"><figcaption>Финальный баннер с QR</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="vcard">
+        <div class="vh"><b>Цвета «Мир»</b><span>вместо фиолетового «Привет!»</span></div>
+        <p>Нейтральный серый рядом с голубым и синим выглядел тёплым. Основной текст стал #34373D, а в серые и тёмные добавила немного синего — всё в одной гамме</p>
+        <div class="swl">Было</div>
+        <div class="sw"><i style="background:#4d35af"></i><i style="background:#0D0D0D"></i><i style="background:#4a4a4a"></i><i style="background:#929292"></i><i style="background:#f3f3f3"></i></div>
+        <div class="swl">Стало</div>
+        <div class="sw"><i style="background:#34373D"></i><i style="background:#474a50"></i><i style="background:#8f9299"></i><i style="background:#f1f7ff"></i><i style="background:#e0efff"></i><i style="background:#89d7ff"></i><i style="background:#2fa7ec"></i><i style="background:#3d8bff"></i><i style="background:#1d63da"></i><i style="background:#139e5b"></i></div>
+      </div>
+
+      <div class="vcard">
+        <div class="vh"><b>Шрифты</b><span>из редизайна приложения</span></div>
+        <div class="ty"><span class="ty-r">Aa</span><div><b>Raleway</b><small>Заголовки · 700–800</small><p class="ty-rs">Скачивайте приложение «Привет!»</p></div></div>
+        <div class="ty"><span class="ty-i">Aa</span><div><b>Inter</b><small>Текст и кнопки · 400–500</small><p class="ty-is">Акции партнёров и история кешбэка — в одном месте</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- почему так -->
+  <section>
+    <div class="cap">Почему так</div>
+    <h2>Понятные шаги, все размеры экранов и короткие тексты</h2>
+    <div class="bento">
+      <div class="pc s4"><b>Экраны в шагах</b>
+        <p>Главное действие вынесено на плашку поверх телефона, остальное размыто — сразу видно, что делать</p>
+        <div class="stepsimg"><img src="assets/cases/privet-landing/steps.jpg" alt="Четыре шага: скачать, указать номер, добавить карту, оплачивать" loading="lazy"></div>
+      </div>
+      <div class="pc s2"><b>Брейкпоинты</b>
+        <p>Шесть кадров в макете. На компьютере и планшете — QR-код: приложение только для телефона</p>
+        <div class="bp">
+          <div><i style="width:100%"></i><span>1920 · контент 1120</span></div>
+          <div><i style="width:75%"></i><span>1440</span></div>
+          <div><i style="width:53%"></i><span>1024 · планшет, контент 728</span></div>
+          <div><i style="width:23%"></i><span>440</span></div>
+          <div><i style="width:20.5%"></i><span>393</span></div>
+          <div><i style="width:18.75%"></i><span>360</span></div>
+        </div>
+      </div>
+      <div class="pc s6"><b>UX-тексты</b>
+        <p>Без оценочных слов, «вашей», скобок и канцелярита. Один шаг — одно действие</p>
+        <div class="tx">
+          <div><s>Приложение для вашей выгоды</s><em>→</em><span>Скачивайте приложение «Привет!»</span></div>
+          <div><s>Установите приложение (требуется операционная система Android 7.0 и выше)</s><em>→</em><span>Скачайте приложение. В RuStore или AppGallery. Для Android 7.0 и выше</span></div>
+          <div><s>Зарегистрируйтесь в Программе лояльности: введите номер… добавьте карту…</s><em>→</em><span>Два отдельных шага: «Укажите номер» и «Добавьте карту «Мир»»</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">Суммы и номер карты в макете — примеры</p>
+  </section>
+
+  <div class="end"><a class="btn-p" href="v3.html">← Все проекты</a><a class="btn-p ghost" href="https://www.figma.com/design/HciWYhRHOLoQnKYPqm70h5?node-id=16-1154" target="_blank" rel="noopener">Лендинг в Figma ↗</a></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id), $$=(r,s)=>[...r.querySelectorAll(s)];
+const pageZoom=()=>parseFloat(getComputedStyle(document.documentElement).zoom)||1;
+
+/* режимы: ширина страницы, снимок старой страницы, высота экрана — в пикселях страницы */
+const MODES={
+  m:{base:390,img:'assets/cases/privet-landing/old-mobile.jpg?v=2',screen:800,max:.86},
+  t:{base:1024,img:'assets/cases/privet-landing/old-tablet.jpg',screen:1366,max:1},
+  d:{base:1440,img:'assets/cases/privet-landing/old-desktop.jpg?v=2',screen:1150,max:1}
+};
+/* комментарии: где метка на старой странице [x,y,высота блока] и куда листать новую */
+const C=[
+  {t:'Первый экран',was:'Скачать можно только внизу, после абзаца и переключателя Android / iOS',now:'RuStore и AppGallery в первом экране',why:'Главное действие — скачать',
+   at:{m:[0,110,470],t:[0,60,460],d:[0,118,500]},p:{m:[370,250],t:[425,402],d:[685,425]},sel:'.he'},
+  {t:'UX-тексты',was:'Оценочные слова, «ваша», скобки и канцелярит: «Приложение для вашей выгоды», «(требуется операционная система Android 7.0 и выше)»',now:'«Скачивайте приложение «Привет!»», «Для Android 7.0 и выше». Один шаг — одно действие',why:'По редполитике НСПК: без оценок, канцелярита и скобок — текст короче и понятнее',
+   at:{m:[0,120,100],t:[0,250,110],d:[0,280,100]},p:{m:[335,190],t:[415,335],d:[556,365]},sel:'.he'},
+  {t:'Графика и цвета',was:'Фиолетовая 3D-графика «Привет!»',now:'Цвета «Мир» и 3D в той же гамме',why:'Программа переходит на айдентику «Мир»',
+   at:{m:[0,285,270],t:[0,160,370],d:[0,160,420]},p:{m:[355,300],t:[990,190],d:[1250,190]},sel:'.he'},
+  {t:'Что в приложении',was:'Абзац на всю ширину: пять строк на компьютере, одиннадцать на телефоне',now:'Три карточки: акции, кешбэк, история',why:'Строку в 1120 px не дочитывают, карточки сканируются за секунды',
+   at:{m:[0,580,275],t:[0,555,115],d:[0,605,115]},p:{m:[370,590],t:[1000,575],d:[1300,620]},sel:'#inside'},
+  {t:'Шаги',was:'Вложенный список, мелкие номера',now:'Четыре карточки с экранами приложения',why:'Один шаг — одно действие, и сразу видно, как это выглядит',
+   at:{m:[0,1390,500],t:[0,870,560],d:[0,965,420]},p:{m:[370,1405],t:[1000,890],d:[1290,980]},sel:'#start'},
+  {t:'Финал',was:'Страница обрывалась на документах',now:'Баннер с QR и магазинами перед подвалом',why:'Кто долистал, уже решил — дать скачать здесь же. На компьютере и планшете QR: приложение только для телефона',
+   at:{m:[0,1925,250],t:[0,1530,120],d:[0,1495,150]},p:{m:[370,1940],t:[1000,1565],d:[1300,1510]},sel:'.final'}
+];
+const cmp=$('cmp'),scOld=$('scOld'),inOld=$('inOld'),img=$('imgOld'),ifr=$('ifr'),vp=$('vp'),hl=$('hl');
+const pop=document.createElement('div');pop.className='pop';
+let mode='d',s=1,open=null;
+
+$('cl').innerHTML=`<div class="cl-h">Что поменяла<span>${C.length}</span></div>`+C.map((c,i)=>`<button class="cl-i" data-i="${i}"><i>${i+1}</i><span><b>${c.t}</b><small>${c.now}</small></span></button>`).join('');
+$$($('cl'),'.cl-i').forEach(b=>b.onclick=e=>{e.stopPropagation();openPop(+b.dataset.i,true)});
+
+function newDoc(){try{return ifr.contentDocument}catch(e){return null}}
+function sizeNew(){
+  const d=newDoc(),M=MODES[mode];let h=M.screen;
+  if(d&&d.body){const f=d.querySelector('footer')||d.body.lastElementChild;if(f)h=Math.ceil(f.getBoundingClientRect().bottom+(d.defaultView.scrollY||0))}
+  ifr.style.height=h+'px';vp.style.height=Math.round(h*s)+'px';
+  if(open!==null)markHl2();
+}
+function layout(){
+  const M=MODES[mode];cmp.className='cmpx '+mode;
+  $$(document,'.frame').forEach(f=>{f.classList.toggle('ph',mode==='m');f.classList.toggle('br',mode!=='m')});
+  const colW=$('wcol').clientWidth, pad=mode==='m'?18:2;
+  const W=Math.floor(Math.min(colW-pad,M.base*M.max));s=W/M.base;
+  scOld.parentNode.style.width=W+'px';scOld.parentNode.style.height='';vp.style.width=W+'px';
+  ifr.style.width=M.base+'px';ifr.style.transform=`scale(${s})`;
+  if(!img.src.endsWith(M.img)){img.style.opacity=0;img.onload=()=>{img.style.opacity=1;placePins()};img.src=M.img}
+  sizeNew();requestAnimationFrame(()=>requestAnimationFrame(sizeNew));
+  placePins();
+}
+ifr.addEventListener('load',()=>{sizeNew();const d=newDoc();if(d&&window.ResizeObserver)new ResizeObserver(()=>sizeNew()).observe(d.body);
+  if(d)d.querySelectorAll('img').forEach(i=>i.complete||i.addEventListener('load',sizeNew))});
+function placePins(){
+  $$(inOld,'.pin').forEach(p=>p.remove());
+  C.forEach((c,i)=>{const a=c.at[mode];const p=document.createElement('button');p.className='pin'+(open===i?' on':'');p.dataset.i=i;
+    const q=c.p[mode];p.style.left=(q[0]*s)+'px';p.style.top=(q[1]*s)+'px';
+    p.innerHTML=`<b>${i+1}</b><span class="pt-t">${c.t}</span>`;
+    p.onclick=e=>{e.stopPropagation();open===i?closePop():openPop(i,true)};inOld.appendChild(p)});
+  if(open!==null)markHl();
+}
+function markHl(){const a=C[open].at[mode];hl.style.top=(a[1]*s)+'px';hl.style.height=(a[2]*s)+'px';hl.classList.add('on')}
+/* своя плавная прокрутка: встроенная smooth обрывается, когда листают сразу два окна */
+function glide(get,set,to,ms=520){const from=get(),t0=performance.now();
+  const step=t=>{const k=Math.min(1,(t-t0)/ms),e=1-Math.pow(1-k,3);set(from+(to-from)*e);if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)}
+function openPop(i,scroll){
+  open=i;const c=C[i];
+  $$(inOld,'.pin').forEach(p=>p.classList.toggle('on',+p.dataset.i===i));
+  $$($('cl'),'.cl-i').forEach(b=>b.classList.toggle('on',+b.dataset.i===i));
+  markHl();
+  pop.innerHTML=`<div class="pop-hd"><span class="dotn">${i+1}</span><b>${c.t}</b><button class="pop-x" aria-label="Закрыть">×</button></div>
+    <dl class="pop-r"><dt>Было</dt><dd><s>${c.was}</s></dd><dt>Стало</dt><dd>${c.now}</dd><dt>Почему</dt><dd class="why">${c.why}</dd></dl>
+    <div class="pop-ft"><button data-d="-1" aria-label="Предыдущий">‹</button><span>${i+1} из ${C.length}</span><button data-d="1" aria-label="Следующий">›</button></div>`;
+  pop.querySelector('.pop-x').onclick=closePop;
+  $$(pop,'[data-d]').forEach(b=>b.onclick=e=>{e.stopPropagation();openPop((i+ +b.dataset.d+C.length)%C.length,true)});
+  $('wcol').appendChild(pop);
+  markHl2();
+  if(scroll){const pin=inOld.querySelector(`.pin[data-i="${i}"]`);
+    if(pin){const t=pin.getBoundingClientRect().top+scrollY-140;glide(()=>scrollY,v=>window.scrollTo({top:v,behavior:'instant'}),Math.max(0,t))}}
+  setTimeout(placePop,scroll?560:0);placePop();
+}
+function placePop(){
+  if(open===null)return;
+  const mob=innerWidth<=720;pop.classList.toggle('fixed',mob);if(mob)return;
+  const pin=inOld.querySelector(`.pin[data-i="${open}"]`);if(!pin)return;
+  const Z=pageZoom(),w=$('wcol').getBoundingClientRect(),r=pin.getBoundingClientRect();
+  const y=r.top;
+  let left=(r.right-w.left)/Z+10;
+  if(w.left+(left+310)*Z>innerWidth-12)left=(r.left-w.left)/Z-320;
+  pop.style.left=left+'px';pop.style.top=((y-w.top)/Z-10)+'px';
+}
+function markHl2(){const d=newDoc(),h2=$('hl2');const el=d&&d.querySelector(C[open].sel);if(!el){h2.classList.remove('on');return}
+  const sec=el.closest('section')||el,r=sec.getBoundingClientRect();h2.style.top=(r.top*s)+'px';h2.style.height=(r.height*s)+'px';h2.classList.add('on')}
+function closePop(){open=null;pop.remove();hl.classList.remove('on');$('hl2').classList.remove('on');$$(inOld,'.pin.on').forEach(p=>p.classList.remove('on'));$$($('cl'),'.cl-i.on').forEach(b=>b.classList.remove('on'))}
+document.addEventListener('click',e=>{if(open!==null&&!e.target.closest('.pop,.pin,.cl-i,.seg'))closePop()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePop()});
+$$($('mode'),'button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;$$($('mode'),'button').forEach(x=>x.classList.toggle('on',x===b));
+  const was=open;closePop();layout();if(was!==null)setTimeout(()=>openPop(was,false),400)});
+let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(layout,80)});
+layout();
+</script>
+</body>
+</html>

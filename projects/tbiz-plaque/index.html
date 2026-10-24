@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Табличка Т-Бизнес — 3D</title>
+<style>
+  /* 3D бокса-таблички для оранжереи (акция Т-Бизнес к 8 Марта): короб 175×175×300 на стальной колонне,
+     лицевая сторона — из печатного PDF «боксы.pdf». Встраивается в кейс через iframe. */
+  :root{--bg:#EEF0EB;--ink:#111}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;font:400 14px/1.4 "Inter Tight",system-ui,sans-serif;color:var(--ink);
+    background:radial-gradient(120% 90% at 50% 40%,#F5F6F2 0%,#E4E8E1 70%,#D9DED6 100%)}
+  canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+  canvas:active{cursor:grabbing}
+  .hint{position:absolute;left:50%;top:16px;transform:translateX(-50%);font-size:12px;color:#8a8a8a;pointer-events:none;transition:opacity .4s}
+  .load{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:#8a8a8a}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div class="load" id="load">Загружаю модель…</div>
+<div class="hint" id="hint">Покрутите табличку</div>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+/* размеры в мм: короб 175×175×300 по макету, колонна — двутавр, как в оранжерее */
+const BW=175, BH=300, BD=175, Y0=700;
+const CREAM=0xFFDD2D, STEEL=0x2F4A3C;
+
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.NeutralToneMapping;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.body.prepend(renderer.domElement);
+
+const scene=new THREE.Scene();
+const pm=new THREE.PMREMGenerator(renderer);
+scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;scene.environmentIntensity=.8;
+
+const cam=new THREE.PerspectiveCamera(28,1,10,8000);
+cam.position.set(420,Y0+260,820);
+const ctl=new OrbitControls(cam,renderer.domElement);
+ctl.target.set(0,Y0+BH/2,0);ctl.enableDamping=true;ctl.dampingFactor=.08;ctl.enablePan=false;
+ctl.minDistance=420;ctl.maxDistance=1600;ctl.minPolarAngle=Math.PI*.25;ctl.maxPolarAngle=Math.PI*.62;
+ctl.autoRotate=true;ctl.autoRotateSpeed=.7;
+
+const sun=new THREE.DirectionalLight(0xffffff,1.5);sun.position.set(-500,1600,700);
+sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.radius=5;sun.shadow.bias=-.0004;
+Object.assign(sun.shadow.camera,{left:-400,right:400,top:1400,bottom:200,near:200,far:3000});
+scene.add(sun);scene.add(new THREE.HemisphereLight(0xffffff,0xc9d2c4,.45));
+
+/* колонна-двутавр, уходит за кадр вверх и вниз */
+const steel=new THREE.MeshStandardMaterial({color:STEEL,roughness:.55,metalness:.35});
+const col=new THREE.Group();scene.add(col);
+const CH=2400,FL=110,WEB=8,FT=10,DEP=110;
+for(const z of [-DEP/2+FT/2,DEP/2-FT/2]){const f=new THREE.Mesh(new THREE.BoxGeometry(FL,CH,FT),steel);f.position.set(0,CH/2-500,z);f.castShadow=f.receiveShadow=true;col.add(f)}
+const w=new THREE.Mesh(new THREE.BoxGeometry(WEB,CH,DEP-2*FT),steel);w.position.set(0,CH/2-500,0);w.castShadow=w.receiveShadow=true;col.add(w);
+
+/* короб вокруг колонны; лицевая сторона — печать из PDF */
+const tl=new THREE.TextureLoader();
+const face=tl.load('face.jpg',()=>document.getElementById('load').remove());face.colorSpace=THREE.SRGBColorSpace;face.anisotropy=8;
+const cream=new THREE.MeshStandardMaterial({color:CREAM,roughness:.82,metalness:0});
+const box=new THREE.Mesh(new RoundedBoxGeometry(BW,BH,BD,3,2),cream);
+box.position.set(0,Y0+BH/2,0);box.castShadow=box.receiveShadow=true;scene.add(box);
+const print=new THREE.Mesh(new THREE.PlaneGeometry(BW-1,BH-1),new THREE.MeshStandardMaterial({map:face,color:CREAM,roughness:.8,metalness:0}));
+print.position.set(0,Y0+BH/2,BD/2+.15);print.receiveShadow=true;scene.add(print);
+
+/* хомуты, которыми короб держится на колонне */
+for(const y of [Y0-8,Y0+BH+8]){const c=new THREE.Mesh(new THREE.BoxGeometry(FL+10,10,DEP+10),steel);c.position.y=y;c.castShadow=true;scene.add(c)}
+
+function stopAuto(){ctl.autoRotate=false;document.getElementById('hint').style.opacity=0}
+renderer.domElement.addEventListener('pointerdown',stopAuto);
+function resize(){const W=innerWidth,H=innerHeight;renderer.setSize(W,H,false);cam.aspect=W/H;cam.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+renderer.setAnimationLoop(()=>{ctl.update();renderer.render(scene,cam)});
+</script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Коробка Т-Банка — 3D</title>
+<style>
+  /* 3D-модель подарочной коробки Т-Банка 350×350×52: откидная крышка, клапан, лоток, джут и бирка.
+     Текстуры — из печатного макета (PDF) и фото содержимого. Встраивается в кейс через iframe. */
+  :root{--bg:#F3F2EE;--ink:#111}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);overflow:hidden;font:400 14px/1.4 "Inter Tight",system-ui,sans-serif;color:var(--ink)}
+  canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+  canvas:active{cursor:grabbing}
+  .ui{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);display:flex;gap:8px;align-items:center}
+  .ui button{height:40px;padding:0 18px;border:0;border-radius:99px;background:var(--ink);color:#fff;font:500 14px "Inter Tight",system-ui,sans-serif;cursor:pointer}
+  .ui button.g{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
+  .hint{position:absolute;left:50%;top:16px;transform:translateX(-50%);font-size:12px;color:#8a8a8a;pointer-events:none;transition:opacity .4s}
+  .load{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:#8a8a8a}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div class="load" id="load">Загружаю модель…</div>
+<div class="hint" id="hint">Покрутите коробку</div>
+<div class="ui"><button id="open">Открыть</button><button class="g" id="view">Вид сверху</button></div>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+/* размеры в миллиметрах, по макету: 364×352 по корке, высота 54, картон 3 мм */
+const W=364, HD=176, H=54, T=3, FLAP=54;
+const PAPER=0xFFF495;
+
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.NeutralToneMapping;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.body.prepend(renderer.domElement);
+
+const scene=new THREE.Scene();
+const pm=new THREE.PMREMGenerator(renderer);
+scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;
+scene.environmentIntensity=.75;
+
+const cam=new THREE.PerspectiveCamera(30,1,10,6000);
+cam.position.set(560,520,780);
+const ctl=new OrbitControls(cam,renderer.domElement);
+ctl.target.set(0,30,0);ctl.enableDamping=true;ctl.dampingFactor=.08;
+ctl.minDistance=420;ctl.maxDistance=1700;ctl.maxPolarAngle=Math.PI*.47;ctl.enablePan=false;
+ctl.autoRotate=true;ctl.autoRotateSpeed=.6;
+
+/* свет: мягкий ключевой с тенью + окружение */
+const sun=new THREE.DirectionalLight(0xffffff,1.6);sun.position.set(-380,900,520);
+sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.radius=6;sun.shadow.bias=-.0004;
+Object.assign(sun.shadow.camera,{left:-600,right:600,top:600,bottom:-600,near:100,far:2200});
+scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xffffff,0xe9e4d6,.35));
+
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000),new THREE.ShadowMaterial({opacity:.16}));
+ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+
+const tl=new THREE.TextureLoader();
+const tex=(u,srgb=true)=>{const t=tl.load(u,()=>{ready++;if(ready>=5)document.getElementById('load').remove()});if(srgb)t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t};
+let ready=0;
+const tTop=tex('top.jpg'),tIn=tex('inner-top.jpg'),tCont=tex('contents.jpg'),tTag=tex('tag.png'),tCard=tex('card.jpg');
+
+const paper=new THREE.MeshStandardMaterial({color:PAPER,roughness:.86,metalness:0});
+const paperIn=new THREE.MeshStandardMaterial({color:0xFFF07C,roughness:.9,metalness:0});
+const edge=new THREE.MeshStandardMaterial({color:0xF2E38A,roughness:.95});
+function board(w,h,d,mat=paper,r=1.2){const m=new THREE.Mesh(new RoundedBoxGeometry(w,h,d,2,r),mat);m.castShadow=true;m.receiveShadow=true;return m}
+function decal(w,h,map){return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map,roughness:.86,metalness:0}))}
+
+const box=new THREE.Group();scene.add(box);
+
+/* дно корки и корешок */
+const bottom=board(W,T,HD*2);bottom.position.set(0,T/2,0);box.add(bottom);
+const spine=board(W,H,T);spine.position.set(0,H/2,-HD-T/2);box.add(spine);
+
+/* лоток: дно с содержимым и четыре стенки */
+const TW=W-8, TD=HD*2-4, TH=H-T-1, WT=2.5;
+const tray=new THREE.Group();tray.position.set(0,T,-1);box.add(tray);
+/* содержимое: фото сверху на мягкой «подушке» — у стенок опускается и темнеет, как ткань в коробке */
+const CW=TW-2*WT, CD=TD-2*WT;
+const cg=new THREE.PlaneGeometry(CW,CD,72,72);cg.rotateX(-Math.PI/2);
+const cpos=cg.attributes.position, ccol=[];
+const sm=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x)};
+for(let i=0;i<cpos.count;i++){
+  const x=cpos.getX(i),z=cpos.getZ(i);
+  const d=Math.min(CW/2-Math.abs(x),CD/2-Math.abs(z));          // мм до ближайшей стенки
+  const f=sm(0,58,d);
+  const wob=Math.sin(x*.045)*Math.cos(z*.05)*1.6+Math.sin(x*.11+z*.07)*.8;
+  cpos.setY(i,3+(TH-12)*f+wob*f);
+  const ao=.58+.42*sm(0,34,d);ccol.push(ao,ao,ao);
+}
+cg.setAttribute('color',new THREE.Float32BufferAttribute(ccol,3));cg.computeVertexNormals();
+const floor=new THREE.Mesh(cg,new THREE.MeshStandardMaterial({map:tCont,vertexColors:true,roughness:.95,metalness:0}));
+floor.receiveShadow=true;floor.castShadow=true;tray.add(floor);
+/* открытка лежит сверху, как на фото */
+const card=board(105,.8,148,new THREE.MeshStandardMaterial({color:0xFFF495,roughness:.8}),.3);
+const cardTop=new THREE.Mesh(new THREE.PlaneGeometry(105,148),new THREE.MeshBasicMaterial({map:tCard,toneMapped:false,color:0xF2F2F2}));cardTop.rotation.x=-Math.PI/2;cardTop.position.y=.45;card.add(cardTop);
+card.castShadow=true;scene.add(card);
+/* место открытки в коробке (в мировых координатах) — отсюда она вылетает к зрителю */
+const cardHome={p:new THREE.Vector3(38,T+3+(TH-12)+2.8,-1-18),q:new THREE.Quaternion().setFromEuler(new THREE.Euler(0,-.12,0))};
+card.position.copy(cardHome.p);card.quaternion.copy(cardHome.q);
+for(const [w,d,x,z] of [[TW,WT,0,TD/2-WT/2],[TW,WT,0,-TD/2+WT/2],[WT,TD,TW/2-WT/2,0],[WT,TD,-TW/2+WT/2,0]]){
+  const m=board(w,TH,d,paperIn,.8);m.position.set(x,TH/2,z);tray.add(m)}
+
+/* крышка на петле у верхнего края корешка */
+const hinge=new THREE.Group();hinge.position.set(0,H,-HD-T);box.add(hinge);
+const LID=HD*2+T;
+const lid=board(W,T,LID);lid.position.set(0,-T/2,LID/2);hinge.add(lid);
+const top=decal(W-2,LID-4,tTop);top.rotation.x=-Math.PI/2;top.position.set(0,.05,LID/2+1);top.castShadow=false;hinge.add(top);
+const inner=decal(W-10,LID-12,tIn);inner.rotation.x=Math.PI/2;inner.position.set(0,-T-.05,LID/2);hinge.add(inner);
+const flap=board(W,FLAP,T);flap.position.set(0,-FLAP/2+.5,LID+T/2);hinge.add(flap);
+
+/* джут вокруг коробки; бирка висит на нитке от узла и лежит низом на столе */
+const jute=new THREE.MeshStandardMaterial({color:0xB0895A,roughness:1});
+const tw=new THREE.Group();box.add(tw);
+const yJ=34, ox=W/2+1.4, oz=HD+T+1.4;
+const loop=new THREE.CatmullRomCurve3([[-ox,yJ,oz],[-ox,yJ,-oz],[ox,yJ,-oz],[ox,yJ,oz],[16,yJ,oz+.6],[0,yJ+.8,oz+2.6],[-16,yJ,oz+.6]].map(p=>new THREE.Vector3(...p)),true,'catmullrom',.02);
+const rope=new THREE.Mesh(new THREE.TubeGeometry(loop,260,1.3,8,true),jute);rope.castShadow=true;tw.add(rope);
+const knot=new THREE.Mesh(new THREE.SphereGeometry(4.2,16,12),jute);knot.position.set(0,yJ+.6,oz+3);knot.scale.set(1.4,1,1);knot.castShadow=true;tw.add(knot);
+/* бирка: дырочка — точка подвеса, низ касается стола */
+const tagW=72,tagH=tagW*0.79,hole=new THREE.Vector3(2,yJ-12,oz+7);
+const tagG=new THREE.Group();tagG.position.copy(hole);tw.add(tagG);
+const tag=new THREE.Mesh(new THREE.PlaneGeometry(tagW,tagH),new THREE.MeshStandardMaterial({map:tTag,transparent:true,alphaTest:.5,roughness:.85,side:THREE.DoubleSide}));
+const HX=(0.496-.5)*tagW, HY=tagH/2-0.205*tagH;   // дырочка на бирке (по текстуре)
+tag.position.set(-HX,-HY,0);tag.castShadow=true;tag.receiveShadow=true;tagG.add(tag);
+const lean=Math.asin(Math.min(1,(hole.y-.6)/(tagH/2+HY)));tagG.rotation.x=-(Math.PI/2-lean);tagG.rotation.y=.08;
+/* нитка от узла к дырочке бирки и свободный хвост */
+/* нитка петлёй: от узла спереди вниз, сквозь дырочку и обратно к узлу с изнанки бирки */
+tagG.updateMatrixWorld(true);
+const tq=tagG.getWorldQuaternion(new THREE.Quaternion());
+const nrm=new THREE.Vector3(0,0,1).applyQuaternion(tq), upv=new THREE.Vector3(0,1,0).applyQuaternion(tq);
+const P=(n,u)=>hole.clone().addScaledVector(nrm,n).addScaledVector(upv,u);
+const str=new THREE.CatmullRomCurve3([new THREE.Vector3(-2.5,yJ,oz+4.5),P(7,10),P(2.2,2.4),P(0,0),P(-1.6,-1.6),P(-3.2,4),P(-2.4,13.5),P(1.5,17),new THREE.Vector3(2.5,yJ-.5,oz+4)]);
+const strM=new THREE.Mesh(new THREE.TubeGeometry(str,80,.9,8,false),jute);strM.castShadow=true;tw.add(strM);
+const tail2=new THREE.CatmullRomCurve3([[-1,yJ,oz+4],[-20,yJ-5,oz+4.5],[-42,yJ-15,oz+8],[-60,1,oz+20],[-80,.9,oz+26]].map(p=>new THREE.Vector3(...p)));
+const tailM=new THREE.Mesh(new THREE.TubeGeometry(tail2,40,1.1,6,false),jute);tailM.castShadow=true;tw.add(tailM);
+/* открытие: крышка уходит назад на петле, джут исчезает */
+let target=0,ang=0,cardT=0,cv=0;
+const bOpen=document.getElementById('open');
+bOpen.onclick=()=>{target=target?0:1;cardT=target;bOpen.textContent=target?'Закрыть':'Открыть';stopAuto()};
+let topView=false;
+document.getElementById('view').onclick=()=>{topView=!topView;stopAuto();
+  const from=cam.position.clone(),to=topView?new THREE.Vector3(0,1150,330):new THREE.Vector3(560,520,780),t0=performance.now();
+  (function go(t){const k=Math.min(1,(t-t0)/900),e=1-Math.pow(1-k,3);cam.position.lerpVectors(from,to,e);if(k<1)requestAnimationFrame(go)})(t0);
+  document.getElementById('view').textContent=topView?'Вид сбоку':'Вид сверху';if(topView){if(!target)bOpen.click();cardT=0}};
+function stopAuto(){ctl.autoRotate=false;document.getElementById('hint').style.opacity=0}
+renderer.domElement.addEventListener('pointerdown',stopAuto);
+/* клик по открытке: вылетает к зрителю или ложится обратно в коробку */
+const ray=new THREE.Raycaster(),pt=new THREE.Vector2();let down=null;
+renderer.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);
+renderer.domElement.addEventListener('pointerup',e=>{
+  if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>5||!target)return;
+  const r=renderer.domElement.getBoundingClientRect();pt.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);
+  ray.setFromCamera(pt,cam);if(ray.intersectObject(card,true).length)cardT=cardT?0:1});
+
+/* ?tag — камера вплотную к бирке (для проверки) */
+if(location.search.includes('tag')){ctl.autoRotate=false;ctl.minDistance=40;ctl.target.copy(hole);cam.position.copy(hole).add(new THREE.Vector3(70,70,110));}
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+
+const clock=new THREE.Clock();
+renderer.setAnimationLoop(()=>{
+  const dt=Math.min(.05,clock.getDelta());
+  ang+=(target-ang)*Math.min(1,dt*3.2);
+  const e=ang<.5?4*ang*ang*ang:1-Math.pow(-2*ang+2,3)/2;
+  hinge.rotation.x=-THREE.MathUtils.degToRad(102)*e;
+  ctl.target.y=30+90*e;
+  /* открытка: после того как крышка почти открылась, подлетает к камере и встаёт текстом к зрителю */
+  cv+=(cardT-cv)*Math.min(1,dt*2.6);
+  const k=Math.min(cv,sm(.62,1,ang)), kk=k*k*(3-2*k);
+  if(kk>0){
+    const dir=new THREE.Vector3();cam.getWorldDirection(dir);
+    const tp=cam.position.clone().addScaledVector(dir,520);
+    tp.y+=Math.sin(performance.now()/900)*2.5*kk;
+    const tq=cam.quaternion.clone().multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI/2,0,.05)));
+    const p=cardHome.p.clone().lerp(tp,kk);p.y+=Math.sin(kk*Math.PI)*90;
+    card.position.copy(p);card.quaternion.copy(cardHome.q).slerp(tq,kk);
+  }else{card.position.copy(cardHome.p);card.quaternion.copy(cardHome.q)}
+  const fade=Math.max(0,1-ang*3);tw.visible=fade>.02;tw.traverse(m=>{if(m.material){m.material.transparent=true;m.material.opacity=fade}});
+  ctl.update();renderer.render(scene,cam);
+});
+</script>
+</body>
+</html>

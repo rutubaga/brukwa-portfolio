@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Шестиугольная коробка Т-Бизнес — 3D</title>
+<style>
+  /* 3D распадающейся шестиугольной коробки Т-Бизнес к 8 Марта (246×213×123) по печатному PDF:
+     крышка с орхидеями, шесть стенок (снаружи жёлтые, у трёх внутри фото орхидей), чёрный вкладыш, открытка. */
+  :root{--bg:#F1F1EE;--ink:#111}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);overflow:hidden;font:400 14px/1.4 "Inter Tight",system-ui,sans-serif;color:var(--ink)}
+  canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+  canvas:active{cursor:grabbing}
+  .ui{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);display:flex;gap:8px}
+  .ui button{height:40px;padding:0 18px;border:0;border-radius:99px;background:var(--ink);color:#fff;font:500 14px "Inter Tight",system-ui,sans-serif;cursor:pointer}
+  .ui button.g{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
+  .hint{position:absolute;left:50%;top:16px;transform:translateX(-50%);font-size:12px;color:#8a8a8a;pointer-events:none;transition:opacity .4s}
+  .load{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:#8a8a8a}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div class="load" id="load">Загружаю модель…</div>
+<div class="hint" id="hint">Покрутите коробку</div>
+<div class="ui"><button id="open">Открыть</button><button class="g" id="view">Вид сверху</button></div>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+
+/* размеры в мм по развёртке: шестиугольник 246 по углам и 213 по граням, высота 123 */
+const R=123, AP=R*Math.sqrt(3)/2, H=123, T=2.5;
+const LR=126.5, LAP=LR*Math.sqrt(3)/2, LH=30, SPAN=300;   // крышка; SPAN — сколько мм в текстуре крышки
+const YEL=0xFFCF00;
+
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.NeutralToneMapping;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.body.prepend(renderer.domElement);
+const scene=new THREE.Scene();
+const pm=new THREE.PMREMGenerator(renderer);
+scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;scene.environmentIntensity=.55;
+
+const cam=new THREE.PerspectiveCamera(30,1,10,6000);cam.position.set(430,430,620);
+const ctl=new OrbitControls(cam,renderer.domElement);
+ctl.target.set(0,55,0);ctl.enableDamping=true;ctl.dampingFactor=.08;ctl.enablePan=false;
+ctl.minDistance=380;ctl.maxDistance=1500;ctl.maxPolarAngle=Math.PI*.47;ctl.autoRotate=true;ctl.autoRotateSpeed=.6;
+
+const sun=new THREE.DirectionalLight(0xffffff,1.6);sun.position.set(-350,850,450);
+sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.radius=6;sun.shadow.bias=-.0004;
+Object.assign(sun.shadow.camera,{left:-500,right:500,top:500,bottom:-500,near:100,far:2000});
+scene.add(sun);scene.add(new THREE.HemisphereLight(0xffffff,0xe9e4d6,.35));
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000),new THREE.ShadowMaterial({opacity:.16}));
+ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+
+let ready=0;const need=9;
+const tl=new THREE.TextureLoader();
+const tex=u=>{const t=tl.load(u,()=>{if(++ready>=need)document.getElementById('load').remove()});t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t};
+const tLid=tex('lid.jpg'),tPh=[tex('photo0.jpg'),tex('photo1.jpg'),tex('photo2.jpg')],tCard=tex('card.jpg'),tCubeSide=tex('cube-side.jpg'),tCubeTop=tex('cube-top.jpg'),tEnv=tex('envelope.png'),tCardF=tex('card-front.jpg');
+
+const yel=new THREE.MeshStandardMaterial({color:YEL,roughness:.8,metalness:0});
+const blk=new THREE.MeshStandardMaterial({color:0x151515,roughness:.85,metalness:0});
+const hexShape=r=>{const s=new THREE.Shape();for(let i=0;i<6;i++){const a=i*Math.PI/3;i?s.lineTo(r*Math.cos(a),r*Math.sin(a)):s.moveTo(r*Math.cos(a),r*Math.sin(a))}s.closePath();return s};
+function hexSlab(r,h,mat){const g=new THREE.ExtrudeGeometry(hexShape(r),{depth:h,bevelEnabled:false});g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,mat);m.castShadow=m.receiveShadow=true;return m}
+/* угол середины i-й грани и нормаль наружу; вершины шестиугольника на 0°, 60°… — острые углы слева и справа */
+const face=i=>{const p=Math.PI/6+i*Math.PI/3;return {p,n:new THREE.Vector3(Math.cos(p),0,-Math.sin(p))}};
+
+const box=new THREE.Group();scene.add(box);
+box.add(hexSlab(R,T,yel));                                     // дно
+const liner=hexSlab(R-6,.6,blk);liner.position.y=T;box.add(liner);  // чёрная кашировка внутреннего дна
+
+/* чёрный вкладыш: невысокие стенки внутреннего дна */
+for(let i=0;i<6;i++){const {p,n}=face(i);const w=new THREE.Mesh(new THREE.BoxGeometry(2,60,(R-8)),blk);
+  w.position.copy(n.clone().multiplyScalar(AP-8));w.position.y=T+30;w.rotation.y=p;w.castShadow=w.receiveShadow=true;box.add(w)}
+
+/* шесть стенок на петлях у дна: снаружи жёлтые, внутри через одну чёрные и жёлтые */
+const walls=[];
+for(let i=0;i<6;i++){
+  const {p,n}=face(i);
+  const piv=new THREE.Group();piv.position.copy(n.clone().multiplyScalar(AP));piv.rotation.y=p;box.add(piv);
+  const inner=i%2===0?blk:yel;                                 // внутри: три створки чёрные, три жёлтые
+  const m=new THREE.Mesh(new THREE.BoxGeometry(T,H,R),[yel,inner,yel,yel,yel,yel]);
+  m.position.set(-T/2,H/2,0);m.castShadow=m.receiveShadow=true;piv.add(m);walls.push(piv);
+}
+
+/* конверт на внутренней стороне задней жёлтой створки, в нём сложенная открытка */
+const envWall=walls[1];
+const envM=new THREE.Mesh(new THREE.PlaneGeometry(96,120),new THREE.MeshStandardMaterial({map:tEnv,transparent:true,alphaTest:.5,roughness:.8}));
+envM.rotation.y=-Math.PI/2;envM.position.set(-T-1.2,64,0);envM.receiveShadow=true;envWall.add(envM);
+const cardIn=new THREE.Mesh(new THREE.PlaneGeometry(75,100),new THREE.MeshBasicMaterial({map:tCardF,toneMapped:false,color:0xeeeeee}));
+cardIn.rotation.y=-Math.PI/2;cardIn.position.set(-T-.3,78,0);envWall.add(cardIn);
+/* крышка: верх с орхидеями из PDF и бортик */
+const lid=new THREE.Group();box.add(lid);
+const lg=new THREE.ShapeGeometry(hexShape(LR));lg.rotateX(-Math.PI/2);
+const uv=lg.attributes.uv,pos=lg.attributes.position;
+for(let i=0;i<uv.count;i++)uv.setXY(i,.5+pos.getX(i)/SPAN,.5+(-pos.getZ(i))/SPAN);
+const lidTop=new THREE.Mesh(lg,new THREE.MeshStandardMaterial({map:tLid,roughness:.8}));lidTop.position.y=T+.05;lidTop.receiveShadow=true;
+const lidSlab=hexSlab(LR,T,yel);lid.add(lidSlab,lidTop);
+/* борта крышки: кашировка загибается вниз, поэтому рисунок на борту — продолжение верха за краем шестиугольника */
+const lidMat=new THREE.MeshStandardMaterial({map:tLid,roughness:.8});
+for(let i=0;i<6;i++){const {p,n}=face(i);
+  const r=new THREE.Mesh(new THREE.BoxGeometry(T,LH,LR),yel);
+  r.position.copy(n.clone().multiplyScalar(LAP-T/2));r.position.y=-LH/2+T;r.rotation.y=p;r.castShadow=r.receiveShadow=true;lid.add(r);
+  const t=new THREE.Vector3(n.z,0,-n.x);                          // вдоль грани (правая тройка t, вверх, n)
+  const g=new THREE.PlaneGeometry(LR,LH,8,2);const gp=g.attributes.position,gu=g.attributes.uv;
+  for(let j=0;j<gp.count;j++){const sx=gp.getX(j),sy=gp.getY(j);   // sx вдоль грани, sy: +LH/2 верх … −LH/2 низ
+    const d=(LH/2-sy);                                               // сколько мм от верхнего края вниз
+    const q=n.clone().multiplyScalar(LAP+d).addScaledVector(t,sx);   // точка на развёрнутой кашировке
+    gu.setXY(j,.5+q.x/SPAN,.5-q.z/SPAN)}
+  const sk=new THREE.Mesh(g,lidMat);
+  const m=new THREE.Matrix4().makeBasis(t,new THREE.Vector3(0,1,0),n);sk.quaternion.setFromRotationMatrix(m);
+  sk.position.copy(n.clone().multiplyScalar(LAP+.15));sk.position.y=-LH/2+T;lid.add(sk)}
+const LID_CLOSED=new THREE.Vector3(0,H,0);lid.position.copy(LID_CLOSED);
+
+/* маленькая коробочка внутри: просто жёлтая */
+const CB=112,CHh=116;
+const cubeMats=yel;
+const cube=new THREE.Mesh(new THREE.BoxGeometry(CB,CHh,CB),cubeMats);cube.position.set(-6,T+.6+CHh/2,10);cube.rotation.y=-.35;cube.castShadow=cube.receiveShadow=true;box.add(cube);
+/* открытка стоит за коробочкой; при открытии подлетает к зрителю */
+const card=new THREE.Group();scene.add(card);
+const cardM=new THREE.Mesh(new THREE.BoxGeometry(150,.8,100),new THREE.MeshStandardMaterial({color:0xf4f4f2,roughness:.8}));cardM.castShadow=true;card.add(cardM);
+const cf=new THREE.Mesh(new THREE.PlaneGeometry(150,100),new THREE.MeshBasicMaterial({map:tCard,toneMapped:false,color:0xf0f0f0}));cf.rotation.x=-Math.PI/2;cf.position.y=.45;card.add(cf);
+const cardHome={p:new THREE.Vector3(),q:new THREE.Quaternion()};
+const toCard=new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI/2,0,0));
+function homeFromEnvelope(){box.updateMatrixWorld(true);cardIn.getWorldPosition(cardHome.p);cardIn.getWorldQuaternion(cardHome.q).multiply(toCard)}
+card.visible=false;
+
+/* открытие: крышка поднимается и ложится рядом, стенки раскрываются, открытка вылетает */
+let target=0,ang=0,cardT=0,cv=0;
+const bOpen=document.getElementById('open');
+bOpen.onclick=()=>{target=target?0:1;cardT=target;bOpen.textContent=target?'Закрыть':'Открыть';stopAuto()};
+let topView=false;
+document.getElementById('view').onclick=()=>{topView=!topView;stopAuto();
+  const from=cam.position.clone(),to=topView?new THREE.Vector3(0,980,260):new THREE.Vector3(430,430,620),t0=performance.now();
+  (function go(t){const k=Math.min(1,(t-t0)/900),e=1-Math.pow(1-k,3);cam.position.lerpVectors(from,to,e);if(k<1)requestAnimationFrame(go)})(t0);
+  document.getElementById('view').textContent=topView?'Вид сбоку':'Вид сверху';if(topView){if(!target)bOpen.click();cardT=0}};
+function stopAuto(){ctl.autoRotate=false;document.getElementById('hint').style.opacity=0}
+renderer.domElement.addEventListener('pointerdown',stopAuto);
+const ray=new THREE.Raycaster(),pt=new THREE.Vector2();let down=null;
+renderer.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);
+renderer.domElement.addEventListener('pointerup',e=>{if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>5||!target)return;
+  const r=renderer.domElement.getBoundingClientRect();pt.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);
+  ray.setFromCamera(pt,cam);if(ray.intersectObject(card,true).length)cardT=cardT?0:1});
+
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+
+const sm=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x)};
+const LID_OPEN=new THREE.Vector3(30,LR*.86,-330);
+const clock=new THREE.Clock();
+renderer.setAnimationLoop(()=>{
+  const dt=Math.min(.05,clock.getDelta());
+  ang+=(target-ang)*Math.min(1,dt*2.4);
+  /* 0–0.4: крышка уходит; 0.3–0.8: стенки раскрываются; дальше — открытка */
+  const kl=sm(0,.42,ang), kw=sm(.3,.8,ang);
+  lid.position.lerpVectors(LID_CLOSED,LID_OPEN,kl);lid.position.y=H+(LID_OPEN.y-H)*kl+Math.sin(kl*Math.PI)*120;
+  lid.rotation.set(kl*1.35,kl*-.15,0);
+  walls.forEach((w,i)=>{w.children[0].parent.rotation.z=0;w.rotation.set(0,face(i).p,0);w.rotateZ(-THREE.MathUtils.degToRad(90)*kw)});
+  ctl.target.y=55-30*kw;
+  cv+=(cardT-cv)*Math.min(1,dt*2.6);
+  const k=Math.min(cv,sm(.78,1,ang)),kk=k*k*(3-2*k);
+  homeFromEnvelope();card.visible=kk>.002;cardIn.visible=!card.visible;
+  if(kk>0){
+    const dir=new THREE.Vector3();cam.getWorldDirection(dir);
+    const tp=cam.position.clone().addScaledVector(dir,430);tp.y+=Math.sin(performance.now()/900)*2*kk;
+    const tq=cam.quaternion.clone().multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI/2,0,0)));
+    const p=cardHome.p.clone().lerp(tp,kk);p.y+=Math.sin(kk*Math.PI)*80;
+    card.position.copy(p);card.quaternion.copy(cardHome.q).slerp(tq,kk);
+  }
+  ctl.update();renderer.render(scene,cam);
+});
+</script>
+</body>
+</html>
