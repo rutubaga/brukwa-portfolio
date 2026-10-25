@@ -380,7 +380,7 @@ const P = [
     task:'У обложки и поста секунда, чтобы их заметили и узнали бренд.' },
   { id:'anons', hidden:true, type:'comms', name:'Анонсы и розыгрыши', kind:'Посты для соцсетей', role:'Посты, леттеринг', status:'Коммерческий', img:'assets/comms/anons/01.jpg',
     task:'Главное — дата, приз и что сделать.' },
-].filter(p=>!p.hidden).sort((a, b) => !!a.lock - !!b.lock);   // кейсы по запросу — в конце
+].filter(p=>!p.hidden).sort((a, b) => (a.wip ? 2 : a.lock ? 1 : 0) - (b.wip ? 2 : b.lock ? 1 : 0));   // по запросу и в разработке — в конце
 const $ = s => document.querySelector(s);
 const strip = $('#strip'), list = $('#list');
 const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;

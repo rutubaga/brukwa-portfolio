@@ -967,7 +967,7 @@
   /* обложка сайта как на рефе xiangyidesign: пастельный градиент с зерном, экран в толстой чёрной рамке, без строки браузера */
   .bento .dv{align-items:center;padding:clamp(48px,5vw,72px) clamp(18px,6vw,90px) clamp(22px,4vw,56px);background:#efefed}
   .bento .dv .bw{position:relative;z-index:1;width:auto;max-width:100%;height:100%;aspect-ratio:16/10;border:clamp(4px,.55vw,8px) solid #111;border-radius:clamp(14px,1.8vw,26px);
-    background:#111;box-shadow:0 30px 60px -30px rgba(0,0,0,.35)}
+    background:#111;box-shadow:none}
   .bento .dv .bw .bar{display:none}
   .bento .dv .bw .scr{border-radius:clamp(10px,1.3vw,18px);overflow:hidden}
   .bento .dv .bw .scr.long{overflow-y:auto}
@@ -1191,6 +1191,7 @@
   html.bw .bento .bw .bar{background:#E4E4E4;color:#8A8A8A}
   html.bw .bento .bw .bar i{background:rgba(0,0,0,.18)}
   html.bw .bento .bw{background:#fff;box-shadow:0 -10px 50px -24px rgba(0,0,0,.35)}
+  html.bw .bento .dv .bw{background:#111;box-shadow:none}   /* под десктопом — без тени */
   html.bw .bento .gen{background:#EDEDED}
   /* шапка — белые капсулы с обводкой, активное и наведённое — чёрное */
   html.bw .hdr{color:#111}
@@ -1351,12 +1352,11 @@ const CASES = [
     blocks:[
       { t:'lead', h:'Задача', text:'Снять страх новичка перед трейдингом и довести до покупки курса.' },
       { t:'kv', items:[['Аудитория','Женщины 30–45 лет'],['Путь','Игра в телеграм-боте → лендинг → покупка'],['Экраны','1200 · 1024 · 768 · 390']] },
-      // бенто: сверху живой лендинг в окне браузера (как подача у tatianae.com), дальше телефон, книга, 3D и стиль
+      // бенто: сверху живой лендинг в окне браузера (как подача у tatianae.com), дальше телефон, книга и стиль
       { t:'bento', rows:[
         [{ win:'assets/trading.jpg', live:'projects/trading-101/index.html', url:'trading-101 · лендинг', bg:'linear-gradient(150deg,#00C2FF,#0a5e8a 70%,#0e1218)', mesh:['#cfeefa','#e3dcf5','#d5f0e4'], a:2.1, lb:'Лендинг' }],
         [{ phone:'assets/cases/trading/mobile-page.jpg', live:'projects/trading-101/index.html', long:true, a:.6, lb:'Телефон' },
-         { img:'assets/cases/trading/hero3d.jpg', a:1.537, lb:'Портрет в 3D' }],
-        [{ book:{ f:'assets/cases/trading/book-front.jpg', bk:'assets/cases/trading/book-back.jpg', sp:'assets/cases/trading/book-spine.jpg' }, a:.75, lb:'Книга автора' },
+         { book:{ f:'assets/cases/trading/book-front.jpg', bk:'assets/cases/trading/book-back.jpg', sp:'assets/cases/trading/book-spine.jpg' }, a:.75, lb:'Книга автора' },
          { img:'assets/trading-thumb.jpg', a:1.493, lb:'Ноутбук' },
          { big:'{ }', small:'заголовки блоков — как в тетради', acc:1, a:.9, lb:'Приём' }],
         [{ pal:['#111213','#FFFFFF','#00C2FF'], a:2, lb:'Палитра' },
@@ -1380,7 +1380,7 @@ const CASES = [
         ['Платформа','Тильда — собрала сама'] ] },
       // бенто: сайт в окне, экраны, адаптивы, процесс, стиль, сторис «до / после», упаковка
       { t:'bento', rows:[
-        [{ win:RV+'v2/page.jpg', url:'revnikoff.ru', bg:'linear-gradient(150deg,#ff6a13,#9a3a06 65%,#1a0a02)', mesh:['#fbdcc8','#e6e7d3','#f3e6dc'], a:2.1, lb:'Главная' }],
+        [{ win:RV+'site.jpg', url:'revnikoff.ru', bg:'linear-gradient(150deg,#ff6a13,#9a3a06 65%,#1a0a02)', mesh:['#fbdcc8','#e6e7d3','#f3e6dc'], a:2.1, lb:'Главная' }],
         [{ img:RV+'v2/card.jpg', a:1.670, lb:'Карточка товара' }, { img:RV+'box.jpg', a:1.5, lb:'Choco Boom — подарок клиентам' }],
         // ряды по смыслу: адаптивы · процесс и цвет · цифры и подарок
         [{ img:RV+'v2/adapt-bg.jpg', a:1.28, lb:'Планшет' },
@@ -2425,8 +2425,9 @@ function worksOpen(pin){
   const card = (o, j, k)=>`<button class="w-card${j === cur ? ' cur' : ''}" data-i="${j}" style="--c:${o.color};--k:${k}">
     <span class="ph" data-here="${L('Вы здесь')}">${o.wip && !o.lock ? lockSVG : `<img src="${cardSrc(o)}" alt="" loading="lazy">`}${o.lock ? `<em class="lk">${lockSVG}</em>` : ''}</span><b>${o.name}</b><i>${cap(o.kind)}${o.lock ? L(' · по запросу') : o.wip ? L(' · в разработке') : ''}</i></button>`;
   let k = 0;
-  // кейсы по запросу — в конце группы
-  const grp = (name, prod)=>{ const cards = [false, true].map(lk => list.map((o, j)=>isProduct(o) === prod && !!o.lock === lk ? card(o, j, k++) : '').join('')).join('');
+  // по запросу и в разработке — в конце группы
+  const rank = o => o.wip && !o.lock ? 2 : o.lock ? 1 : 0;
+  const grp = (name, prod)=>{ const cards = [0, 1, 2].map(r => list.map((o, j)=>isProduct(o) === prod && rank(o) === r ? card(o, j, k++) : '').join('')).join('');
     return cards ? `<h3>${name}</h3><div class="g">${cards}</div>` : ''; };
   if(!works.classList.contains('on')){
     $('#worksList').innerHTML = grp(L('Продуктовый дизайн'), true) + grp(L('Коммуникационный дизайн'), false);
