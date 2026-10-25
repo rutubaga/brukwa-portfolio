@@ -1396,7 +1396,7 @@ const CASES = [
         [2,3,4].map((k, j)=>({ ba:[`${RV}stories/${String(k*2+1).padStart(2,'0')}.jpg`, `${RV}stories/${String(k*2+2).padStart(2,'0')}.jpg`], k:j, a:.5623 })) ] },
       { t:'cta' } ] },
 
-  { id:'impre', type:'apps', name:'Impre', kind:'приложение о здоровье',
+  { id:'impre', wip:true, type:'apps', name:'Impre', kind:'приложение о здоровье',
     status:'Концепт', img:'assets/impre.jpg', cover:'assets/cases/impre/blister.jpg', coverPos:'50% 50%',
     coverLive:'projects/impre/blister.html?cover',   // поверх кадра — живой блистер из генератора: капсулы перекатываются по полю
     color:'#b8f03c',
@@ -2667,7 +2667,7 @@ document.fonts.ready.then(()=>{
   setTimeout(()=>{
     document.body.classList.add('ready');
     renderPreview(ci > -1 ? ci : -1);
-    if(ci > -1) setTimeout(()=>openCase(ci), 300);
+    if(ci > -1 && !visible()[ci].wip) setTimeout(()=>openCase(ci), 300);   // кейс в разработке по прямой ссылке не открывается
   }, 450);
 });
 </script>

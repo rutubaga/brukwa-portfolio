@@ -222,6 +222,7 @@
   .gcard .gk{position:absolute;left:14px;bottom:12px;z-index:2;font-size:11px;color:var(--mute);opacity:0;transform:translateY(6px);transition:opacity .35s, transform .5s var(--ease)}
   .gcard img{position:absolute;left:12%;top:15%;width:76%;height:72%;object-fit:contain;filter:grayscale(1) contrast(.95);transition:filter .6s var(--ease), transform .8s var(--ease)}
   .gcard:hover img{filter:none;transform:scale(1.03)}
+  .gcard.wip{cursor:default}
   .gcard:hover .gk{opacity:1;transform:none}
   body.grid-view .grid{display:grid}
   body.grid-view .stripwrap,body.grid-view .br,body.grid-view .center-row,body.grid-view .kind,body.grid-view .list,
@@ -408,6 +409,7 @@ function drawBraces(){
 const shown = () => P.filter(p => filter === 'all' || p.type === filter);
 const ASK = 'https://t.me/brukwa';
 const hrefOf = p => p.lock ? ASK : (p.url || `index.html?from=v3#case/${p.id}`);
+const hrefAttr = p => p.wip ? '' : ` href="${hrefOf(p)}"`;   // кейс в разработке не открывается
 const LOCK = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>';
 const lockTag = p => p.lock ? `<span class="glock">${LOCK}По запросу</span>` : p.wip ? '<span class="glock">В разработке</span>' : '';
 const pad = n => String(n).padStart(2, '0');
@@ -419,7 +421,7 @@ function build(){
   strip.innerHTML = ps.map((p, k) => `<a class="item" data-k="${k}" style="width:${widths[k % widths.length] * 100}%"><img src="${p.img}" alt="${p.name}" draggable="false">${lockTag(p)}</a>`).join('');
   let prevType = null;
   list.innerHTML = ps.map((p, k) => { const sep = prevType && prevType !== p.type ? '<i class="sep"></i>' : ''; prevType = p.type; return `${sep}<button data-k="${k}">${p.name}</button>`; }).join('');
-  $('#grid').innerHTML = ps.map((p, k) => `<a class="gcard" href="${hrefOf(p)}"${p.lock ? ` data-lock="${p.id}"` : ''} style="--k:${k}"><div class="gh"><span>${p.name}</span><span><i>ID</i>${String(k + 1).padStart(3, '0')}</span></div>
+  $('#grid').innerHTML = ps.map((p, k) => `<a class="gcard${p.wip ? ' wip' : ''}"${hrefAttr(p)}${p.lock ? ` data-lock="${p.id}"` : ''} style="--k:${k}"><div class="gh"><span>${p.name}</span><span><i>ID</i>${String(k + 1).padStart(3, '0')}</span></div>
     <img src="${p.img}" alt="${p.name}" loading="lazy">${lockTag(p)}<span class="gk">${p.kind}</span></a>`).join('');
   items = [...strip.children];
   active = -1;
@@ -446,7 +448,7 @@ function setActive(k){
   swap($('#task'), `<p>${p.task}</p>`);
   swap($('#facts'), `<div class="row"><span>Проект</span><b>${p.name}</b></div><div class="row"><span>Тип</span><b>${p.kind}</b></div>
     <div class="row"><span>Что делала</span><b>${p.role}</b></div><div class="row"><span>Статус</span><b>${p.status}</b></div>
-    <a class="go" href="${hrefOf(p)}"${p.lock ? ` data-lock="${p.id}"` : ''}>${p.lock ? 'Смотреть превью' : 'Открыть кейс'} <span>→</span></a>`);
+    <a class="go"${hrefAttr(p)}${p.lock ? ` data-lock="${p.id}"` : ''}>${p.lock ? 'Смотреть превью' : 'Открыть кейс'} <span>→</span></a>`);
   requestAnimationFrame(wires);
 }
 
