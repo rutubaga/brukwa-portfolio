@@ -965,15 +965,12 @@
   .bento .dv .lb{left:auto;right:12px}
 
   /* обложка сайта как на рефе xiangyidesign: пастельный градиент с зерном, экран в толстой чёрной рамке, без строки браузера */
-  .bento .dv{align-items:center;padding:clamp(48px,5vw,72px) clamp(18px,6vw,90px) clamp(22px,4vw,56px);
-    background:radial-gradient(60% 80% at 12% 10%,var(--m1,#f6dbe6) 0%,transparent 70%),radial-gradient(55% 75% at 92% 18%,var(--m2,#d6e8d2) 0%,transparent 70%),
-      radial-gradient(70% 90% at 70% 105%,var(--m3,#dfe4f7) 0%,transparent 70%),#efefed}
-  .bento .dv::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;mix-blend-mode:multiply;
-    background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+  .bento .dv{align-items:center;padding:clamp(48px,5vw,72px) clamp(18px,6vw,90px) clamp(22px,4vw,56px);background:#efefed}
   .bento .dv .bw{position:relative;z-index:1;width:auto;max-width:100%;height:100%;aspect-ratio:16/10;border:clamp(4px,.55vw,8px) solid #111;border-radius:clamp(14px,1.8vw,26px);
     background:#111;box-shadow:0 30px 60px -30px rgba(0,0,0,.35)}
   .bento .dv .bw .bar{display:none}
   .bento .dv .bw .scr{border-radius:clamp(10px,1.3vw,18px);overflow:hidden}
+  .bento .dv .bw .scr.long{overflow-y:auto}
   @media (max-width:760px){ .bento .dv{padding:34px 12px 14px} }
   /* решение — текстовая плитка: номер, заголовок, пояснение */
   .bento .st{display:flex;flex-direction:column;padding:20px 20px 22px}
@@ -2428,7 +2425,8 @@ function worksOpen(pin){
   const card = (o, j, k)=>`<button class="w-card${j === cur ? ' cur' : ''}" data-i="${j}" style="--c:${o.color};--k:${k}">
     <span class="ph" data-here="${L('Вы здесь')}">${o.wip && !o.lock ? lockSVG : `<img src="${cardSrc(o)}" alt="" loading="lazy">`}${o.lock ? `<em class="lk">${lockSVG}</em>` : ''}</span><b>${o.name}</b><i>${cap(o.kind)}${o.lock ? L(' · по запросу') : o.wip ? L(' · в разработке') : ''}</i></button>`;
   let k = 0;
-  const grp = (name, prod)=>{ const cards = list.map((o, j)=>isProduct(o) === prod ? card(o, j, k++) : '').join('');
+  // кейсы по запросу — в конце группы
+  const grp = (name, prod)=>{ const cards = [false, true].map(lk => list.map((o, j)=>isProduct(o) === prod && !!o.lock === lk ? card(o, j, k++) : '').join('')).join('');
     return cards ? `<h3>${name}</h3><div class="g">${cards}</div>` : ''; };
   if(!works.classList.contains('on')){
     $('#worksList').innerHTML = grp(L('Продуктовый дизайн'), true) + grp(L('Коммуникационный дизайн'), false);
