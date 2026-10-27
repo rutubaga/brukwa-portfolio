@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BRUKWA — портфолио</title>
+<script>
+  // актуальная главная — v3.html; старая стартовая страница открывается только как оболочка кейсов (index.html?from=v3#case/…)
+  if (!location.hash && !new URLSearchParams(location.search).has('from')) location.replace('v3.html');
+</script>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
