@@ -18,7 +18,7 @@
   .hint{position:absolute;left:50%;top:16px;transform:translateX(-50%);font-size:12px;color:#8a8a8a;pointer-events:none;transition:opacity .4s}
   .load{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:#8a8a8a}
 </style>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
+<script type="importmap">{"imports":{"three":"../../assets/vendor/three-0.165.0/three.module.min.js","three/addons/controls/OrbitControls.js":"../../assets/vendor/three-0.165.0/OrbitControls.js","three/addons/environments/RoomEnvironment.js":"../../assets/vendor/three-0.165.0/RoomEnvironment.js","three/addons/geometries/RoundedBoxGeometry.js":"../../assets/vendor/three-0.165.0/RoundedBoxGeometry.js"}}</script>
 </head>
 <body>
 <div class="load" id="load">Загружаю модель…</div>
@@ -67,7 +67,7 @@ ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
 
 let ready=0;
 const tl=new THREE.TextureLoader();
-const tex=u=>{const t=tl.load(u,()=>{if(++ready>=3)document.getElementById('load')?.remove()});t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t};
+const tex=u=>{const t=tl.load(u,()=>{if(++ready>=2)document.getElementById('load')?.remove()});t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t};
 /* насыщенность печати: усиливаем цвет текстуры в шейдере */
 const SAT=1.35;
 const saturate=m=>{m.onBeforeCompile=s=>{s.fragmentShader=s.fragmentShader.replace('#include <map_fragment>',
@@ -76,10 +76,9 @@ const saturate=m=>{m.onBeforeCompile=s=>{s.fragmentShader=s.fragmentShader.repla
   diffuseColor.rgb=clamp(mix(vec3(l),diffuseColor.rgb,${SAT.toFixed(2)}),0.,1.);`)};return m};
 /* снаружи 3275:12680 (без паттерна в карманах); внутри: 1 — 3259:26481 крупный паттерн, 2 — 3330:14677 мелкий паттерн 60% */
 const OUT=tex('outer3.jpg?rev=f740fcd3f861');
-const INN={1:tex('inner3.jpg?rev=d8615fdfdaca'),2:tex('inner4.jpg?rev=0b3c7cb7ab87')};
+const INN=tex('inner4.jpg?rev=0b3c7cb7ab87');
 const mOut=saturate(new THREE.MeshStandardMaterial({map:OUT,roughness:.85,metalness:0}));
-const mIn=saturate(new THREE.MeshStandardMaterial({map:INN[1],roughness:.9,metalness:0}));
-mIn.map=INN[2];mIn.needsUpdate=true;  // один вариант — мелкий паттерн внутри
+const mIn=saturate(new THREE.MeshStandardMaterial({map:INN,roughness:.9,metalness:0}));
 const mEdge=new THREE.MeshStandardMaterial({color:EDGE,roughness:.95});
 
 /* четырёхугольник: углы в мм ↔ углы на развёртке в пикселях (a,b,c,d по кругу) */
@@ -159,7 +158,7 @@ function stopAuto(){if(autoStep)return;stopped=true;autoOrbit=false;ctl.autoRota
  const play=()=>{if(cyc||stopped)return;autoOrbit=true;cyc=setInterval(()=>{autoStep=true;steps[i%2]();autoStep=false;i++},4500)};
  const pause=()=>{if(cyc){clearInterval(cyc);cyc=null}autoOrbit=false};
  /* вне экрана коробка не рисуется совсем — три WebGL-сцены на странице иначе тормозят друг друга */
- addEventListener('message',e=>{if(e.data==='box:play'){clock.getDelta();renderer.setAnimationLoop(frameLoop);play()}if(e.data==='box:pause'){pause();renderer.setAnimationLoop(null)}});
+ addEventListener('message',e=>{if(e.source!==parent||e.origin!==location.origin)return;if(e.data==='box:play'){clock.getDelta();renderer.setAnimationLoop(frameLoop);play()}if(e.data==='box:pause'){pause();renderer.setAnimationLoop(null)}});
  ctl.autoRotate=false;if(window.parent===window)play();}
 renderer.domElement.addEventListener('pointerdown',stopAuto);
 
@@ -179,7 +178,8 @@ const frameLoop=()=>{
    if(autoOrbit){orbitT+=dt;sp.theta+=(homeTheta+Math.sin(orbitT*.35)*.42-sp.theta)*Math.min(1,dt*2);cam.position.setFromSpherical(sp).add(ctl.target)}}
   ctl.update();renderer.render(scene,cam);
 };
-renderer.setAnimationLoop(frameLoop);
+if(window.parent===window)renderer.setAnimationLoop(frameLoop);
+else parent.postMessage('box:ready',location.origin);
 
 </script>
 </body>

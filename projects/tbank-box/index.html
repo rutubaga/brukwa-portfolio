@@ -18,7 +18,7 @@
   .hint{position:absolute;left:50%;top:16px;transform:translateX(-50%);font-size:12px;color:#8a8a8a;pointer-events:none;transition:opacity .4s}
   .load{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:#8a8a8a}
 </style>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
+<script type="importmap">{"imports":{"three":"../../assets/vendor/three-0.165.0/three.module.min.js","three/addons/controls/OrbitControls.js":"../../assets/vendor/three-0.165.0/OrbitControls.js","three/addons/environments/RoomEnvironment.js":"../../assets/vendor/three-0.165.0/RoomEnvironment.js","three/addons/geometries/RoundedBoxGeometry.js":"../../assets/vendor/three-0.165.0/RoundedBoxGeometry.js"}}</script>
 </head>
 <body>
 <div class="load" id="load">Загружаю модель…</div>
@@ -159,7 +159,7 @@ function stopAuto(){if(autoStep)return;stopped=true;autoOrbit=false;ctl.autoRota
  const play=()=>{if(cyc||stopped)return;autoOrbit=true;cyc=setInterval(()=>{autoStep=true;steps[i%2]();autoStep=false;i++},4500)};
  const pause=()=>{if(cyc){clearInterval(cyc);cyc=null}autoOrbit=false};
  /* вне экрана коробка не рисуется совсем — три WebGL-сцены на странице иначе тормозят друг друга */
- addEventListener('message',e=>{if(e.data==='box:play'){clock.getDelta();renderer.setAnimationLoop(frameLoop);play()}if(e.data==='box:pause'){pause();renderer.setAnimationLoop(null)}});
+ addEventListener('message',e=>{if(e.source!==parent||e.origin!==location.origin)return;if(e.data==='box:play'){clock.getDelta();renderer.setAnimationLoop(frameLoop);play()}if(e.data==='box:pause'){pause();renderer.setAnimationLoop(null)}});
  ctl.autoRotate=false;if(window.parent===window)play();}
 renderer.domElement.addEventListener('pointerdown',stopAuto);
 /* клик по открытке: вылетает к зрителю или ложится обратно в коробку */
@@ -200,7 +200,8 @@ const frameLoop=()=>{
    if(autoOrbit){orbitT+=dt;sp.theta+=(homeTheta+Math.sin(orbitT*.35)*.42-sp.theta)*Math.min(1,dt*2);cam.position.setFromSpherical(sp).add(ctl.target)}}
   ctl.update();renderer.render(scene,cam);
 };
-renderer.setAnimationLoop(frameLoop);
+if(window.parent===window)renderer.setAnimationLoop(frameLoop);
+else parent.postMessage('box:ready',location.origin);
 
 </script>
 </body>
