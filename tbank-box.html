@@ -142,7 +142,7 @@
   <!-- ===== 01 · Т-Банк × «от ба» ===== -->
   <section class="chap" id="otba">
     <div class="chap-h"><span class="chap-n">01</span><img class="chap-logo" src="assets/cases/tbank-box/logo-lockup.svg" alt="Т-Банк × от ба"><span class="chap-k">Подарочная коробка</span></div>
-    <div class="stage"><iframe src="projects/tbank-box/index.html?v=15" title="3D-модель коробки Т-Банк × от ба" loading="lazy"></iframe></div>
+    <div class="stage"><iframe src="projects/tbank-box/index.html?v=16" title="3D-модель коробки Т-Банк × от ба" loading="eager"></iframe></div>
     <p class="stage-cap">Модель по печатному макету: покрутите и откройте коробку — открытка подлетит ближе, клик по ней кладёт её обратно</p>
     <h2 class="chap-t">Т-Банк там, где ты — нить через города мастериц</h2>
     <div class="txt3">
@@ -162,7 +162,7 @@
   <!-- ===== 02 · Т-Бизнес, 8 Марта ===== -->
   <section class="chap" id="march8">
     <div class="chap-h"><span class="chap-n">02</span><span class="lock2"><img class="chap-logo biz" src="assets/cases/tbiz-8march/logo-tbiz.svg" alt="Т-Бизнес"><i>×</i><b>Аптекарский огород</b></span><span class="chap-k">8 Марта</span></div>
-    <div class="stage"><iframe src="projects/tbiz-hexbox/index.html?v=21" title="3D-модель шестиугольной коробки Т-Бизнес" loading="lazy"></iframe></div>
+    <div class="stage"><iframe data-src="projects/tbiz-hexbox/index.html?v=22" title="3D-модель шестиугольной коробки Т-Бизнес" loading="lazy"></iframe></div>
     <p class="stage-cap">Распадающаяся шестиугольная коробка 246 × 213 × 123 по печатному макету: откройте — стенки раскроются, а открытка подлетит ближе</p>
     <h2 class="chap-t">Орхидея, которая находит опору в своей природе</h2>
     <div class="txt3">
@@ -192,7 +192,7 @@
     </div>
     <div class="circ">
       <button class="circ-v" id="circ" aria-label="Включить звук">
-        <video src="assets/cases/tpremium-capsule/invite-circle.mp4?v=2" poster="assets/cases/tpremium-capsule/invite-circle.jpg" autoplay muted loop playsinline preload="metadata"></video>
+        <video data-src="assets/cases/tpremium-capsule/invite-circle.mp4?v=2" poster="assets/cases/tpremium-capsule/invite-circle.jpg" muted loop playsinline preload="none"></video>
         <span class="circ-s" id="circS">Со звуком</span>
       </button>
       <p class="circ-c">Так приглашение выглядит вживую</p>
@@ -208,27 +208,63 @@
   <!-- ===== 04 · Новогодний KV 2027 ===== -->
   <section class="chap" id="kv2027">
     <div class="chap-h"><span class="chap-n">04</span><span class="lock2"><b>Новогодний KV 2027</b></span><span class="chap-k">Адвент-календарь</span></div>
-    <div class="stage"><iframe src="projects/kv2027-box/index.html?v=8" title="3D-модель адвент-календаря KV 2027" loading="lazy"></iframe></div>
+    <div class="stage"><iframe data-src="projects/kv2027-box/index.html?v=9" title="3D-модель адвент-календаря KV 2027" loading="lazy"></iframe></div>
     <p class="stage-cap">Адвент-календарь 330 × 210 × 65 мм с откидной крышкой по печатному макету: покрутите и откройте</p>
   </section>
 
   <div class="end"><a class="btn-p" href="v3.html">← Все проекты</a></div>
 </div>
 <script>
-/* 3D-коробки играют по очереди: анимация идёт только у той, что сейчас в кадре */
-{const fr=[...document.querySelectorAll('.stage iframe')],vis=new Map();
- const pick=()=>{let best=null,bv=.35;vis.forEach((v,f)=>{if(v>bv){bv=v;best=f}});
-   fr.forEach(f=>f.contentWindow&&f.contentWindow.postMessage(f===best?'box:play':'box:pause','*'))};
- const io=new IntersectionObserver(es=>{es.forEach(e=>vis.set(e.target,e.intersectionRatio));pick()},{threshold:[0,.2,.35,.5,.75,1]});
- fr.forEach(f=>{io.observe(f);f.addEventListener('load',pick)});}
-/* кружок: играет без звука, клик включает и выключает звук */
+/* Загружаем следующие модели только перед их появлением в кадре. */
+const frames=[...document.querySelectorAll('.stage iframe')],vis=new Map();
+function pickBox(){
+  let best=null,ratio=0;
+  if(!document.hidden)vis.forEach((value,frame)=>{if(value>ratio){ratio=value;best=frame}});
+  frames.forEach(frame=>{if(frame.hasAttribute('src'))frame.contentWindow?.postMessage(frame===best?'box:play':'box:pause',location.origin)});
+}
+const loadBoxes=new IntersectionObserver(entries=>{
+  entries.forEach(({target,isIntersecting})=>{
+    if(!isIntersecting)return;
+    target.src=target.dataset.src;target.removeAttribute('data-src');loadBoxes.unobserve(target);
+  });
+},{rootMargin:'240px 0px'});
+const watchBoxes=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>vis.set(entry.target,entry.intersectionRatio));pickBox();
+},{threshold:[0,.05,.2,.35,.5,.75,1]});
+frames.forEach(frame=>{
+  if(frame.dataset.src)loadBoxes.observe(frame);
+  watchBoxes.observe(frame);frame.addEventListener('load',pickBox);
+});
+addEventListener('message',event=>{
+  if(event.origin===location.origin&&event.data==='box:ready'&&frames.some(frame=>frame.contentWindow===event.source))pickBox();
+});
+/* Видео загружается у своего раздела и играет только в кадре. */
 const cb=document.getElementById('circ'),cv=cb.querySelector('video');
-function setSound(on){cv.muted=!on;if(on){cv.currentTime=0;cv.play()}cb.classList.toggle('on',on);
-  document.getElementById('circS').textContent=on?'Выключить звук':'Со звуком';cb.setAttribute('aria-label',on?'Выключить звук':'Включить звук')}
-cb.addEventListener('click',e=>{e.preventDefault();setSound(cv.muted)});
-/* ушли со страницы или прокрутили мимо — звук выключается сам */
-new IntersectionObserver(en=>{if(!en[0].isIntersecting&&!cv.muted)setSound(false)},{threshold:.2}).observe(cb);
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&!cv.muted)setSound(false)});
+let videoVisible=false;
+function playVideo(){cv.play().catch(()=>{});}
+function setSound(on){
+  cv.muted=!on;
+  if(on){cv.currentTime=0;playVideo();}
+  cb.classList.toggle('on',on);
+  document.getElementById('circS').textContent=on?'Выключить звук':'Со звуком';
+  cb.setAttribute('aria-label',on?'Выключить звук':'Включить звук');
+}
+function syncVideo(){
+  if(videoVisible&&!document.hidden)playVideo();
+  else{cv.pause();if(!cv.muted)setSound(false);}
+}
+const loadVideo=new IntersectionObserver(entries=>{
+  if(!entries.some(entry=>entry.isIntersecting))return;
+  cv.src=cv.dataset.src;cv.removeAttribute('data-src');cv.load();loadVideo.disconnect();
+  if(videoVisible&&!document.hidden)playVideo();
+},{rootMargin:'240px 0px'});
+loadVideo.observe(cb);
+new IntersectionObserver(entries=>{
+  videoVisible=entries[0].isIntersecting&&entries[0].intersectionRatio>=.2;
+  if(cv.hasAttribute('src'))syncVideo();
+},{threshold:[0,.2]}).observe(cb);
+cb.addEventListener('click',event=>{event.preventDefault();setSound(cv.muted);});
+document.addEventListener('visibilitychange',()=>{pickBox();if(cv.hasAttribute('src'))syncVideo();});
 </script>
 </body>
 </html>
