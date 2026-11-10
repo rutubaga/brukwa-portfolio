@@ -150,7 +150,17 @@ document.getElementById('view').onclick=()=>{topView=!topView;stopAuto();
   const from=cam.position.clone(),to=topView?new THREE.Vector3(0,1150,330):new THREE.Vector3(560,520,780),t0=performance.now();
   (function go(t){const k=Math.min(1,(t-t0)/900),e=1-Math.pow(1-k,3);cam.position.lerpVectors(from,to,e);if(k<1)requestAnimationFrame(go)})(t0);
   document.getElementById('view').textContent=topView?'Вид сбоку':'Вид сверху';if(topView){if(!target)bOpen.click();cardT=0}};
-function stopAuto(){ctl.autoRotate=false;document.getElementById('hint').style.opacity=0}
+let autoStep=false,cyc=null;
+let stopped=false,autoOrbit=false,orbitT=0,homeTheta=null;
+function stopAuto(){if(autoStep)return;stopped=true;autoOrbit=false;ctl.autoRotate=false;document.getElementById('hint').style.opacity=0;if(cyc){clearInterval(cyc);cyc=null}}
+/* сама по кругу каждые 3 с: открыть → вид сверху → вид сбоку → закрыть; любое касание — остановка */
+{const vb=document.getElementById('view'),steps=[()=>{if(!target)bOpen.click()},()=>{if(target)bOpen.click()}];let i=0;
+ /* играет по очереди: в портфолио страница сама говорит, какая коробка сейчас в кадре; отдельно — сразу */
+ const play=()=>{if(cyc||stopped)return;autoOrbit=true;cyc=setInterval(()=>{autoStep=true;steps[i%2]();autoStep=false;i++},4500)};
+ const pause=()=>{if(cyc){clearInterval(cyc);cyc=null}autoOrbit=false};
+ /* вне экрана коробка не рисуется совсем — три WebGL-сцены на странице иначе тормозят друг друга */
+ addEventListener('message',e=>{if(e.data==='box:play'){clock.getDelta();renderer.setAnimationLoop(frameLoop);play()}if(e.data==='box:pause'){pause();renderer.setAnimationLoop(null)}});
+ ctl.autoRotate=false;if(window.parent===window)play();}
 renderer.domElement.addEventListener('pointerdown',stopAuto);
 /* клик по открытке: вылетает к зрителю или ложится обратно в коробку */
 const ray=new THREE.Raycaster(),pt=new THREE.Vector2();let down=null;
@@ -166,14 +176,14 @@ function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);c
 addEventListener('resize',resize);resize();
 
 const clock=new THREE.Clock();
-renderer.setAnimationLoop(()=>{
+const frameLoop=()=>{
   const dt=Math.min(.05,clock.getDelta());
-  ang+=(target-ang)*Math.min(1,dt*3.2);
+  ang+=Math.sign(target-ang)*Math.min(Math.abs(target-ang),dt/1.4);
   const e=ang<.5?4*ang*ang*ang:1-Math.pow(-2*ang+2,3)/2;
   hinge.rotation.x=-THREE.MathUtils.degToRad(102)*e;
   ctl.target.y=30+90*e;
   /* открытка: после того как крышка почти открылась, подлетает к камере и встаёт текстом к зрителю */
-  cv+=(cardT-cv)*Math.min(1,dt*2.6);
+  cv+=Math.sign(cardT-cv)*Math.min(Math.abs(cardT-cv),dt/1.1);
   const k=Math.min(cv,sm(.62,1,ang)), kk=k*k*(3-2*k);
   if(kk>0){
     const dir=new THREE.Vector3();cam.getWorldDirection(dir);
@@ -184,8 +194,14 @@ renderer.setAnimationLoop(()=>{
     card.position.copy(p);card.quaternion.copy(cardHome.q).slerp(tq,kk);
   }else{card.position.copy(cardHome.p);card.quaternion.copy(cardHome.q)}
   const fade=Math.max(0,1-ang*3);tw.visible=fade>.02;tw.traverse(m=>{if(m.material){m.material.transparent=true;m.material.opacity=fade}});
+  /* автопоказ: не крутится по кругу, а покачивается вокруг вида спереди — открывается всегда лицом к зрителю */
+  {const off=cam.position.clone().sub(ctl.target),sp=new THREE.Spherical().setFromVector3(off);
+   if(homeTheta===null)homeTheta=sp.theta;
+   if(autoOrbit){orbitT+=dt;sp.theta+=(homeTheta+Math.sin(orbitT*.35)*.42-sp.theta)*Math.min(1,dt*2);cam.position.setFromSpherical(sp).add(ctl.target)}}
   ctl.update();renderer.render(scene,cam);
-});
+};
+renderer.setAnimationLoop(frameLoop);
+
 </script>
 </body>
 </html>

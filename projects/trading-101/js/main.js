@@ -270,9 +270,17 @@
         const r = whyBox.getBoundingClientRect();
         if (r.bottom > 0 && r.top < vh()) {
           const p = (r.top + r.height / 2 - vh() / 2) / vh();
+          // кубики только поворачиваются и чуть качаются — раньше уезжали на 50–70 px и наезжали на текст
+          const q = clamp(p, -0.6, 0.6);
+          const gap = whyBox.querySelector('.why__gap');
+          if (gap && whyDice[1]) {   // средний кубик — всегда по центру пропуска между «обучений» и «только»
+            const g = gap.getBoundingClientRect(), d = whyDice[1];
+            d.style.left = (g.left - r.left + g.width / 2 - d.offsetWidth / 2).toFixed(1) + 'px';
+            d.style.top = (g.bottom - r.top - d.offsetHeight * 0.92).toFixed(1) + 'px'; // низом по строке: над пропуском пусто, под ним — «знания»
+          }
           whyDice.forEach((d, i) => {
             const dir = i % 2 ? -1 : 1;
-            d.style.transform = `translate3d(0, ${(p * 40 * (i + 1) * 0.6).toFixed(1)}px, 0) rotate(calc(var(--r) + ${(p * 35 * dir).toFixed(1)}deg))`;
+            d.style.transform = `translate3d(0, ${(q * d.offsetWidth * 0.08).toFixed(1)}px, 0) rotate(calc(var(--r) + ${(q * 35 * dir).toFixed(1)}deg))`;
           });
         }
       }

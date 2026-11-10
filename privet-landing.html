@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Лендинг приложения «Привет!» — редизайн</title>
+<title>Редизайн лендинга «Привет!»</title>
 <link rel="icon" href="assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -155,7 +155,8 @@
   .vh span{font-size:12.5px;color:var(--mute)}
   .vdir small{display:block;font-size:12px;color:var(--mute);margin:6px 0 8px}
   .vrow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
-  .vrow img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px}
+  .vrow{align-items:start}
+  .vrow img{width:100%;height:auto;border-radius:12px}  /* визуалы целиком, без обрезки */
   .v-final{background:linear-gradient(160deg,#eaf4ff,#d9ebff)}
   .vfin{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
   .vfin figure{margin:0;background:rgba(255,255,255,.6);border-radius:14px;padding:12px 10px 10px;display:flex;flex-direction:column;align-items:center;gap:8px}
@@ -202,7 +203,7 @@
 <div class="wrap">
 
   <a class="back" href="v3.html">← Все проекты</a>
-  <h1>Лендинг приложения «Привет!»</h1>
+  <h1>Редизайн лендинга приложения «Привет!»</h1>
   <p class="lead">Задача страницы та же: скачать приложение и начать получать кешбэк. Поменяла порядок, графику и тексты: с первого экрана понятно, что внутри, и можно сразу скачать</p>
   <div class="facts">
     <div><span>Компания</span><b>НСПК, программа лояльности «Привет!»</b></div>
@@ -274,23 +275,8 @@
   <!-- почему так -->
   <section>
     <div class="cap">Почему так</div>
-    <h2>Понятные шаги, все размеры экранов и короткие тексты</h2>
+    <h2>Короткие тексты: один шаг — одно действие</h2>
     <div class="bento">
-      <div class="pc s4"><b>Экраны в шагах</b>
-        <p>Главное действие вынесено на плашку поверх телефона, остальное размыто — сразу видно, что делать</p>
-        <div class="stepsimg"><img src="assets/cases/privet-landing/steps.jpg" alt="Четыре шага: скачать, указать номер, добавить карту, оплачивать" loading="lazy"></div>
-      </div>
-      <div class="pc s2"><b>Брейкпоинты</b>
-        <p>Шесть кадров в макете. На компьютере и планшете — QR-код: приложение только для телефона</p>
-        <div class="bp">
-          <div><i style="width:100%"></i><span>1920 · контент 1120</span></div>
-          <div><i style="width:75%"></i><span>1440</span></div>
-          <div><i style="width:53%"></i><span>1024 · планшет, контент 728</span></div>
-          <div><i style="width:23%"></i><span>440</span></div>
-          <div><i style="width:20.5%"></i><span>393</span></div>
-          <div><i style="width:18.75%"></i><span>360</span></div>
-        </div>
-      </div>
       <div class="pc s6"><b>UX-тексты</b>
         <p>Без оценочных слов, «вашей», скобок и канцелярита. Один шаг — одно действие</p>
         <div class="tx">

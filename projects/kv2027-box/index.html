@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Коробка KV 2027 — 3D</title>
+<style>
+  /* 3D-модель коробки 330×210×65 с откидной крышкой и клапаном.
+     Текстуры — развёртки из Фигмы: outer.jpg (вид снаружи), inner.jpg (вид изнутри), 4 px = 1 мм, вылет 12 px. */
+  :root{--bg:#F3F2EE;--ink:#111}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);overflow:hidden;font:400 14px/1.4 "Inter Tight",system-ui,sans-serif;color:var(--ink)}
+  canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+  canvas:active{cursor:grabbing}
+  .ui{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;width:max-content;max-width:calc(100% - 24px)}
+  .ui button{height:40px;padding:0 18px;border:0;border-radius:99px;background:var(--ink);color:#fff;font:500 14px "Inter Tight",system-ui,sans-serif;cursor:pointer}
+  .ui button.g{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
+  .hint{position:absolute;left:50%;top:16px;transform:translateX(-50%);font-size:12px;color:#8a8a8a;pointer-events:none;transition:opacity .4s}
+  .load{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:#8a8a8a}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div class="load" id="load">Загружаю модель…</div>
+<div class="hint" id="hint">Покрутите коробку</div>
+<div class="ui"><button id="open">Открыть</button><button class="g" id="view">Вид сверху</button></div>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+
+/* размеры в мм по развёртке: 330×210×65, клапан 65, картон 2 мм */
+const W=330, D=210, H=65, FLAP=65, T=2;
+/* развёртка в пикселях: 1864×2484, 4 px = 1 мм */
+const IW=1864, IH=2484;
+const EDGE=0xF5C21A;
+
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.NoToneMapping;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.body.prepend(renderer.domElement);
+
+const scene=new THREE.Scene();
+const pm=new THREE.PMREMGenerator(renderer);
+scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;
+scene.environmentIntensity=.25;
+
+const cam=new THREE.PerspectiveCamera(30,1,10,6000);
+cam.position.set(520,430,700);
+const ctl=new OrbitControls(cam,renderer.domElement);
+ctl.target.set(0,35,0);ctl.enableDamping=true;ctl.dampingFactor=.08;
+ctl.minDistance=380;ctl.maxDistance=1600;ctl.maxPolarAngle=Math.PI*.49;ctl.enablePan=false;
+ctl.autoRotate=true;ctl.autoRotateSpeed=.6;
+
+/* свет ровный: крышка и стенки одного тона, как в печати */
+const sun=new THREE.DirectionalLight(0xffffff,.55);sun.position.set(-380,900,520);
+sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.radius=6;sun.shadow.bias=-.0004;
+Object.assign(sun.shadow.camera,{left:-500,right:500,top:500,bottom:-500,near:100,far:2200});
+scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xffffff,0xf2eee2,.9));
+scene.add(new THREE.AmbientLight(0xffffff,.55));
+
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000),new THREE.ShadowMaterial({opacity:.16}));
+ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+
+let ready=0;
+const tl=new THREE.TextureLoader();
+const tex=u=>{const t=tl.load(u,()=>{if(++ready>=3)document.getElementById('load')?.remove()});t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t};
+/* насыщенность печати: усиливаем цвет текстуры в шейдере */
+const SAT=1.35;
+const saturate=m=>{m.onBeforeCompile=s=>{s.fragmentShader=s.fragmentShader.replace('#include <map_fragment>',
+  `#include <map_fragment>
+  float l=dot(diffuseColor.rgb,vec3(.2126,.7152,.0722));
+  diffuseColor.rgb=clamp(mix(vec3(l),diffuseColor.rgb,${SAT.toFixed(2)}),0.,1.);`)};return m};
+/* снаружи 3275:12680 (без паттерна в карманах); внутри: 1 — 3259:26481 крупный паттерн, 2 — 3330:14677 мелкий паттерн 60% */
+const OUT=tex('outer3.jpg?rev=f740fcd3f861');
+const INN={1:tex('inner3.jpg?rev=d8615fdfdaca'),2:tex('inner4.jpg?rev=0b3c7cb7ab87')};
+const mOut=saturate(new THREE.MeshStandardMaterial({map:OUT,roughness:.85,metalness:0}));
+const mIn=saturate(new THREE.MeshStandardMaterial({map:INN[1],roughness:.9,metalness:0}));
+mIn.map=INN[2];mIn.needsUpdate=true;  // один вариант — мелкий паттерн внутри
+const mEdge=new THREE.MeshStandardMaterial({color:EDGE,roughness:.95});
+
+/* четырёхугольник: углы в мм ↔ углы на развёртке в пикселях (a,b,c,d по кругу) */
+function quad(mat,pts,px,off){
+  const g=new THREE.BufferGeometry();
+  const P=pts.map(p=>new THREE.Vector3(...p));
+  const n=new THREE.Vector3().subVectors(P[1],P[0]).cross(new THREE.Vector3().subVectors(P[3],P[0])).normalize();
+  const o=n.clone().multiplyScalar(off);
+  g.setAttribute('position',new THREE.Float32BufferAttribute(P.flatMap(p=>[p.x+o.x,p.y+o.y,p.z+o.z]),3));
+  g.setAttribute('uv',new THREE.Float32BufferAttribute(px.flatMap(([x,y])=>[x/IW,1-y/IH]),2));
+  g.setIndex([0,1,2,0,2,3]);g.computeVertexNormals();
+  const m=new THREE.Mesh(g,mat);m.castShadow=true;m.receiveShadow=true;return m;
+}
+/* картонная панель: торец-коробка + наружная и внутренняя печать */
+function panel(group,pts,outPx,inPx){
+  // pts — наружная плоскость; толщина уходит внутрь коробки
+  const P=pts.map(p=>new THREE.Vector3(...p));
+  const n=new THREE.Vector3().subVectors(P[1],P[0]).cross(new THREE.Vector3().subVectors(P[3],P[0])).normalize();
+  group.add(quad(mOut,pts,outPx,.05));
+  const inner=pts.map(p=>[p[0]-n.x*T,p[1]-n.y*T,p[2]-n.z*T]).reverse();
+  group.add(quad(mIn,inner,inPx.slice().reverse(),.05));
+  // торец
+  const c=P.reduce((a,b)=>a.add(b),new THREE.Vector3()).multiplyScalar(.25).addScaledVector(n,-T/2);
+  const u=new THREE.Vector3().subVectors(P[1],P[0]), v=new THREE.Vector3().subVectors(P[3],P[0]);
+  const geo=new THREE.BoxGeometry(u.length(),v.length(),T-.2);
+  const m=new THREE.Mesh(geo,mEdge);
+  const basis=new THREE.Matrix4().makeBasis(u.clone().normalize(),v.clone().normalize(),n);
+  m.quaternion.setFromRotationMatrix(basis);m.position.copy(c);m.castShadow=true;m.receiveShadow=true;group.add(m);
+}
+
+const x0=-W/2,x1=W/2,z0=-D/2,z1=D/2;
+const box=new THREE.Group();scene.add(box);
+
+/* дно: снаружи низ (y=0), внутри — верх */
+panel(box,[[x0,0,z0],[x1,0,z0],[x1,0,z1],[x0,0,z1]],
+  [[272,1112],[1592,1112],[1592,272],[272,272]],
+  [[272,1372],[1592,1372],[1592,2212],[272,2212]]);
+/* передняя стенка */
+panel(box,[[x0,0,z1],[x1,0,z1],[x1,H,z1],[x0,H,z1]],
+  [[272,272],[1592,272],[1592,12],[272,12]],
+  [[272,2212],[1592,2212],[1592,2472],[272,2472]]);
+/* задняя стенка */
+panel(box,[[x1,0,z0],[x0,0,z0],[x0,H,z0],[x1,H,z0]],
+  [[1592,1112],[272,1112],[272,1372],[1592,1372]],
+  [[1592,1372],[272,1372],[272,1112],[1592,1112]]);
+/* левая боковина */
+panel(box,[[x0,0,z0],[x0,0,z1],[x0,H,z1],[x0,H,z0]],
+  [[272,1112],[272,272],[12,272],[12,1112]],
+  [[272,1372],[272,2212],[12,2212],[12,1372]]);
+/* правая боковина */
+panel(box,[[x1,0,z1],[x1,0,z0],[x1,H,z0],[x1,H,z1]],
+  [[1592,272],[1592,1112],[1852,1112],[1852,272]],
+  [[1592,2212],[1592,1372],[1852,1372],[1852,2212]]);
+
+/* крышка на петле у верхнего края задней стенки; клапан опускается поверх передней стенки */
+const hinge=new THREE.Group();hinge.position.set(0,H+T,z0);box.add(hinge);
+panel(hinge,[[x0,0,0],[x0,0,D+T],[x1,0,D+T],[x1,0,0]],
+  [[272,1372],[272,2212],[1592,2212],[1592,1372]],
+  [[272,1112],[272,272],[1592,272],[1592,1112]]);
+panel(hinge,[[x0,0,D+2*T],[x0,-FLAP-T,D+2*T],[x1,-FLAP-T,D+2*T],[x1,0,D+2*T]],
+  [[272,2212],[272,2472],[1592,2472],[1592,2212]],
+  [[272,272],[272,12],[1592,12],[1592,272]]);
+
+/* открытие */
+let target=0,ang=0;
+const bOpen=document.getElementById('open');
+bOpen.onclick=()=>{target=target?0:1;bOpen.textContent=target?'Закрыть':'Открыть';stopAuto()};
+let topView=false;
+document.getElementById('view').onclick=()=>{topView=!topView;stopAuto();
+  const from=cam.position.clone(),to=topView?new THREE.Vector3(0,1000,330):new THREE.Vector3(520,430,700),t0=performance.now();
+  (function go(t){const k=Math.min(1,(t-t0)/900),e=1-Math.pow(1-k,3);cam.position.lerpVectors(from,to,e);if(k<1)requestAnimationFrame(go)})(t0);
+  document.getElementById('view').textContent=topView?'Вид сбоку':'Вид сверху';if(topView&&!target)bOpen.click()};
+let autoStep=false,cyc=null,stopped=false,autoOrbit=false,orbitT=0,homeTheta=null;
+function stopAuto(){if(autoStep)return;stopped=true;autoOrbit=false;ctl.autoRotate=false;document.getElementById('hint').style.opacity=0;if(cyc){clearInterval(cyc);cyc=null}}
+/* как у соседних коробок: по кругу каждые 3 с — открыть → сверху → сбоку → закрыть; в портфолио играет, только когда она в кадре */
+{const vb=document.getElementById('view'),steps=[()=>{if(!target)bOpen.click()},()=>{if(target)bOpen.click()}];let i=0;
+ const play=()=>{if(cyc||stopped)return;autoOrbit=true;cyc=setInterval(()=>{autoStep=true;steps[i%2]();autoStep=false;i++},4500)};
+ const pause=()=>{if(cyc){clearInterval(cyc);cyc=null}autoOrbit=false};
+ /* вне экрана коробка не рисуется совсем — три WebGL-сцены на странице иначе тормозят друг друга */
+ addEventListener('message',e=>{if(e.data==='box:play'){clock.getDelta();renderer.setAnimationLoop(frameLoop);play()}if(e.data==='box:pause'){pause();renderer.setAnimationLoop(null)}});
+ ctl.autoRotate=false;if(window.parent===window)play();}
+renderer.domElement.addEventListener('pointerdown',stopAuto);
+
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+
+const clock=new THREE.Clock();
+const frameLoop=()=>{
+  const dt=Math.min(.05,clock.getDelta());
+  ang+=Math.sign(target-ang)*Math.min(Math.abs(target-ang),dt/1.4);
+  const e=ang<.5?4*ang*ang*ang:1-Math.pow(-2*ang+2,3)/2;
+  hinge.rotation.x=-THREE.MathUtils.degToRad(105)*e;
+  ctl.target.y=35+70*e;
+  /* автопоказ: не крутится по кругу, а покачивается вокруг вида спереди — открывается всегда лицом к зрителю */
+  {const off=cam.position.clone().sub(ctl.target),sp=new THREE.Spherical().setFromVector3(off);
+   if(homeTheta===null)homeTheta=sp.theta;
+   if(autoOrbit){orbitT+=dt;sp.theta+=(homeTheta+Math.sin(orbitT*.35)*.42-sp.theta)*Math.min(1,dt*2);cam.position.setFromSpherical(sp).add(ctl.target)}}
+  ctl.update();renderer.render(scene,cam);
+};
+renderer.setAnimationLoop(frameLoop);
+
+</script>
+</body>
+</html>

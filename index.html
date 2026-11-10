@@ -98,6 +98,29 @@
   .case-scroll{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain}
   .case-first{position:relative;height:100vh;background:#0d0d0e}
   .case-cover{position:absolute;overflow:hidden}
+  /* обложка кейса — бенто-плиткой: не заезжает под шапку, скруглена, с отступами */
+  html.bw .case-cover{top:76px;right:16px;bottom:16px;border-radius:28px}
+  html.bw .case-lead{color:#6f737a}   /* подзаголовок на белом был белым и не читался */
+  html.bw .case-hint{color:#9a9a9a}
+  /* язычок у правого края: подсказывает, что справа выезжает меню работ */
+  /* язычок вырастает из края страницы: сверху и снизу — вогнутые скругления, как у вкладки */
+  .w-tab{--r:14px;--ln:rgba(0,0,0,.16);position:fixed;right:0;top:50%;z-index:44;transform:translate(110%,-50%);writing-mode:vertical-rl;
+    display:flex;align-items:center;gap:10px;padding:18px 9px;border-radius:14px 0 0 14px;background:#fff;color:#111;font-size:12px;
+    border:1px solid var(--ln);border-right:0;transition:transform .5s var(--ease),padding .3s var(--ease)}
+  .w-tab i{writing-mode:horizontal-tb;font-style:normal;font-size:15px;line-height:1}
+  .w-tab::before,.w-tab::after{content:"";position:absolute;right:0;width:var(--r);height:var(--r);pointer-events:none}
+  .w-tab::before{bottom:100%;background:radial-gradient(circle at 0 0,transparent calc(var(--r) - 1px),var(--ln) calc(var(--r) - 1px),var(--ln) var(--r),#fff calc(var(--r) + .5px))}
+  .w-tab::after{top:100%;background:radial-gradient(circle at 0 100%,transparent calc(var(--r) - 1px),var(--ln) calc(var(--r) - 1px),var(--ln) var(--r),#fff calc(var(--r) + .5px))}
+  .w-tab.on{transform:translate(0,-50%)}
+  .w-tab.on.nudge{animation:wtab 1.4s var(--ease) .6s 2}
+  .w-tab:hover{padding-right:14px}
+  @keyframes wtab{0%,100%{transform:translate(0,-50%)}40%{transform:translate(-8px,-50%)}}
+  @media (max-width:760px),(hover:none){ .w-tab{display:none} }
+  .case-go{margin-top:32px}
+  .case-go .cv-cta{padding:20px 34px;font-size:18px;border-radius:99px;background:#111;color:#fff;transition:transform .4s var(--ease),background .3s}
+  .case-go .cv-cta:hover{transform:translateY(-2px);background:#000}
+  @media (max-width:760px){ .case-go{margin-top:18px} .case-go .cv-cta{padding:15px 24px;font-size:15px} }
+  @media (max-width:760px){ html.bw .case-cover{top:46%;left:12px;right:12px;bottom:12px;border-radius:22px} }
   .case .pv-hero > *{opacity:1;transform:none}
   .case-content{padding:110px 36px 120px;display:grid;gap:96px}
   .cs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:40px;align-items:start}
@@ -151,7 +174,8 @@
   .cv-col.down .cv-run{animation-direction:alternate-reverse}
   .cv-run img{display:block;width:100%;margin-bottom:16px;border-radius:18px}
   @keyframes cvdrift{from{transform:translateY(0)}to{transform:translateY(min(0px, calc(100cqh - 100%)))}}
-  .cv-banners{display:flex;justify-content:center;align-items:center;padding:0 6%}
+  /* баннеры едут сверху вниз: первый виден целиком, с отступом от края плитки */
+  .cv-banners{display:flex;justify-content:center;align-items:flex-start;padding:24px 6%}
   .cv-banners .cv-run{width:100%;animation-duration:44s}
   .cv-banners .cv-run img{border-radius:14px}
   /* длинная страница сайта медленно листается в рамке по центру */
@@ -844,7 +868,7 @@
   /* 3D-коробка: шесть сторон из макета, крутится сама, можно повернуть мышью или пальцем */
   .b-box .wrap{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:clamp(30px,5vw,80px);align-items:center}
   .cube-wrap{position:relative;height:min(64vh,520px);display:grid;place-items:center;perspective:1300px;border-radius:32px;overflow:hidden;
-    background:radial-gradient(60% 55% at 50% 58%,rgba(255,106,19,.38),rgba(255,106,19,0) 70%),var(--ccard);cursor:grab;touch-action:pan-y;user-select:none}
+    background:var(--ccard);cursor:grab;touch-action:pan-y;user-select:none}
   .cube-wrap:active{cursor:grabbing}
   .cube-wrap::after{content:"";position:absolute;left:50%;bottom:12%;width:44%;height:22px;transform:translateX(-50%);border-radius:50%;background:rgba(0,0,0,.55);filter:blur(16px)}
   .cube{--s:min(250px,46vw);position:relative;z-index:1;width:var(--s);height:var(--s);transform-style:preserve-3d;will-change:transform}
@@ -1046,6 +1070,98 @@
   /* ---------- бенто рядами: высота ряда общая, ширины по пропорциям картинок ---------- */
   .case-scroll{overflow-x:hidden}
   .brows{display:flex;flex-direction:column;gap:12px}
+  /* генератор в едином виде: сверху название, слева превью на белой карточке, справа ручки белыми карточками */
+  .bento .gen2{background:#e4e7eb;color:#222327;padding:26px;display:flex;flex-direction:column;gap:18px}
+  .gen2 .g2h h4{font-weight:400;font-size:clamp(20px,1.9vw,28px);letter-spacing:-.01em}
+  .gen2 .g2h p{margin-top:6px;max-width:60ch;font-size:13px;line-height:1.5;color:#6f737a}
+  .gen2 .g2b{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,280px);gap:12px}
+  .gen2 .g2pv{border-radius:18px;background:#fff;overflow:hidden;display:grid;place-items:center;min-height:0}
+  .bento .gen2 .g2pv img{position:static !important;inset:auto !important;width:100% !important;height:100% !important;object-fit:contain !important;padding:0 !important;border-radius:0 !important;transform:none !important}
+  .gen2 .g2s{display:flex;flex-direction:column;gap:10px;min-height:0;overflow:hidden}
+  .gen2 .g2c{background:#fff;border-radius:16px;padding:14px 16px;display:grid;gap:7px}
+  .gen2 .g2c b{font-weight:500;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#8b8f96;margin-bottom:2px}
+  .gen2 .g2c p{display:grid;grid-template-columns:1fr 70px 38px;align-items:center;gap:10px;font-size:12px;color:#3a3c41}
+  .gen2 .g2c p span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gen2 .g2c i{position:relative;height:2px;border-radius:2px;background:#eceef1}
+  .gen2 .g2c i::after{content:"";position:absolute;top:50%;left:calc(var(--v) * 100%);width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;background:#222327}
+  .gen2 .g2c em{font-style:normal;text-align:right;color:#8b8f96;font-variant-numeric:tabular-nums}
+  .gen2 .g2btn{display:flex;flex-wrap:wrap;gap:6px}
+  .gen2 .g2btn span{padding:8px 13px;border-radius:99px;background:#eceef1;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+  .gen2 .g2btn span:first-child{background:#222327;color:#fff}
+  .gen2 .th{display:none}
+  @media (max-width:760px){ .bento .gen2{padding:16px} .gen2 .g2b{grid-template-columns:1fr} .gen2 .g2pv{aspect-ratio:4/3} .bento > .gen2{grid-row:auto / span 1;height:auto} }
+  /* телефоны в бенто — без теней */
+  .bento .ph-tile .phone{box-shadow:none !important}
+  /* ряд целиком влезает в экран по высоте */
+  .brows.fit{max-width:calc((100svh - 190px) * 3 * .5623 + 24px)}
+  /* сторис лентой: телефон в центре, соседние кадры по бокам, крайние тают */
+  /* --P — высота экрана телефона (9:19.5), сторис 9:16 стоит в нём целиком, сверху статус-бар, снизу поле ответа */
+  .igr{--P:min(calc(100svh - 230px),620px);--W:calc(var(--P)*.462);--H:calc(var(--W)/.5625);--dy:calc(var(--P)*-.035);
+    --g:14px;--h:min(calc(var(--H)*.74),calc((100cqw - var(--W) - 18px - var(--g)*4 - 8px) / 4 / .5625));--w:calc(var(--h)*.5625);
+    position:relative;height:calc(var(--P) + 22px);overflow:hidden}
+  .b-igr{container-type:inline-size}  /* cqw в .igr считается от ширины секции */
+  .igr .cd{position:absolute;left:50%;top:50%;width:var(--w);height:var(--h);margin:0;border-radius:12px;overflow:hidden;background:#111;cursor:pointer;
+    transform:translate(-50%,-50%) translateX(var(--x,0px));transition:transform 1s var(--ease),width 1s var(--ease),height 1s var(--ease),opacity .7s,border-radius 1s var(--ease)}
+  .igr .cd img{display:block;width:100%;height:100%;object-fit:cover}
+  /* белое свечение, как на рефе: крайние кадры растворяются в белом к краю */
+  .igr .cd::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .9s var(--ease);
+    background:linear-gradient(var(--gd,90deg),rgba(255,255,255,0) 20%,rgba(255,255,255,.35) 60%,rgba(255,255,255,.8));
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    -webkit-mask-image:linear-gradient(var(--gd,90deg),transparent 15%,#000 75%);mask-image:linear-gradient(var(--gd,90deg),transparent 15%,#000 75%)}
+  .igr .cd[data-s="2"]::after,.igr .cd[data-s="-2"]::after{opacity:1}
+  .igr .cd[data-s="-2"],.igr .cd[data-s="-3"]{--gd:270deg}
+  .igr .cd[data-s="1"]::after,.igr .cd[data-s="-1"]::after{opacity:0}
+  .igr .cd.jump{transition:none}
+    .igr .cd[data-s="0"]{width:var(--W);height:var(--H);border-radius:10px;z-index:2;cursor:default;transform:translate(-50%,-50%) translateY(var(--dy))}
+  .igr::before{content:"";position:absolute;left:50%;top:50%;z-index:1;width:var(--W);height:var(--P);transform:translate(-50%,-50%);background:#000;border-radius:34px}
+  .igr .cd[data-s="1"]{--x:calc(var(--W)/2 + 9px + var(--g) + var(--w)/2)}
+  .igr .cd[data-s="-1"]{--x:calc(-1*(var(--W)/2 + 9px + var(--g) + var(--w)/2))}
+  .igr .cd[data-s="2"]{--x:calc(var(--W)/2 + 9px + var(--g)*2 + var(--w)*1.5)}
+  .igr .cd[data-s="-2"]{--x:calc(-1*(var(--W)/2 + 9px + var(--g)*2 + var(--w)*1.5))}
+  .igr .cd[data-s="-3"]{--x:calc(-1*(var(--W)/2 + 9px + var(--g)*3 + var(--w)*2.5));opacity:0}
+  .igr .cd[data-s="2"].jump{opacity:0}
+  /* рамка телефона и интерфейс сторис поверх центрального кадра */
+  .igph{position:absolute;left:50%;top:50%;z-index:3;width:calc(var(--W) + 18px);height:calc(var(--P) + 18px);transform:translate(-50%,-50%);
+    border:9px solid #0a0a0b;border-radius:44px;pointer-events:none;color:#fff;font-size:12px;box-shadow:0 40px 80px -40px rgba(0,0,0,.55)}
+  .igph::before{content:"";position:absolute;left:50%;top:9px;width:30%;height:calc(var(--P)*.04);max-height:24px;transform:translateX(-50%);border-radius:99px;background:#000}
+  .igq{position:absolute;left:10px;right:10px;top:calc(var(--P)/2 + var(--dy) - var(--H)/2 + 8px);display:flex;gap:4px}
+  .igq i{flex:1;height:2.5px;border-radius:2px;background:rgba(255,255,255,.38);overflow:hidden}
+  .igq b{display:block;height:100%;background:#fff;transform-origin:0 50%;transform:scaleX(0)}
+  .igq b.full{transform:scaleX(1)}
+  .igq b.run{animation:igRun var(--t,4.5s) linear both}
+  .igr.pause .igq b.run{animation-play-state:paused}
+  @keyframes igRun{to{transform:scaleX(1)}}
+  .igu{position:absolute;left:10px;top:calc(var(--P)/2 + var(--dy) - var(--H)/2 + 20px);display:flex;align-items:center;gap:7px;text-shadow:0 1px 6px rgba(0,0,0,.35)}
+  .igu .av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#111;box-shadow:0 0 0 1.5px #fff;font-size:11px;font-weight:600}
+  .igu b{font-weight:600}
+  .igu em{font-style:normal;opacity:.75;margin-left:2px}
+  .igr-b{position:absolute;left:10px;right:10px;bottom:calc((var(--P)/2 - var(--dy) - var(--H)/2 - 34px) / 2);display:flex;align-items:center;gap:12px}
+  .igr-b span{flex:1;padding:8px 12px;border-radius:99px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.6);font-size:11px;white-space:nowrap;overflow:hidden}
+  .igr-b svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linejoin:round;flex:none}
+  @media (max-width:760px){ .igr{--P:min(calc(100svh - 250px),560px);--g:8px} }
+  /* сторис как в Instagram */
+  .bento .igs{position:relative;overflow:hidden;cursor:pointer;user-select:none;--d:9s}
+  .bento.brow > .igs{background:#111}
+  .bento.brow > .igs > img{position:absolute;inset:0 !important;width:100% !important;height:100% !important;object-fit:cover !important;border-radius:0 !important;padding:0 !important;transform:none !important}
+  .bento .igs > img.bf{z-index:1}
+  .bento .igs .th{display:none}
+  .igs .igp{position:absolute;left:10px;right:10px;top:10px;z-index:3;display:flex;gap:4px}
+  .igs .igp i{flex:1;height:2.5px;border-radius:2px;background:rgba(255,255,255,.35);overflow:hidden}
+  .igs .igp b{display:block;height:100%;background:#fff;transform-origin:0 50%;transform:scaleX(0)}
+  .igs .igl{display:none}  /* «Before/After» уже написано в самих сторис */
+  .igs .igl{position:absolute;left:10px;top:22px;z-index:3;font-size:11px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.4)}
+  .igs .igl em{position:absolute;left:0;top:0;font-style:normal;white-space:nowrap}
+  .igs .igl em + em{opacity:0}
+  .in .igs .igp i:first-child b{animation:igA var(--d) linear infinite}
+  .in .igs .igp i:last-child b{animation:igB var(--d) linear infinite}
+  .in .igs > img.bf,.in .igs .igl em:first-child{animation:igOut var(--d) ease infinite}
+  .in .igs .igl em + em{animation:igIn var(--d) ease infinite}
+  .igs:hover *{animation-play-state:paused !important}
+  @keyframes igA{0%{transform:scaleX(0)}50%,100%{transform:scaleX(1)}}
+  @keyframes igB{0%,50%{transform:scaleX(0)}100%{transform:scaleX(1)}}
+  @keyframes igOut{0%,49%{opacity:1}52%,97%{opacity:0}100%{opacity:1}}
+  @keyframes igIn{0%,49%{opacity:0}52%,97%{opacity:1}100%{opacity:0}}
+  @media (prefers-reduced-motion:reduce){ .in .igs *{animation:none !important} }
   .bento.brow{display:flex;gap:12px;grid-auto-rows:auto}
   .bento.brow > div{min-width:0}
   .bento.brow .ph-tile,.bento.brow .bx{container-type:size}
@@ -1057,6 +1173,7 @@
     .bento.brow{flex-wrap:wrap;gap:8px;align-items:flex-start}
     .bento.brow > div{flex:1 1 calc(50% - 4px) !important}
     .bento.brow > .wide{flex-basis:100% !important}
+    .bento.brow > .igs{flex:1 1 0 !important}
     .bento.brow > .st,.bento.brow > .tx,.bento.brow > .ls{flex-basis:100% !important;aspect-ratio:auto !important}
     .bento.brow > .tx{min-height:120px}
     .bento.brow > .dv{aspect-ratio:auto !important;height:min(70vh,480px)}
@@ -1170,8 +1287,15 @@
   html.bw .pv-facts span,html.bw .pv-eyebrow,html.bw .case-hint,html.bw .cs h3,html.bw .cs-more h3{color:#9A9A9A}
   html.bw .pv-eyebrow b{color:#111}
   html.bw body.on-work .top .logo{color:#111}
-  html.bw .case-top .logo{color:#111}
-  html.bw .case-top.scrolled{background:#fff}
+  /* шапка кейса без плашки: логотип и линия в режиме разницы — на светлом тёмные, на тёмных картинках белые */
+  html.bw .case-top,html.bw .case-top.scrolled,html.bw .case-top.past{background:none;box-shadow:none;transform:none;z-index:auto;transition:none}
+  html.bw .case-top .logo{color:#fff;mix-blend-mode:difference;position:relative;z-index:5}
+  html.bw .hwires{mix-blend-mode:difference}
+  /* в режиме разницы: на чёрном линия остаётся своего цвета (светлая), на белом — инвертируется в тёмную */
+  html.bw .hwires path{stroke:#cfcfcf}
+  html.bw .hwires path.hot{stroke:#fff}
+  html.bw .hwires.hwn{mix-blend-mode:normal}
+  html.bw .hwires circle.dot{fill:#fff;stroke:none}
   html.bw .case-top nav{background:#fff;color:#111;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16)}
   html.bw .cv-stories,html.bw .cv-cols,html.bw .cv-banners,html.bw .cv-page{background:#F4F4F4}
   /* плашка проектов, окно «Все работы», конец кейса */
@@ -1271,7 +1395,7 @@
 </header>
 
 <!-- шапка: капсула разделов, CV и язык; на телефоне — кнопка меню и язык -->
-<svg class="hwires" id="hwires" aria-hidden="true"></svg>
+<svg class="hwires" id="hwires" aria-hidden="true"></svg><svg class="hwires hwn" id="hwiresN" aria-hidden="true"></svg>
 <nav class="hdr" id="hdr" aria-label="Меню" data-i18n-aria>
   <div class="hdr-pill">
     <button data-nav="about" class="mag"><span class="roll"><span data-i18n>Обо мне</span><span data-i18n aria-hidden="true">Обо мне</span></span></button>
@@ -1308,6 +1432,7 @@
 
 <div class="ctag" id="ctag" aria-hidden="true" data-i18n>Смотреть</div>
 <div class="works-dim" id="worksDim"></div>
+<button class="w-tab" id="worksTab"><i aria-hidden="true">‹</i><span data-i18n>Все работы</span></button>
 <aside class="works" id="works" aria-hidden="true" aria-label="Все работы">
   <div class="works-hd"><h2 data-i18n>Все работы</h2><span id="worksN"></span><button id="worksX" aria-label="Закрыть" data-i18n-aria>×</button></div>
   <div class="works-list" id="worksList"></div>
@@ -1319,7 +1444,7 @@
   <div class="case-scroll" id="caseScroll">
     <div class="case-first">
       <div class="pv-hero">
-        <div><p class="pv-eyebrow" id="caseEyebrow"></p><h1 class="pv-title" id="caseTitle"></h1><p class="case-lead" id="caseLead"></p></div>
+        <div><p class="pv-eyebrow" id="caseEyebrow"></p><h1 class="pv-title" id="caseTitle"></h1><p class="case-lead" id="caseLead"></p><div class="case-go" id="caseGo"></div></div>
         <div><div class="case-hint" id="caseHint"></div></div>
       </div>
       <div class="case-cover" id="caseCover"></div>
@@ -1355,11 +1480,11 @@ const CASES = [
     url:'projects/trading-101/index.html', urlLabel:'Открыть сайт',
     blocks:[
       { t:'lead', h:'Задача', text:'Снять страх новичка перед трейдингом и довести до покупки курса.' },
-      { t:'kv', items:[['Аудитория','Женщины 30–45 лет'],['Путь','Игра в телеграм-боте → лендинг → покупка'],['Экраны','1200 · 1024 · 768 · 390']] },
+      { t:'kv', items:[['Путь','Игра в телеграм-боте → лендинг → покупка'],['Экраны','1200 · 1024 · 768 · 390']] },
       // бенто: сверху живой лендинг в окне браузера (как подача у tatianae.com), дальше телефон, книга и стиль
       { t:'bento', rows:[
         [{ win:'assets/trading.jpg', live:'projects/trading-101/index.html', url:'trading-101 · лендинг', bg:'linear-gradient(150deg,#00C2FF,#0a5e8a 70%,#0e1218)', mesh:['#cfeefa','#e3dcf5','#d5f0e4'], a:2.1, lb:'Лендинг' }],
-        [{ phone:'assets/cases/trading/mobile-page.jpg', live:'projects/trading-101/index.html', long:true, a:.6, lb:'Телефон' },
+        [{ phone:'assets/cases/trading/mobile-page.jpg', long:true, a:.6, lb:'Телефон — листайте внутри' },  // без второго живого лендинга — страница не тормозит
          { book:{ f:'assets/cases/trading/book-front.jpg', bk:'assets/cases/trading/book-back.jpg', sp:'assets/cases/trading/book-spine.jpg' }, a:.75, lb:'Книга автора' },
          { img:'assets/trading-thumb.jpg', a:1.493, lb:'Ноутбук' },
          { big:'{ }', small:'заголовки блоков — как в тетради', acc:1, a:.9, lb:'Приём' }],
@@ -1367,7 +1492,7 @@ const CASES = [
          { big:'4', small:'адаптива: 1200 · 1024 · 768 · 390', a:2, cls:'big' }] ] } ] },
 
   { id:'revnikoff', type:'landings', name:'Revnikoff', kind:'сайт мастерской',
-    status:'Запущен', img:'assets/revnikoff.jpg', cover:RV+'bag.jpg', coverPos:'50% 50%',
+    status:'Запущен', img:'assets/revnikoff.jpg', cover:RV+'v2/hero.jpg', coverPos:'50% 50%',
     color:'#ff6a13',
     theme:{ bg:'#0a0a0a', card:'#171717', acc:'#ff6a13', accInk:'#140600' },
     slides:['assets/slides/revnikoff-1.jpg','assets/slides/revnikoff-2.jpg','assets/slides/revnikoff-3.jpg','assets/slides/revnikoff-4.jpg'],
@@ -1388,16 +1513,15 @@ const CASES = [
         [{ img:RV+'v2/card.jpg', a:1.670, lb:'Карточка товара' }, { img:RV+'box.jpg', a:1.5, lb:'Choco Boom — подарок клиентам' }],
         // ряды по смыслу: адаптивы · процесс и цвет · цифры и подарок
         [{ img:RV+'v2/adapt-bg.jpg', a:1.28, lb:'Планшет' },
-         { duo:[RV+'v2/phone-1.png', RV+'v2/phone-2.png'], bg:'#ff6a13', a:1.1, lb:'Телефон' }],
+         { phone:RV+'v2/mobile-long.jpg', long:true, bg:'#ff6a13', a:1.1, lb:'Телефон — листайте внутри' }],
         [{ list:['Брифинг','Исследование','Прототипирование','Референсы','Визуальная концепция','UI-кит и адаптация'], h:'Как шла работа', a:1.2 },
          { pal:[['#F3F3F3','Grey','#111'],['#0A0A0A','Black'],['#FF6A13','Orange','#140600']], a:2.2 }],
         [{ big:'55', small:'экранов: десктоп, планшет, телефон и попапы', a:1.1, cls:'big' },
-         { big:'8', small:'страниц, собрала на Тильде сама', acc:1, a:1.1, cls:'big' },
          { box:{ f:RV+'box/front.jpg', bk:RV+'box/back.jpg', l:RV+'box/left.jpg', r:RV+'box/right.jpg', t:RV+'box/top.jpg', bt:RV+'box/bottom.jpg' }, a:1.1, lb:'Покрутите коробку' }],
         [{ img:RV+'v2/cap.jpg', a:.765 }, { img:RV+'v2/bag.jpg', a:1.926, lb:'Пакет доставки' }, { img:RV+'v2/foam.jpg', a:.796 }] ] },
       // сторис «до / после» — отдельным разделом
-      { t:'bento', h:'Сторис: до / после', text:'Потяните шторку.', rows:[
-        [2,3,4].map((k, j)=>({ ba:[`${RV}stories/${String(k*2+1).padStart(2,'0')}.jpg`, `${RV}stories/${String(k*2+2).padStart(2,'0')}.jpg`], k:j, a:.5623 })) ] },
+      { t:'igrail', h:'Визуальный язык в Instagram', text:'Сторис «до / после»: одна система для всех ремонтов. Нажмите, чтобы переключить.',
+        frames:[2,3,4].flatMap(k=>[`${RV}stories/${String(k*2+1).padStart(2,'0')}.jpg`, `${RV}stories/${String(k*2+2).padStart(2,'0')}.jpg`]) },
       { t:'cta' } ] },
 
   { id:'impre', wip:true, type:'apps', name:'Impre', kind:'приложение о здоровье',
@@ -1425,9 +1549,19 @@ const CASES = [
         { n:'02', step:['Четыре состояния','Баланс, активность, восстановление, фокус — свой цвет и свет.'], c:1, r:1 },
         { n:'03', step:['Шкала из точек','Норму и отклонение видно без красно-зелёной паники.'], c:1, r:1 },
         { n:'04', step:['Тихий интерфейс','Почти без заливок, акцентов на экране — единицы.'], c:1, r:1 },
-        { gen:'assets/cases/impre/gen-capsule.jpg', e:'Лавовая капсула', p:'Капли внутри капсулы: цвет, движение и свет. Экспорт в PNG и видео.', c:4, r:3 },
-        { gen:'assets/cases/impre/gen-blister.jpg', e:'Блистер', p:'Капсулы перекатываются по сетке, палитры формул, запись видео. Он же — обложка этого кейса.', c:4, r:3 },
-        { gen:'assets/cases/impre/gen-graph.jpg', e:'Графики показателей', p:'Форма, цвет и затухания на ручках, выгрузка в SVG и PNG.', c:4, r:3 } ] },
+        // генераторы — в одном виде (как генератор графиков): название и описание сверху, превью слева, ручки справа
+        { gen2:'assets/cases/impre/pv-capsule.jpg', pvbg:'#d8d9db', e:'Лавовая капсула', p:'Капли внутри капсулы: цвет, движение и свет. Экспорт в PNG и видео.', c:4, r:3,
+          groups:[['Капсула',[['Длина',.62],['Радиус',.42],['Стекло',.035,.1],['Преломление',1.12,2]]],
+                  ['Жидкость',[['Капель',6,10],['Вязкость',.22],['Смешение цвета',.4],['Плотность',1.35,2]]],
+                  ['Движение',[['Радиус орбиты',.65],['Скорость',.5],['Ход',.55]]]] },
+        { gen2:'assets/cases/impre/pv-blister.jpg', pvbg:'#d4d7dc', e:'Блистер', p:'Капсулы перекатываются по сетке, палитры формул, запись видео. Он же — обложка этого кейса.', c:4, r:3,
+          groups:[['Раскладка',[['Размер клетки',104,160,' px'],['Зазор',11,30,' px']]],
+                  ['Движение',[['Длительность хода',900,1600,' мс'],['Пауза между ходами',170,1000,' мс'],['Жизнь содержимого',100,200,' %'],['Чёткость капсул',260,500,' px']]]],
+          btns:['Пауза','Ход','PNG','Записать'] },
+        { gen2:'assets/cases/impre/pv-graph.jpg', e:'Графики показателей', p:'Форма, цвет и затухания на ручках, выгрузка в SVG и PNG.', c:4, r:3,
+          groups:[['Ряд',[['Зерно',7,50],['Точек',30,60],['Старт',24,100],['Финиш',66,100],['Разброс',16,50]]],
+                  ['Масса',[['Отступ цвета',9,50],['Размытие',35,100],['Плотность',135,200],['Гаснет сверху',60,100]]]],
+          btns:['Пересобрать','SVG'] } ] },
       { t:'cta' } ] },
 
   // кейс по запросу: обложка в ленте с замком, сам кейс не открывается (внутренний процесс НСПК)
@@ -1535,11 +1669,8 @@ const CASES = [
       { t:'lead', h:'Задача', text:'Разные поводы — один визуальный язык.' },
       { t:'kv', items:[['Клиент','Leveraged — трейдинг-сервис'],['Формат','Посты 4:5 для соцсетей'],['Стиль','Тёмно-зелёный, стекло и металл']] },
       // плитка 1×2 — ровно пост 4:5
-      { t:'bento', rk:.6, items:[
-        ...G('leveraged',6).slice(0, 4).map((s, k)=>({ img:s, c:1, r:2, lb:k ? '' : 'Посты 4:5' })),
-        { img:G('leveraged',6)[4], c:1, r:2 },
-        { big:'Стекло и металл', small:'акции, выплаты трейдерам и анонсы — в одной системе', c:2, r:2 },
-        { img:G('leveraged',6)[5], c:1, r:2 } ] } ] },
+      // 6 постов 4:5 — два ряда по три, без пустых ячеек
+      { t:'bento', rows:[0, 3].map(o=>G('leveraged',6).slice(o, o + 3).map((s, k)=>({ img:s, a:.8, lb:o || k ? '' : 'Посты 4:5' }))) } ] },
   { id:'posters', hidden:true, type:'comms', name:'Постеры', kind:'серия постеров', status:'Личные и коммерческие',
     color:'#1a1a1c', coverType:'columns', gallery:G('posters',6),
     theme:{ bg:'#111', card:'#1a1a1a', acc:'#fff', accInk:'#111' },
@@ -1569,9 +1700,8 @@ const CASES = [
       { t:'bento', h:'Посты Instagram', rk:1, items:[
         { img:IG(10), c:2, r:2 }, { img:IG(1), c:2, r:2 },
         { img:IG(3), c:1, r:1 }, { img:IG(6), c:1, r:1 }, { img:IG(8), c:1, r:1 }, { img:IG(12), c:1, r:1 } ] },
-      { t:'bento', h:'Сторис', rk:1.778, items:[
-        ...[2,4,5,7,9,11].map(k=>({ img:IG(k), c:1, r:1 })),
-        { big:'9:16', small:'условия, анонсы и итоги — в той же системе, что посты', acc:1, c:2, r:1, cls:'big' } ] },
+      // 6 сторис 9:16 — одним рядом, без пустых ячеек
+      { t:'bento', h:'Сторис', rows:[[2,4,5,7,9,11].map(k=>({ img:IG(k), a:.5625 }))] },
       { t:'bento', h:'Презентация eCommerce vs iGaming', text:'Для партнёров: как перейти из eCommerce в iGaming — рынок, ROI и источники трафика.', rk:.667, items:[
         { img:'assets/comms/igaming/cover1.jpg', c:2, r:2 }, { img:'assets/comms/igaming/02.jpg', c:2, r:2 },
         { img:'assets/comms/igaming/01.jpg', c:2, r:2 }, { img:'assets/comms/igaming/03.jpg', c:2, r:2 } ] } ] },
@@ -1627,6 +1757,7 @@ const wobbleMap = document.getElementById('wobbleMap');
 // Safari и все браузеры на iPhone (WebKit) с SVG-фильтром на тексте могут не нарисовать логотип — там эффекты выключены
 const NO_SVG_FX = (()=>{ const ua = navigator.userAgent; return /iP(hone|ad|od)/.test(ua) || (/Safari/.test(ua) && !/Chrome|Chromium|Edg|OPR/.test(ua)); })();
 function wobble(from, dur){
+  return;  // волну с горизонтальными штрихами на логотипе убрали — остаётся перебор букв
   if(NO_SVG_FX) return;
   const t0 = performance.now();
   document.querySelectorAll('.logo').forEach(l=>l.classList.add('wob'));
@@ -1730,7 +1861,7 @@ const EN = {
   'Что делала':'My role', 'Живой сайт':'Live site', 'Живой сайт — можно листать':'Live site — scroll it', 'Листайте внутри ↓':'Scroll inside ↓',
   'Листайте внутри окна ↓':'Scroll inside the window ↓', 'Листайте вбок →':'Scroll sideways →', 'Наведите, чтобы остановить':'Hover to pause',
   'Главная страница сайта':'Website home page', 'Планшетная версия':'Tablet version', 'Мобильная версия':'Mobile version', 'экранов в проекте':'screens in the project',
-  'До':'Before', 'После':'After', 'Посмотреть':'See it live', 'Листайте вниз ↓':'Scroll down ↓', 'Следующий проект':'Next project', 'Все проекты':'All projects',
+  'До':'Before', 'После':'After', 'Сообщение':'Message', 'Посмотреть':'See it live', 'Листайте вниз ↓':'Scroll down ↓', 'Следующий проект':'Next project', 'Все проекты':'All projects',
   'Вы здесь':'You are here', 'Работы ↓':'Work ↓', 'Резюме':'Resume', 'Работала с брендами':'Brands I’ve worked with', 'Преподавала':'Taught at',
   'НСПК — Мир и СБП':'NSPK — Mir & SBP', 'М.Видео и Эльдорадо':'M.Video & Eldorado', 'МузТорг':'Muztorg', 'Алиса Брюква':'Alisa Brukwa',
   'Привет! Меня зовут Алиса — я мультидисциплинарный дизайнер. Создаю фирменные стили, digital-интерфейсы и визуальные концепции.':
@@ -1755,8 +1886,8 @@ const EN = {
   'Choco Boom — подарок клиентам':'Choco Boom — a gift for clients', 'Планшет':'Tablet', 'Брифинг':'Briefing', 'Исследование':'Research',
   'Прототипирование':'Prototyping', 'Референсы':'References', 'Визуальная концепция':'Visual concept', 'UI-кит и адаптация':'UI kit and adaptation',
   'Как шла работа':'How it went', 'экранов: десктоп, планшет, телефон и попапы':'screens: desktop, tablet, mobile and pop-ups',
-  'страниц, собрала на Тильде сама':'pages, built on Tilda myself', 'Покрутите коробку':'Spin the box', 'Пакет доставки':'Delivery bag',
-  'Сторис: до / после':'Stories: before / after', 'Потяните шторку.':'Drag the slider.',
+  'страниц, собрала на Тильде сама':'pages, built on Tilda myself', 'Покрутите коробку':'Spin the box', 'Пакет доставки':'Delivery bag', 'Телефон — листайте внутри':'Phone — scroll inside',
+  'Сторис: до / после':'Stories: before / after', 'Визуальный язык в Instagram':'Visual language on Instagram', 'Сторис «до / после»: одна система для всех ремонтов. Нажмите, чтобы переключить.':'Before / after stories: one system for every repair. Tap to switch.', 'Потяните шторку.':'Drag the slider.', 'Сначала «до», потом «после» — как в Instagram. Нажмите, чтобы переключить.':'First “before”, then “after” — like Instagram. Tap to switch.',
   // Impre
   'приложение о здоровье':'health app', 'Концепт приложения: сенсор читает состояние организма, а витамины подстраиваются под него.':
     'An app concept: a sensor reads how your body is doing, and your vitamins adapt to it.',
@@ -2172,11 +2303,21 @@ const bentoTile = x=>{
       if(x.win) return `<div class="${cls} dv" style="--dbg:${x.bg || 'var(--cacc)'}${x.mesh ? `;--m1:${x.mesh[0]};--m2:${x.mesh[1]};--m3:${x.mesh[2]}` : ''}"><div class="bw"><div class="bar"><i></i><i></i><i></i><span>${x.url || ''}</span><em>${L(x.live ? 'Живой сайт — можно листать' : 'Листайте внутри ↓')}</em></div>${
           screenT(x.live ? { shot:x.win, live:x.live } : { src:x.win, long:true }, 1440)}</div>${lb}</div>`;
       // генератор целиком (как у Instrument): снимок инструмента с панелью, сверху слева — название со стрелкой и что он делает
+      if(x.gen2){
+        const val = (v, u)=>(Number.isInteger(v) ? v : v.toFixed(v < .1 ? 3 : 2)) + (u || '');
+        const grp = ([h, rows])=>`<div class="g2c"><b>${L(h)}</b>${rows.map(([n, v, mx = 1, u])=>
+          `<p><span>${L(n)}</span><i style="--v:${Math.min(1, v / mx)}"></i><em>${val(v, u)}</em></p>`).join('')}</div>`;
+        return `<div class="${cls} gen2"><div class="g2h"><h4>${L(x.e)}</h4><p>${L(x.p)}</p></div>
+          <div class="g2b"><div class="g2pv"${x.pvbg ? ` style="background:${x.pvbg}"` : ''}><img src="${x.gen2}" alt="${L(x.e)}" loading="lazy"></div>
+          <div class="g2s">${x.groups.map(grp).join('')}${x.btns ? `<div class="g2c g2btn">${x.btns.map(t=>`<span>${L(t)}</span>`).join('')}</div>` : ''}</div></div></div>`;
+      }
       if(x.gen) return `<div class="${cls} gen">${imgT(x.gen)}<div class="gc"><b>→ ${x.e}</b><span>${x.p}</span></div></div>`;
       // 3D-коробка: крутится сама, тянешь — поворачиваешь
       if(x.box) return `<div class="${cls} bx"><div class="cube-wrap" data-spin><div class="cube">${
           Object.entries(x.box).map(([k, s])=>`<i class="${k}" style="background-image:url('${s}')"></i>`).join('')}</div></div>${lb}</div>`;
       // шторка «до / после»
+      // сторис как в Instagram: полоски прогресса сверху, «до» сменяется «после»
+      if(x.ig) return `<div class="${cls} igs" style="--i:${x.k || 0}"><div class="igp"><i><b></b></i><i><b></b></i></div><img src="${x.ig[1]}" alt="${L('После')}" loading="lazy"><img class="bf" src="${x.ig[0]}" alt="${L('До')}" loading="lazy"><span class="igl"><em>${L('До')}</em><em>${L('После')}</em></span></div>`;
       if(x.ba) return `<div class="${cls} b-ba"><div class="cmp" style="--i:${x.k || 0}"><img src="${x.ba[1]}" alt="${L('После')}" loading="lazy"><div class="bf"><img src="${x.ba[0]}" alt="${L('До')}" loading="lazy"></div><i class="hd"></i></div>${lb}</div>`;
       // два телефона-картинки (с прозрачным фоном) на цветной подложке
       if(x.duo) return `<div class="${cls} duo2" style="--dbg:${x.bg || 'var(--cacc)'}">${x.duo.map(s=>imgT(s)).join('')}${lb}</div>`;
@@ -2261,8 +2402,14 @@ const BLOCKS = {
         b.photo ? `<figure class="b-media photo">${imgT(b.photo)}</figure><small>${b.photoCap || ''}</small>` : ''}</div></div></section>`,
   // rk — высота ряда как доля ширины колонки (.5625 — плитка 1×1 ровно 16:9, 1×3 — почти 9:16)
   // rows — ряды с подгонкой: в ряду ширины плиток пропорциональны их сторонам (a = ширина/высота), высота общая — ничего не обрезается
+  // сторис лентой, как на рефе: в центре телефон с текущей сторис (полоски прогресса, как в Instagram), по бокам соседние кадры
+  igrail: b => `<section class="reveal b-igr">${headT(b)}<div class="igr">${b.frames.map((f, i)=>
+      `<figure class="cd" data-i="${i}"><img src="${f}" alt="${L(i % 2 ? 'После' : 'До')}" loading="lazy"></figure>`).join('')}
+    <div class="igph"><div class="igq"><i><b></b></i><i><b></b></i></div>
+      
+      <div class="igr-b"><span>${L('Сообщение')}</span><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><svg viewBox="0 0 24 24"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4 18-7z"/></svg></div></div></div></section>`,
   bento: b => `<section class="reveal b-bento">${headT(b)}${b.rows
-    ? `<div class="brows">${b.rows.map(r=>`<div class="bento brow">${r.map(x=>rowTile(x)).join('')}</div>`).join('')}</div>`
+    ? `<div class="brows${b.fit ? ' fit' : ''}">${b.rows.map(r=>`<div class="bento brow">${r.map(x=>rowTile(x)).join('')}</div>`).join('')}</div>`
     : `<div class="bento${b.rk ? ' rk' : ''}"${b.rk ? ` style="--rk:${b.rk}"` : ''}>${b.items.map(x=>bentoTile(x)).join('')}</div>`}</section>`,
   cta: (b, c) => c.url ? `<section class="cs reveal"><h3>${L('Посмотреть')}</h3><div><a class="cta" href="${c.url}" ${linkAttrs(c)}>${c.urlLabel} ↗</a></div></section>` : '',
 };
@@ -2296,7 +2443,7 @@ const liveRO = new ResizeObserver(es=>es.forEach(e=>fitLive(e.target)));
 const spins = new Set();
 function spinBox(wrap){
   const obj = wrap.firstElementChild;
-  const st = { ry:-28, rx:-14, v:.22, drag:null, seen:false };
+  const st = { ry:-28, rx:-14, v:obj.classList.contains('cube') ? .09 : .22, drag:null, seen:false };
   const draw = ()=>{ obj.style.transform = `rotateX(${st.rx}deg) rotateY(${st.ry}deg)`; };
   wrap.addEventListener('pointerdown', e=>{ st.drag = { x:e.clientX, y:e.clientY, ry:st.ry, rx:st.rx }; wrap.setPointerCapture(e.pointerId); });
   wrap.addEventListener('pointermove', e=>{ if(!st.drag) return;
@@ -2307,6 +2454,33 @@ function spinBox(wrap){
   new IntersectionObserver(es=>{ st.seen = es[0].isIntersecting; }).observe(wrap);
   st.tick = ()=>{ if(st.seen && !st.drag && !reduceMotion){ st.ry += st.v; st.rx += (-14 - st.rx) * .02; draw(); } };
   draw(); spins.add(st);
+}
+// лента сторис: кадр «до» → «после» → следующая сторис въезжает в телефон
+function igRail(el){
+  const cds = [...el.querySelectorAll('.cd')], n = cds.length, T = 4500;
+  const segs = el.querySelectorAll('.igq b');
+  let k = 0, seen = false, timer = 0, left = T, t0 = 0;
+  const place = ()=>{
+    cds.forEach((c, i)=>{ const s = ((i - k + n + 3) % n) - 3, was = c.dataset.s;
+      c.classList.toggle('jump', was === '-3' && s === 2); c.dataset.s = s; });
+    requestAnimationFrame(()=>requestAnimationFrame(()=>cds.forEach(c=>c.classList.remove('jump'))));
+    const after = k % 2;
+    segs[0].className = after ? 'full' : 'run'; segs[1].className = after ? 'run' : '';
+    segs.forEach(b=>{ b.style.animation = 'none'; b.offsetWidth; b.style.animation = ''; });
+  };
+  const go = to=>{ k = (to + n) % n; place(); left = T; arm(); };
+  const arm = ()=>{ clearTimeout(timer); if(!el.isConnected || !seen || el.classList.contains('pause') || reduceMotion) return;
+    t0 = performance.now(); timer = setTimeout(()=>go(k + 1), left); };
+  cds.forEach((c, i)=>c.addEventListener('click', ()=>{ const s = +c.dataset.s; if(s) go(k + s); }));
+  el.querySelector('.igph').style.pointerEvents = 'none';
+  el.addEventListener('click', e=>{ if(e.target.closest('.cd')?.dataset.s === '0') go(k + 1); });
+  const ph = ()=>el.querySelector('.cd[data-s="0"]');
+  el.addEventListener('pointerover', e=>{ if(e.target.closest('.cd')?.dataset.s === '0' && !el.classList.contains('pause')){
+    el.classList.add('pause'); clearTimeout(timer); left -= performance.now() - t0; } });
+  el.addEventListener('pointerout', e=>{ if(el.classList.contains('pause') && !e.relatedTarget?.closest?.('.cd[data-s="0"]')){
+    el.classList.remove('pause'); arm(); } });
+  new IntersectionObserver(es=>{ seen = es[0].isIntersecting; if(seen){ k = k; place(); left = T; arm(); } else clearTimeout(timer); }, { threshold:.5 }).observe(el);
+  place();
 }
 const reduceMotion = matchMedia('(prefers-reduced-motion:reduce)').matches;
 (function spinLoop(){ if(openIdx > -1) spins.forEach(s=>s.tick()); requestAnimationFrame(spinLoop); })();
@@ -2321,7 +2495,7 @@ function fillCase(i){
   $('#caseEyebrow').innerHTML = eyebrowHTML(i);
   $('#caseTitle').textContent = c.name;
   $('#caseLead').textContent = c.line;
-  $('#caseHint').innerHTML = `${c.url ? `<a class="cta" href="${c.url}" ${linkAttrs(c)}>${c.urlLabel} ↗</a>` : ''}<span>${L('Листайте вниз ↓')}</span>`;
+  $('#caseHint').innerHTML = `<span>${L('Листайте вниз ↓')}</span>`;
   $('#caseCover').innerHTML = picHTML(c, i);
   if(c.caseCover){
     const pic = $('#caseCover .pv-pic'); pic.classList.add('rv-cover');
@@ -2331,6 +2505,8 @@ function fillCase(i){
   }
   if(c.device) requestAnimationFrame(()=>placeDevice($('#caseCover .pv-pic'), c));
   watchFrames($('#caseCover'));
+  // кнопка «Открыть сайт» — в колонке сразу под подзаголовком, крупная
+  $('#caseGo').innerHTML = c.url ? `<a class="cta cv-cta" href="${c.url}" ${linkAttrs(c)}>${c.urlLabel} ↗</a>` : '';
   $('#next').innerHTML = `${L('Дальше')}<span class="nx-name">: ${nx.name}</span> →`;
 
   spins.clear(); TILE_N = 0;
@@ -2359,6 +2535,12 @@ function fillCase(i){
   cc.querySelectorAll('.reveal').forEach(el=>revealIO.observe(el));
   cc.querySelectorAll('[data-live]').forEach(el=>{ liveIO.observe(el); liveRO.observe(el); });
   cc.querySelectorAll('[data-spin]').forEach(spinBox);
+  cc.querySelectorAll('.igr').forEach(igRail);
+  cc.querySelectorAll('.igs').forEach(el=>el.addEventListener('click', ()=>{
+    const an = el.getAnimations({ subtree:true }); if(!an.length) return;
+    const D = 9000, t = (an[0].currentTime || 0) % D, to = t < D / 2 ? D * .52 : 0;
+    an.forEach(a=>{ a.currentTime = to; });
+  }));
   cc.querySelectorAll('.b-ba .cmp').forEach(el=>{
     const set = e=>{ const r = el.getBoundingClientRect(); el.style.setProperty('--p', Math.min(100, Math.max(0, (e.clientX - r.left)/r.width*100)) + '%'); };
     el.addEventListener('pointerenter', e=>{ el.classList.add('man'); set(e); });
@@ -2461,8 +2643,19 @@ if(matchMedia('(hover:hover) and (min-width:761px)').matches){
   addEventListener('pointermove', e=>{
     if(e.pointerType !== 'mouse' || worksPin || (window.lboxOpen && lboxOpen())) return;
     const onCover = openIdx > -1 ? caseScroll.scrollTop < innerHeight * .6 : pvIdx > -1;
-    if(onCover && e.clientX >= innerWidth - 16) worksOpen(false);
+    // шапка (язык, меню) и нижний край не считаются: иначе окно лезет, когда тянешься к кнопкам
+    if(onCover && e.clientX >= innerWidth - 16 && e.clientY > 100 && e.clientY < innerHeight - 60) worksOpen(false);
   }, { passive:true });
+  // язычок виден на обложке проекта, пока меню закрыто; первый раз — покачивается
+  const tab = $('#worksTab'); let nudged = false;
+  setInterval(()=>{
+    const onCover = openIdx > -1 ? caseScroll.scrollTop < innerHeight * .6 : pvIdx > -1;
+    const show = onCover && !works.classList.contains('on');
+    if(show && !tab.classList.contains('on') && !nudged){ nudged = true; tab.classList.add('nudge'); }
+    tab.classList.toggle('on', show);
+  }, 250);
+  tab.addEventListener('pointerenter', ()=>worksOpen(false));
+  tab.addEventListener('click', ()=>worksOpen(true));
   works.addEventListener('pointerenter', ()=>clearTimeout(worksT));
   works.addEventListener('pointerleave', ()=>{ if(!worksPin) worksT = setTimeout(worksClose, 280); });
 }
@@ -2621,22 +2814,27 @@ function setLang(l){
     if(getComputedStyle(svgW).display === 'none') return;
     const about = openIdx < 0 && pvIdx === -1;
     nodes[0].classList.toggle('on', about); nodes[1].classList.toggle('on', !about);
-    const lg = openIdx > -1 ? $('#caseLogo') : logo, lr = lg.getBoundingClientRect();
+    const lg = openIdx > -1 ? $('#caseLogo') : logo;
     const rs = nodes.map(n=>n.getBoundingClientRect());
+    // маленький логотип опускаем так, чтобы линия выходила из его середины (большой на первом экране не трогаем)
+    { const r0 = lg.getBoundingClientRect(), d = lg._dy || 0, want = openIdx > -1 && r0.height < 70 ? Math.round(rs[0].top + rs[0].height / 2 - (r0.top - d + r0.height / 2)) : 0;
+      if(want !== d){ lg._dy = want; lg.style.translate = want ? `0 ${want}px` : ''; } }
+    const lr = lg.getBoundingClientRect();
     const on = about ? 0 : 1, k = hovK > -1 ? hovK : on;
     const key = [lr.right, lr.top, lr.height, ...rs.map(r=>r.left + ',' + r.right + ',' + r.top), k, on].map(v=>typeof v === 'number' ? Math.round(v) : v).join('|');
     if(key === lastKey) return; lastKey = key;
     const y = rs[0].top + rs[0].height / 2, x0 = lr.right + 12, y0 = lr.top + lr.height / 2, end = rs[rs.length - 1].right + 26;
     const a0 = rs[0].left - (on === 0 ? 8 : 0);
     // от логотипа к первому узлу — кривая (логотип бывает выше строки), дальше — прямые промежутки между узлами
-    const lead = `M${x0},${y0} C${x0 + (a0 - x0) * .5},${y0} ${x0 + (a0 - x0) * .5},${y} ${a0},${y}`;
+    const lead = `M${x0},${y} L${a0},${y}`;  // прямая линия на высоте узлов
     const gaps = rs.slice(1).map((r, j)=>[rs[j].right, r.left]).concat([[rs[rs.length - 1].right, end]]);
     const seg = lim => gaps.filter(([g])=>g < lim).map(([g, b])=>`M${g},${y} L${Math.min(b, lim)},${y}`).join(' ');
     const reach = rs[k].left;
+    // линия и чёрные точки — в слое с инверсией; узлы на краях кнопок — в обычном слое, чтобы закрывали обводку
     svgW.innerHTML = `<path d="${lead} ${seg(Infinity)}"/><path class="hot" d="${lead} ${seg(reach)}"/>`
-      + rs.map((r, j)=>j === on ? `<circle class="dot" cx="${r.left - 8}" cy="${y}" r="3.2"/><circle class="dot" cx="${r.right + 8}" cy="${y}" r="3.2"/>`
-          : `<circle cx="${r.left}" cy="${y}" r="2.4"/><circle cx="${r.right}" cy="${y}" r="2.4"/>`).join('')
-      + `<circle class="dot" cx="${x0}" cy="${y0}" r="3.2"/>`;
+      + rs.map((r, j)=>j === on ? `<circle class="dot" cx="${r.left - 8}" cy="${y}" r="3.2"/><circle class="dot" cx="${r.right + 8}" cy="${y}" r="3.2"/>` : '').join('')
+      + `<circle class="dot" cx="${x0}" cy="${y}" r="3.2"/>`;
+    $('#hwiresN').innerHTML = rs.map((r, j)=>j === on ? '' : `<circle cx="${r.left}" cy="${y}" r="2.4"/><circle cx="${r.right}" cy="${y}" r="2.4"/>`).join('');
   })();
   // магнит: кнопка смещается к курсору на 15% расстояния от центра и возвращается на пружине
   if(matchMedia('(hover:hover) and (pointer:fine)').matches && !reduceMotion){

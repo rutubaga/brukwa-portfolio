@@ -63,6 +63,10 @@
   .m-cv{display:none;position:fixed;top:16px;right:16px;z-index:6}
   .meta{position:fixed;right:28px;top:22px;z-index:5;display:flex;align-items:center;gap:14px;font-size:12px}
   .meta .time{color:var(--mute);font-variant-numeric:tabular-nums}
+  /* язык — кругляш, как в кейсах; выбор запоминается и открывает кейсы на нужном языке */
+  .lng{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#fff;color:var(--ink);font-size:13px;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.16);transition:background .3s,color .3s}
+  .lng:hover{background:var(--ink);color:#fff}
   /* мелкий текст колонкой, как у OBYS */
   .about{position:fixed;left:30px;top:calc(clamp(56px,7.4vw,118px)*.86 + 44px);z-index:4;width:min(270px,22vw);font-size:12px;line-height:1.4}
   .about p + p{margin-top:12px}
@@ -179,9 +183,13 @@
   .corner.tl{left:8px;top:8px}.corner.tr{right:8px;top:8px}.corner.bl{left:8px;bottom:8px}.corner.br2{right:8px;bottom:8px}
 
   /* ---------- вид «Сетка»: карточки как на рефе — название и ID сверху, работа по центру ---------- */
-  .grid{position:fixed;left:28px;right:28px;top:var(--gt,260px);bottom:0;z-index:2;display:none;grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:8px;align-content:start;grid-auto-rows:max-content;overflow-y:auto;padding:28px 0 96px;scrollbar-width:none;
-    -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 40px, #000 100%);mask-image:linear-gradient(to bottom, transparent 0, #000 40px, #000 100%)}
+  /* сетка листается от самого верха экрана и уходит под матовую плашку, а не растворяется в белом */
+  .grid{position:fixed;left:28px;right:28px;top:0;bottom:0;z-index:2;display:none;grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;align-content:start;grid-auto-rows:max-content;overflow-y:auto;padding:calc(var(--gt,260px) + 28px) 0 96px;scrollbar-width:none}
+  .gblur{display:none;position:fixed;left:0;right:0;top:0;height:calc(var(--gt,260px) + 10px);z-index:3;pointer-events:none;
+    background:rgba(255,255,255,.62);-webkit-backdrop-filter:blur(18px) saturate(1.1);backdrop-filter:blur(18px) saturate(1.1);
+    -webkit-mask-image:linear-gradient(#000 calc(100% - 26px),transparent);mask-image:linear-gradient(#000 calc(100% - 26px),transparent)}
+  body.grid-view .gblur{display:block}
   .grid::-webkit-scrollbar{display:none}
   .lockpv{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:20px;background:rgba(240,240,240,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
     opacity:0;pointer-events:none;transition:opacity .3s var(--ease)}
@@ -228,7 +236,7 @@
   body.grid-view .stripwrap,body.grid-view .br,body.grid-view .center-row,body.grid-view .kind,body.grid-view .list,
   body.grid-view .wires,body.grid-view .node,body.grid-view .only-strip{display:none}
   @media (max-width:1100px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
-  @media (max-width:860px){ .grid{left:10px;right:10px;top:84px;gap:6px} .gcard{border-radius:12px} body.grid-view .node.facts{display:none} }
+  @media (max-width:860px){ .grid{left:10px;right:10px;top:0;padding-top:96px;gap:6px} .gblur{height:92px} .gcard{border-radius:12px} body.grid-view .node.facts{display:none} }
 
   /* ---------- страница «Обо мне»: схема как user flow ---------- */
   .aboutv{position:fixed;inset:0;z-index:2;display:none}
@@ -319,12 +327,13 @@
   <a class="node-chip" href="https://himki.hh.ru/resume/be003531ff079394cd0039ed1f4b7554794a5a" target="_blank" rel="noopener"><i>↗</i>CV</a>
 </nav>
 <a class="round m-cv rv d1" href="https://himki.hh.ru/resume/be003531ff079394cd0039ed1f4b7554794a5a" target="_blank" rel="noopener">CV</a>
-<div class="meta rv d1"><span class="time" id="time">MSK</span><span>RU · EN</span></div>
+<div class="meta rv d1"><span class="time" id="time">MSK</span><button class="lng" id="lng" aria-label="English">EN</button></div>
 <div class="about rv d2">
   <p>Мультидисциплинарный дизайнер: фирменные стили, digital-интерфейсы и визуальные концепции. Каждый проект — отдельная история с задачей и эмоцией.</p>
   <p><span class="k">Контакты</span><br><a href="https://t.me/brukwa" target="_blank" rel="noopener">@brukwa</a></p>
 </div>
 
+<div class="gblur" aria-hidden="true"></div>
 <nav class="list rv d2" id="list" aria-label="Проекты"></nav>
 <div class="kind rv d3" id="kind"></div>
 
@@ -359,7 +368,7 @@ const rankOf = p => p.top ? -1 : p.wip ? 2 : p.lock ? 1 : 0;
 const P = [
   { id:'trading', type:'product', name:'Трейдинг 101', kind:'Лендинг курса', role:'Дизайн, адаптивы, 3D', status:'Концепт', img:'assets/trading-thumb.jpg',
     task:'Снять страх новичка перед трейдингом и довести до покупки курса.' },
-  { id:'revnikoff', type:'product', name:'Revnikoff', kind:'Сайт мастерской', role:'Структура, путь клиента, вёрстка', status:'Запущен', img:'assets/cases/revnikoff/v2/bag.jpg',
+  { id:'revnikoff', type:'product', name:'Revnikoff', kind:'Сайт мастерской', role:'Структура, путь клиента, вёрстка', status:'Запущен', img:'assets/cases/revnikoff/v2/hero.jpg',
     task:'Посетитель решает одно: можно ли доверить дорогую вещь незнакомой мастерской.' },
   { id:'impre', wip:true, type:'product', name:'Impre', kind:'Приложение о здоровье', role:'Концепция, интерфейс, моушн', status:'Концепт', img:'assets/cases/impre/blister.jpg',
     task:'Тело меняется каждый день. Витамины — нет.' },
@@ -368,7 +377,7 @@ const P = [
     task:'Дизайнер занимается макетами, а не копированием текстов и файлов.' },
   { id:'privet-audit', lock:true, url:'privet-audit.html', type:'product', name:'Регистрация в «Привет»', kind:'Аудит и редизайн регистрации', role:'UX-аудит, редизайн, прототип', status:'По запросу', img:'assets/cases/privet-audit/cover.jpg',
     task:'Довести человека до первой покупки по акции, а не до экрана «Ок».' },
-  { id:'privet-landing', lock:true, url:'privet-landing.html', type:'product', name:'Лендинг «Привет!»', kind:'Редизайн лендинга приложения', role:'Редизайн, адаптив, макет для разработки', status:'По запросу', img:'assets/cases/privet-landing/cover.jpg',
+  { id:'privet-landing', url:'privet-landing.html', type:'product', name:'Лендинг «Привет!»', kind:'Редизайн лендинга приложения', role:'Редизайн, адаптив, макет для разработки', status:'Редизайн', img:'assets/cases/privet-landing/cover.jpg',
     task:'С первого экрана понятно, что внутри приложения, и его можно сразу скачать.' },
   { id:'tbank-box', top:true, type:'comms', url:'tbank-box.html', name:'Спецпроекты Т-Банка', kind:'Подарочные коробки, открытки, таблички', role:'Концепт, дизайн, подготовка к печати', status:'Напечатано', img:'assets/cases/tbank-box/photo-1.jpg',
     task:'Под каждый повод — свой концепт: нить через города мастериц, орхидея к 8 Марта, капсула времени.' },
@@ -384,6 +393,53 @@ const P = [
     task:'Главное — дата, приз и что сделать.' },
 ].filter(p=>!p.hidden).sort((a, b) => rankOf(a) - rankOf(b));
 const $ = s => document.querySelector(s);
+const EN = {
+  'Работы':'Work','Обо мне':'About','Контакты':'Contacts','Резюме':'CV','Задача':'Task','Проект':'Project',
+  'Сетка':'Grid','Лента':'Strip','Все':'All','Продукт':'Product','Коммуникации':'Communications',
+  'Мультидисциплинарный дизайнер: фирменные стили, digital-интерфейсы и визуальные концепции. Каждый проект — отдельная история с задачей и эмоцией.':
+    'Multidisciplinary designer: brand identities, digital interfaces and visual concepts. Every project is its own story with a task and an emotion.',
+  'Шесть лет в дизайне: федеральные акции М.Видео и Эльдорадо, проекты для международных заказчиков в агентстве HDRM, сейчас — дизайн-система коммуникаций «Мир» в НСПК.':
+    'Six years in design: nationwide campaigns for M.Video and Eldorado, projects for international clients at the HDRM agency, and now the Mir communications design system at NSPK.',
+  'По запросу':'On request','В разработке':'In progress','Тип':'Type','Что делала':'My role','Статус':'Status',
+  'Смотреть превью':'View preview','Открыть кейс':'Open case','Роль':'Role','Кейс по запросу — внутренний процесс компании':'Case on request — an internal company process',
+  'Пароль':'Password','Пароль к кейсу':'Case password','Открыть':'Open','Запросить кейс в Telegram':'Request the case on Telegram','Неверный пароль':'Wrong password',
+  'Опыт работы':'Experience','6 лет':'6 years','Закрыть':'Close','Предыдущий':'Previous','Следующий':'Next','Меню':'Menu','Проекты':'Projects',
+  // проекты
+  'Трейдинг 101':'Trading 101','Лендинг курса':'Course landing page','Дизайн, адаптивы, 3D':'Design, responsive layouts, 3D','Концепт':'Concept',
+  'Снять страх новичка перед трейдингом и довести до покупки курса.':'Take away a beginner’s fear of trading and lead them to buying the course.',
+  'Сайт мастерской':'Workshop website','Структура, путь клиента, вёрстка':'Structure, customer journey, build','Запущен':'Live',
+  'Посетитель решает одно: можно ли доверить дорогую вещь незнакомой мастерской.':'A visitor decides one thing: can an expensive item be trusted to an unfamiliar workshop.',
+  'Приложение о здоровье':'Health app','Концепция, интерфейс, моушн':'Concept, interface, motion','Тело меняется каждый день. Витамины — нет.':'Your body changes every day. Your vitamins don’t.',
+  'Система для дизайнеров НСПК':'A system for NSPK designers','Схема системы, панель и плагин':'System map, panel and plugin',
+  'Дизайнер занимается макетами, а не копированием текстов и файлов.':'Designers work on layouts, not on copying texts and files.',
+  'Регистрация в «Привет»':'Privet sign-up','Аудит и редизайн регистрации':'Sign-up audit and redesign','UX-аудит, редизайн, прототип':'UX audit, redesign, prototype',
+  'Довести человека до первой покупки по акции, а не до экрана «Ок».':'Get a person to their first promo purchase, not just to an “OK” screen.',
+  'Лендинг «Привет!»':'Privet! landing page','Редизайн лендинга приложения':'App landing page redesign','Редизайн, адаптив, макет для разработки':'Redesign, responsive layout, dev-ready mockup','Редизайн':'Redesign',
+  'С первого экрана понятно, что внутри приложения, и его можно сразу скачать.':'From the first screen it’s clear what’s inside the app, and you can download it right away.',
+  'Спецпроекты Т-Банка':'T-Bank special projects','Подарочные коробки, открытки, таблички':'Gift boxes, cards, signs','Концепт, дизайн, подготовка к печати':'Concept, design, prepress','Напечатано':'Printed',
+  'Под каждый повод — свой концепт: нить через города мастериц, орхидея к 8 Марта, капсула времени.':'A concept for every occasion: a thread through the craftswomen’s cities, an orchid for March 8, a time capsule.',
+  'Айдентика и сайт':'Identity and website','Айдентика, дизайн сайта':'Identity, website design','Коммерческий':'Commercial','Подать центр как уверенного современного лидера.':'Present the centre as a confident, modern leader.',
+  'Посты для соцсетей':'Social media posts','Ключевые визуалы, посты':'Key visuals, posts','Разные поводы — один визуальный язык.':'Different occasions, one visual language.',
+  'Превью, посты и сторис':'Thumbnails, posts and stories','Превью, посты, сторис':'Thumbnails, posts, stories','У обложки и поста секунда, чтобы их заметили и узнали бренд.':'A thumbnail or post has a second to be noticed and recognised.',
+  // обо мне
+  '2025 — сейчас':'2025 — now','международное агентство':'international agency','Коммуникационный дизайнер':'Communication designer',
+  'Дизайн-система креативов «Мир» и СБП':'Creative design system for Mir and SBP','Менторство и найм дизайнеров':'Mentoring and hiring designers',
+  'Дашборды и платформа':'Dashboards and platform','Сайты':'Websites','Айдентика':'Identity','Соцсети':'Social media','МузТорг':'MuzTorg',
+  'Дизайнер коммуникаций':'Communication designer','Соцсети, YouTube, стенды для выставок':'Social media, YouTube, exhibition stands',
+  'М.Видео и Эльдорадо':'M.Video and Eldorado','Креативный дизайнер':'Creative designer','Федеральные акции: Чёрная и Умная пятница':'Nationwide campaigns: Black and Smart Friday',
+  'Ментор по AI':'AI mentor','Автор мастер-класса по Midjourney':'Author of a Midjourney masterclass','НСПК':'NSPK'
+};
+let LANG = 'ru'; try { LANG = localStorage.getItem('lang') === 'en' ? 'en' : 'ru'; } catch(e){}
+const T = s => (LANG === 'en' && EN[s]) || s;
+if(LANG === 'en'){
+  document.documentElement.lang = 'en';
+  P.forEach(p => ['name','kind','role','status','task'].forEach(k => { if(p[k]) p[k] = T(p[k]); }));
+  // статичная разметка: тексты и подписи кнопок
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for(let n; (n = w.nextNode());){ if(n.parentElement.closest('script,style')) continue; const t = n.nodeValue.trim(); if(t && EN[t]) n.nodeValue = n.nodeValue.replace(t, EN[t]); }
+  document.querySelectorAll('[aria-label],[placeholder]').forEach(el => ['aria-label','placeholder'].forEach(a => { const v = el.getAttribute(a); if(v && EN[v]) el.setAttribute(a, EN[v]); }));
+}
+
 const strip = $('#strip'), list = $('#list');
 const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
 let view = 'grid';   // ленту скрыли — только сетка
@@ -413,7 +469,7 @@ const ASK = 'https://t.me/brukwa';
 const hrefOf = p => p.lock ? ASK : (p.url || `index.html?from=v3#case/${p.id}`);
 const hrefAttr = p => p.wip ? '' : ` href="${hrefOf(p)}"`;   // кейс в разработке не открывается
 const LOCK = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>';
-const lockTag = p => p.lock ? `<span class="glock">${LOCK}По запросу</span>` : p.wip ? '<span class="glock">В разработке</span>' : '';
+const lockTag = p => p.lock ? `<span class="glock">${LOCK}${T('По запросу')}</span>` : p.wip ? `<span class="glock">${T('В разработке')}</span>` : '';
 const pad = n => String(n).padStart(2, '0');
 
 function build(){
@@ -448,9 +504,9 @@ function setActive(k){
   swap($('#idx'), pad(k + 1));
   $('#count').textContent = `${pad(k + 1)} / ${pad(items.length)}`;
   swap($('#task'), `<p>${p.task}</p>`);
-  swap($('#facts'), `<div class="row"><span>Проект</span><b>${p.name}</b></div><div class="row"><span>Тип</span><b>${p.kind}</b></div>
-    <div class="row"><span>Что делала</span><b>${p.role}</b></div><div class="row"><span>Статус</span><b>${p.status}</b></div>
-    <a class="go"${hrefAttr(p)}${p.lock ? ` data-lock="${p.id}"` : ''}>${p.lock ? 'Смотреть превью' : 'Открыть кейс'} <span>→</span></a>`);
+  swap($('#facts'), `<div class="row"><span>${T('Проект')}</span><b>${p.name}</b></div><div class="row"><span>${T('Тип')}</span><b>${p.kind}</b></div>
+    <div class="row"><span>${T('Что делала')}</span><b>${p.role}</b></div><div class="row"><span>${T('Статус')}</span><b>${p.status}</b></div>
+    <a class="go"${hrefAttr(p)}${p.lock ? ` data-lock="${p.id}"` : ''}>${T(p.lock ? 'Смотреть превью' : 'Открыть кейс')} <span>→</span></a>`);
   requestAnimationFrame(wires);
 }
 
@@ -497,6 +553,10 @@ $('#filter').addEventListener('click', e => { const b = e.target.closest('button
   $('#filter').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); build(); });
 addEventListener('resize', () => { const k = active; active = -1; target = y = offsetFor(Math.max(0, k)); setActive(Math.max(0, k)); drawBraces(); });
 // время — как у OBYS «CEST 5:15 AM»
+{ const b = $('#lng'); let lang = 'ru'; try { lang = localStorage.getItem('lang') === 'en' ? 'en' : 'ru'; } catch(e){}
+  const show = ()=>{ b.textContent = lang === 'en' ? 'RU' : 'EN'; b.setAttribute('aria-label', lang === 'en' ? 'Русский' : 'English'); };
+  b.addEventListener('click', ()=>{ lang = lang === 'en' ? 'ru' : 'en'; try { localStorage.setItem('lang', lang); } catch(e){} location.reload(); });
+  show(); }
 const tick = () => { $('#time').textContent = 'MSK ' + new Intl.DateTimeFormat('ru-RU', { timeZone:'Europe/Moscow', hour:'2-digit', minute:'2-digit' }).format(new Date()); };
 tick(); setInterval(tick, 10000);
 
@@ -587,8 +647,8 @@ function drawFlow(){
   const flow = $('#flow'), svg = $('#fwires'), box = $('#aboutv'); if(!document.body.classList.contains('about-page')) return;
   const mob = innerWidth <= 860; let k = 0;
   const pill = (cls, html, href) => `<${href ? `a href="${href}" target="_blank" rel="noopener"` : 'span'} class="fp ${cls}" style="--k:${k++}">${html}</${href ? 'a' : 'span'}>`;
-  flow.innerHTML = pill('main acc', 'Опыт работы <b>6 лет</b>') + FLOW.map((g, gi) => { const c = gi < ACC ? 'acc' : `dim g${gi}`;
-    return pill('cat ' + c, g.when ? `${g.cat} <b>${g.when}</b>` : g.cat) + g.items.map(it => Array.isArray(it) ? pill(c, `${it[0]} <b>${it[1]}</b>`, it[2]) : pill(c, it)).join(''); }).join('');
+  flow.innerHTML = pill('main acc', `${T('Опыт работы')} <b>${T('6 лет')}</b>`) + FLOW.map((g, gi) => { const c = gi < ACC ? 'acc' : `dim g${gi}`;
+    return pill('cat ' + c, g.when ? `${T(g.cat)} <b>${T(g.when)}</b>` : T(g.cat)) + g.items.map(it => Array.isArray(it) ? pill(c, `${T(it[0])} <b>${it[1]}</b>`, it[2]) : pill(c, T(it))).join(''); }).join('');
   if(mob){ svg.innerHTML = ''; flow.style.height = ''; requestAnimationFrame(() => { flow.classList.add('on'); revealFlow(); }); return; }
   // раскладка в прокручиваемом окне: я — слева, места работы — по центру, пункты — правее
   const W = innerWidth, VH = box.clientHeight, top = Math.max(150, $('#schema').getBoundingClientRect().bottom + 50), step = 42;
@@ -674,13 +734,13 @@ const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', 
 function lockPreview(p){
   lp.querySelector('img').src = p.img; lp.querySelector('img').alt = p.name;
   lp.querySelector('.lp-tx').innerHTML = `<span class="lp-k">${p.kind}</span><h3>${p.name}</h3><p>${p.task}</p>
-    <dl><dt>Роль</dt><dd>${p.role}</dd><dt>Статус</dt><dd>${LOCK} Кейс по запросу — внутренний процесс компании</dd></dl>
-    ${p.url ? `<form class="lp-pw"><input type="password" inputmode="numeric" placeholder="Пароль" autocomplete="off" aria-label="Пароль к кейсу"><button type="submit">Открыть</button></form>` : ''}
-    <a class="lp-go" href="${ASK}" target="_blank" rel="noopener">Запросить кейс в Telegram <span>→</span></a>`;
+    <dl><dt>${T('Роль')}</dt><dd>${p.role}</dd><dt>${T('Статус')}</dt><dd>${LOCK} ${T('Кейс по запросу — внутренний процесс компании')}</dd></dl>
+    ${p.url ? `<form class="lp-pw"><input type="password" inputmode="numeric" placeholder="${T('Пароль')}" autocomplete="off" aria-label="${T('Пароль к кейсу')}"><button type="submit">${T('Открыть')}</button></form>` : ''}
+    <a class="lp-go" href="${ASK}" target="_blank" rel="noopener">${T('Запросить кейс в Telegram')} <span>→</span></a>`;
   const f = lp.querySelector('.lp-pw');
   if (f) { f.onsubmit = async e => { e.preventDefault(); const i = f.querySelector('input');
     if (await sha(i.value.trim()) === PW) { try { localStorage.setItem('caseUnlock', '1'); } catch (e) {} location.href = p.url; }
-    else { f.classList.remove('bad'); void f.offsetWidth; f.classList.add('bad'); i.value = ''; i.placeholder = 'Неверный пароль'; } }; }
+    else { f.classList.remove('bad'); void f.offsetWidth; f.classList.add('bad'); i.value = ''; i.placeholder = T('Неверный пароль'); } }; }
   lp.classList.add('on');
   if (f) setTimeout(() => f.querySelector('input').focus(), 250);
 }

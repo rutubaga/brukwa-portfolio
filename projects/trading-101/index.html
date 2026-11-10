@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body>
 
@@ -56,6 +56,7 @@
       <picture class="hero__pixels-pic" aria-hidden="true"><source media="(max-width: 767px)" srcset="assets/svg/hero-pixels-m.svg"><source media="(max-width: 1023px)" srcset="assets/svg/hero-pixels-t.svg"><img class="hero__pixels" src="assets/svg/hero-pixels.svg" alt=""></picture>
       <span class="hero__square" aria-hidden="true"></span>
     </div>
+    <span class="hero__fade" aria-hidden="true"></span>
 
     <!-- 3D candles -->
     <div class="scene3d scene3d--candle-l" aria-hidden="true">
@@ -202,7 +203,7 @@
     <div class="split">
       <p class="label" data-reveal>{ Что внутри курса }</p>
       <img class="program__pill" src="assets/svg/pill.svg" alt="" aria-hidden="true" data-reveal="spin">
-      <p class="lead" data-reveal>Курс создал практикующий трейдер, а&nbsp;не&nbsp;продавец, поэтому здесь проверенные методы, а&nbsp;не&nbsp;«волшебные таблетки». Хотя одна всё-таки есть: придётся пахать.</p>
+      <p class="lead" data-reveal>Курс создал практикующий трейдер, а&nbsp;не&nbsp;продавец, поэтому здесь проверенные методы, а&nbsp;не&nbsp;«волшебные таблетки».</p>
     </div>
 
     <div class="program__list-wrap" data-program>
@@ -282,26 +283,6 @@
         <span class="extra__num">07</span>
         <div class="extra__text"><p class="extra__title">Доступ к&nbsp;трейдинг-каналу</p><p class="extra__desc">Для тарифа Plus: Тина показывает свои реальные сделки</p></div>
         <div class="extra__img"><img src="assets/img/extra-channel.webp" alt="" loading="lazy"></div>
-      </li>
-    </ul>
-  </div>
-</section>
-
-<!-- ============ BONUSES ============ -->
-<section class="bonus" id="bonus">
-  <div class="container">
-    <div class="split">
-      <p class="label" data-reveal>{ А ещё, а ещё, а ещё... }</p>
-      <p class="lead" data-reveal>Курс «Трейдинг 101» одобрен Министерством образования&nbsp;РФ</p>
-    </div>
-    <ul class="bonus__cards" data-stagger>
-      <li class="bonus-card bonus-card--1">
-        <p class="bonus-card__title">Налоговый вычет (13% НДФЛ)</p>
-        <p class="bonus-card__text">Законный способ вернуть 13% стоимости курса в&nbsp;свой кошелёк.</p>
-      </li>
-      <li class="bonus-card bonus-card--2">
-        <p class="bonus-card__title">Официальный сертификат</p>
-        <p class="bonus-card__text">Подтверждает ваши знания и&nbsp;квалификацию. Пригодится, если хотите работать в&nbsp;финансовом секторе или показать уровень своей подготовки.*<br>* Выдаётся, если курс пройден на&nbsp;100%.</p>
       </li>
     </ul>
   </div>
@@ -395,24 +376,17 @@
 <!-- ============ HOW ============ -->
 <section class="how" id="how">
   <div class="container">
-    <div class="how__head">
-      <p class="how__side how__side--l" data-reveal>Учёба проходит онлайн в&nbsp;Telegram: смотрите видеоуроки и&nbsp;задавайте вопросы в&nbsp;чате в&nbsp;любое время.</p>
-      <h2 class="how__title" data-split-lines>
-        <span class="line"><span>Как</span></span>
-        <span class="line"><span>проходит</span></span>
-        <span class="line"><span>обучение</span></span>
-      </h2>
-      <p class="how__side how__side--r" data-reveal>Выполняйте задания и&nbsp;сразу получайте обратную связь — с&nbsp;телефона или компьютера.</p>
+    <div class="split">
+      <p class="label" data-reveal>{ Как проходит обучение }</p>
+      <p class="lead" data-reveal>Учёба проходит онлайн в&nbsp;Telegram: смотрите видеоуроки, выполняйте задания и&nbsp;получайте обратную связь — с&nbsp;телефона или компьютера.</p>
     </div>
-  </div>
-  <div class="how__scroller">
-    <ul class="how__cards" data-stagger>
-      <li class="step step--1"><div class="step__card"><i class="step__ray"></i></div><div class="step__text"><p class="step__title">Подготовка</p><p class="step__desc">Перед стартом вы&nbsp;проходите вводные видеоуроки по&nbsp;платформе TradingView.</p></div></li>
-      <li class="step step--2"><div class="step__card"><i class="step__ray"></i></div><div class="step__text"><p class="step__title">Учебник в&nbsp;комплекте</p><p class="step__desc">Ещё до&nbsp;старта вы&nbsp;получаете авторский учебник — основу всей программы.</p></div></li>
-      <li class="step step--3"><div class="step__card"><i class="step__ray"></i></div><div class="step__text"><p class="step__title">Гибкий график</p><p class="step__desc">Расписание можно добавить в&nbsp;Яндекс или Google Календарь. Вы&nbsp;сами решаете, когда смотреть уроки и&nbsp;делать задания.</p></div></li>
-      <li class="step step--4"><div class="step__card"><i class="step__ray"></i></div><div class="step__text"><p class="step__title">Обучение через практику</p><p class="step__desc">Почти в&nbsp;каждом уроке есть задания и&nbsp;тесты: так знания закрепляются и&nbsp;становятся навыками.</p></div></li>
-      <li class="step step--5"><div class="step__card"><i class="step__ray"></i></div><div class="step__text"><p class="step__title">Поддержка и&nbsp;обратная связь</p><p class="step__desc">В&nbsp;тарифе Plus есть чат: задавайте вопросы, разбирайте ошибки и&nbsp;получайте обратную связь от&nbsp;Тины.</p></div></li>
-      <li class="step step--6"><div class="step__card"><i class="step__ray"></i></div><div class="step__text"><p class="step__title">Уверенность на&nbsp;рынке</p><p class="step__desc">Никакой паники при просадках: вы&nbsp;знаете, что делать.</p></div></li>
+    <ul class="how__grid" data-stagger>
+      <li class="how-card"><span class="how-card__n">[01]</span><div><p class="how-card__t">Подготовка</p><p class="how-card__d">Перед стартом вы&nbsp;проходите вводные видеоуроки по&nbsp;платформе TradingView.</p></div></li>
+      <li class="how-card"><span class="how-card__n">[02]</span><div><p class="how-card__t">Учебник в&nbsp;комплекте</p><p class="how-card__d">Ещё до&nbsp;старта вы&nbsp;получаете авторский учебник — основу всей программы.</p></div></li>
+      <li class="how-card"><span class="how-card__n">[03]</span><div><p class="how-card__t">Гибкий график</p><p class="how-card__d">Расписание можно добавить в&nbsp;Яндекс или Google Календарь. Вы&nbsp;сами решаете, когда смотреть уроки и&nbsp;делать задания.</p></div></li>
+      <li class="how-card"><span class="how-card__n">[04]</span><div><p class="how-card__t">Обучение через практику</p><p class="how-card__d">Почти в&nbsp;каждом уроке есть задания и&nbsp;тесты: так знания закрепляются и&nbsp;становятся навыками.</p></div></li>
+      <li class="how-card"><span class="how-card__n">[05]</span><div><p class="how-card__t">Поддержка и&nbsp;обратная связь</p><p class="how-card__d">В&nbsp;тарифе Plus есть чат: задавайте вопросы, разбирайте ошибки и&nbsp;получайте обратную связь от&nbsp;Тины.</p></div></li>
+      <li class="how-card"><span class="how-card__n">[06]</span><div><p class="how-card__t">Уверенность на&nbsp;рынке</p><p class="how-card__d">Никакой паники при просадках: вы&nbsp;знаете, что делать.</p></div></li>
     </ul>
   </div>
 </section>
@@ -478,7 +452,7 @@
   <div class="container faq__grid">
     <div class="faq__head">
       <p class="label" data-reveal>{ Ответы на&nbsp;вопросы, которые задают чаще всего }</p>
-      <h2 class="faq__title" data-reveal>ЧАстые ВОпросы</h2>
+      <h2 class="faq__title" data-reveal>Частые вопросы</h2>
     </div>
     <div class="faq__list" data-faq>
       <div class="qa is-open" data-reveal>
@@ -585,6 +559,6 @@
   </div>
 </footer>
 
-<script src="js/main.js" defer></script>
+<script src="js/main.js?v=3" defer></script>
 </body>
 </html>

@@ -32,7 +32,7 @@ import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 /* размеры в мм по развёртке: шестиугольник 246 по углам и 213 по граням, высота 123 */
 const R=123, AP=R*Math.sqrt(3)/2, H=123, T=2.5;
 const LR=126.5, LAP=LR*Math.sqrt(3)/2, LH=30, SPAN=300;   // крышка; SPAN — сколько мм в текстуре крышки
-const YEL=0xFFCF00;
+const YEL=0xFED700;  // тот же жёлтый, что на текстуре крышки — иначе стенки и крышка выглядят разными
 
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -136,7 +136,17 @@ document.getElementById('view').onclick=()=>{topView=!topView;stopAuto();
   const from=cam.position.clone(),to=topView?new THREE.Vector3(0,980,260):new THREE.Vector3(430,430,620),t0=performance.now();
   (function go(t){const k=Math.min(1,(t-t0)/900),e=1-Math.pow(1-k,3);cam.position.lerpVectors(from,to,e);if(k<1)requestAnimationFrame(go)})(t0);
   document.getElementById('view').textContent=topView?'Вид сбоку':'Вид сверху';if(topView){if(!target)bOpen.click();cardT=0}};
-function stopAuto(){ctl.autoRotate=false;document.getElementById('hint').style.opacity=0}
+let autoStep=false,cyc=null;
+let stopped=false,autoOrbit=false,orbitT=0,homeTheta=null;
+function stopAuto(){if(autoStep)return;stopped=true;autoOrbit=false;ctl.autoRotate=false;document.getElementById('hint').style.opacity=0;if(cyc){clearInterval(cyc);cyc=null}}
+/* сама по кругу каждые 3 с: открыть → вид сверху → вид сбоку → закрыть; любое касание — остановка */
+{const vb=document.getElementById('view'),steps=[()=>{if(!target)bOpen.click()},()=>{if(target)bOpen.click()}];let i=0;
+ /* играет по очереди: в портфолио страница сама говорит, какая коробка сейчас в кадре; отдельно — сразу */
+ const play=()=>{if(cyc||stopped)return;autoOrbit=true;cyc=setInterval(()=>{autoStep=true;steps[i%2]();autoStep=false;i++},4500)};
+ const pause=()=>{if(cyc){clearInterval(cyc);cyc=null}autoOrbit=false};
+ /* вне экрана коробка не рисуется совсем — три WebGL-сцены на странице иначе тормозят друг друга */
+ addEventListener('message',e=>{if(e.data==='box:play'){clock.getDelta();renderer.setAnimationLoop(frameLoop);play()}if(e.data==='box:pause'){pause();renderer.setAnimationLoop(null)}});
+ ctl.autoRotate=false;if(window.parent===window)play();}
 renderer.domElement.addEventListener('pointerdown',stopAuto);
 const ray=new THREE.Raycaster(),pt=new THREE.Vector2();let down=null;
 renderer.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);
@@ -151,16 +161,16 @@ const sm=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x)};
 /* открытая крышка лежит рядом на столе рисунком вверх — низкая, не заслоняет коробку ни с какого ракурса */
 const LID_OPEN=new THREE.Vector3(-390,LH-T,-120);
 const clock=new THREE.Clock();
-renderer.setAnimationLoop(()=>{
+const frameLoop=()=>{
   const dt=Math.min(.05,clock.getDelta());
-  ang+=(target-ang)*Math.min(1,dt*2.4);
+  ang+=Math.sign(target-ang)*Math.min(Math.abs(target-ang),dt/2.2);
   /* 0–0.4: крышка уходит; 0.3–0.8: стенки раскрываются; дальше — открытка */
   const kl=sm(0,.42,ang), kw=sm(.3,.8,ang);
   lid.position.lerpVectors(LID_CLOSED,LID_OPEN,kl);lid.position.y=H+(LID_OPEN.y-H)*kl+Math.sin(kl*Math.PI)*90;
   lid.rotation.set(0,kl*.55,0);
   walls.forEach((w,i)=>{w.children[0].parent.rotation.z=0;w.rotation.set(0,face(i).p,0);w.rotateZ(-THREE.MathUtils.degToRad(90)*kw)});
   ctl.target.y=55-30*kw;
-  cv+=(cardT-cv)*Math.min(1,dt*2.6);
+  cv+=Math.sign(cardT-cv)*Math.min(Math.abs(cardT-cv),dt/1.1);
   const k=Math.min(cv,sm(.78,1,ang)),kk=k*k*(3-2*k);
   homeFromEnvelope();card.visible=kk>.002;cardIn.visible=!card.visible;
   if(kk>0){
@@ -170,8 +180,14 @@ renderer.setAnimationLoop(()=>{
     const p=cardHome.p.clone().lerp(tp,kk);p.y+=Math.sin(kk*Math.PI)*80;
     card.position.copy(p);card.quaternion.copy(cardHome.q).slerp(tq,kk);
   }
+  /* автопоказ: не крутится по кругу, а покачивается вокруг вида спереди — открывается всегда лицом к зрителю */
+  {const off=cam.position.clone().sub(ctl.target),sp=new THREE.Spherical().setFromVector3(off);
+   if(homeTheta===null)homeTheta=sp.theta;
+   if(autoOrbit){orbitT+=dt;sp.theta+=(homeTheta+Math.sin(orbitT*.35)*.42-sp.theta)*Math.min(1,dt*2);cam.position.setFromSpherical(sp).add(ctl.target)}}
   ctl.update();renderer.render(scene,cam);
-});
+};
+renderer.setAnimationLoop(frameLoop);
+
 </script>
 </body>
 </html>
