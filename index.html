@@ -2263,6 +2263,7 @@ addEventListener('keydown', e=>{
 
 // логотип — всегда на главную, к первому экрану: закрывает кейс и возвращает ленту в начало
 function goHome(){
+  if(FROM_V3){ location.href = 'v3.html'; return; }   // старую стартовую из новой главной не показываем
   if(openIdx > -1) closeCase();
   if(pvIdx !== -1){ pvBusy = false; pvShow(-1, false, -1); } else wobble(22, 800);
 }
@@ -2866,6 +2867,8 @@ document.fonts.ready.then(()=>{
   // заранее грузим только первый проект; следующий подгружается, пока смотришь текущий (см. pvShow)
   (window.requestIdleCallback || (f=>setTimeout(f, 1500)))(()=>preload(0));
   const ci = h.startsWith('case/') ? visible().findIndex(c=>c.id === h.slice(5)) : -1;
+  // из новой главной: если кейс не открывается (нет такого или в разработке) — назад на v3, а не на старую стартовую
+  if(FROM_V3 && (ci < 0 || visible()[ci].wip)){ location.replace('v3.html'); return; }
   placeLogo();
   setTimeout(()=>{
     document.body.classList.add('ready');
