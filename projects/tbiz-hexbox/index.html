@@ -12,7 +12,7 @@
   html,body{height:100%;background:var(--bg);overflow:hidden;font:400 14px/1.4 "Inter Tight",system-ui,sans-serif;color:var(--ink)}
   canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
   canvas:active{cursor:grabbing}
-  .ui{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);display:flex;gap:8px}
+  .ui{width:max-content;max-width:calc(100% - 24px);position:absolute;left:50%;bottom:20px;transform:translateX(-50%);display:flex;gap:8px}
   .ui button{height:40px;padding:0 18px;border:0;border-radius:99px;background:var(--ink);color:#fff;font:500 14px "Inter Tight",system-ui,sans-serif;cursor:pointer}
   .ui button.g{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
   .hint{position:absolute;left:50%;top:16px;transform:translateX(-50%);font-size:12px;color:#8a8a8a;pointer-events:none;transition:opacity .4s}
@@ -34,14 +34,16 @@ const R=123, AP=R*Math.sqrt(3)/2, H=123, T=2.5;
 const LR=126.5, LAP=LR*Math.sqrt(3)/2, LH=30, SPAN=300;   // крышка; SPAN — сколько мм в текстуре крышки
 const YEL=0xFED700;  // тот же жёлтый, что на текстуре крышки — иначе стенки и крышка выглядят разными
 
+const compact=matchMedia('(max-width:720px)').matches;
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setPixelRatio(Math.min(devicePixelRatio,compact?1.25:1.5));
 renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.NeutralToneMapping;
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 document.body.prepend(renderer.domElement);
 const scene=new THREE.Scene();
 const pm=new THREE.PMREMGenerator(renderer);
-scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;scene.environmentIntensity=.55;
+const room=new RoomEnvironment();
+scene.environment=pm.fromScene(room,.04).texture;room.dispose();pm.dispose();scene.environmentIntensity=.55;
 
 const cam=new THREE.PerspectiveCamera(30,1,10,6000);cam.position.set(430,430,620);
 const ctl=new OrbitControls(cam,renderer.domElement);
@@ -49,7 +51,7 @@ ctl.target.set(0,55,0);ctl.enableDamping=true;ctl.dampingFactor=.08;ctl.enablePa
 ctl.minDistance=380;ctl.maxDistance=1500;ctl.maxPolarAngle=Math.PI*.47;ctl.autoRotate=true;ctl.autoRotateSpeed=.6;
 
 const sun=new THREE.DirectionalLight(0xffffff,1.6);sun.position.set(-350,850,450);
-sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.radius=6;sun.shadow.bias=-.0004;
+sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.radius=6;sun.shadow.bias=-.0004;
 Object.assign(sun.shadow.camera,{left:-500,right:500,top:500,bottom:-500,near:100,far:2000});
 scene.add(sun);scene.add(new THREE.HemisphereLight(0xffffff,0xe9e4d6,.35));
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000),new THREE.ShadowMaterial({opacity:.16}));
@@ -57,8 +59,8 @@ ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
 
 let ready=0;const need=5;
 const tl=new THREE.TextureLoader();
-const tex=u=>{const t=tl.load(u,()=>{if(++ready>=need)document.getElementById('load').remove()});t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t};
-const tLid=tex('lid.jpg'),tCard=tex('card.jpg'),tCubeTop=tex('cube-top.jpg'),tEnv=tex('envelope.png'),tCardF=tex('card-front.jpg');
+const tex=u=>{const t=tl.load(compact?u.replace('.webp','-small.webp'):u,()=>{if(++ready>=need)document.getElementById('load').remove()});t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(compact?2:4,renderer.capabilities.getMaxAnisotropy());return t};
+const tLid=tex('lid.webp'),tCard=tex('card.webp'),tCubeTop=tex('cube-top.webp'),tEnv=tex('envelope.webp'),tCardF=tex('card-front.webp');
 
 const yel=new THREE.MeshStandardMaterial({color:YEL,roughness:.8,metalness:0});
 const blk=new THREE.MeshStandardMaterial({color:0x151515,roughness:.85,metalness:0});
@@ -75,13 +77,26 @@ const liner=hexSlab(R-.3,.6,blk);liner.position.y=T;box.add(liner);  // чёрн
 for(let i=0;i<6;i++){const {p,n}=face(i);const w=new THREE.Mesh(new THREE.BoxGeometry(2,60,(R-8)),blk);
   w.position.copy(n.clone().multiplyScalar(AP-8));w.position.y=T+30;w.rotation.y=p;w.castShadow=w.receiveShadow=true;box.add(w)}
 
+/* Объединяем грани с одинаковым материалом в один вызов отрисовки. */
+function groupedBox(w,h,d,materials){
+  const geometry=new THREE.BoxGeometry(w,h,d),source=geometry.index.array,buckets=new Map();
+  for(const group of geometry.groups){
+    const material=materials[group.materialIndex];
+    if(!buckets.has(material))buckets.set(material,[]);
+    buckets.get(material).push(...source.slice(group.start,group.start+group.count));
+  }
+  const indices=[],unique=[...buckets.keys()];geometry.clearGroups();
+  for(const [material,faces] of buckets){geometry.addGroup(indices.length,faces.length,unique.indexOf(material));indices.push(...faces);}
+  geometry.setIndex(indices);return new THREE.Mesh(geometry,unique);
+}
+
 /* шесть стенок на петлях у дна: снаружи жёлтые, внутри чёрные */
 const walls=[];
 for(let i=0;i<6;i++){
   const {p,n}=face(i);
   const piv=new THREE.Group();piv.position.copy(n.clone().multiplyScalar(AP));piv.rotation.y=p;box.add(piv);
   const inner=blk;                                             // внутри все створки чёрные
-  const m=new THREE.Mesh(new THREE.BoxGeometry(T,H,R),[yel,inner,yel,yel,yel,yel]);
+  const m=groupedBox(T,H,R,[yel,inner,yel,yel,yel,yel]);
   m.position.set(-T/2,H/2,0);m.castShadow=m.receiveShadow=true;piv.add(m);walls.push(piv);
 }
 
@@ -104,7 +119,7 @@ for(let i=0;i<6;i++){const {p,n}=face(i);
   const r=new THREE.Mesh(new THREE.BoxGeometry(T,LH,LR),yel);
   r.position.copy(n.clone().multiplyScalar(LAP-T/2));r.position.y=-LH/2+T;r.rotation.y=p;r.castShadow=r.receiveShadow=true;lid.add(r);
   const t=new THREE.Vector3(n.z,0,-n.x);                          // вдоль грани (правая тройка t, вверх, n)
-  const g=new THREE.PlaneGeometry(LR,LH,8,2);const gp=g.attributes.position,gu=g.attributes.uv;
+  const g=new THREE.PlaneGeometry(LR,LH);const gp=g.attributes.position,gu=g.attributes.uv;
   for(let j=0;j<gp.count;j++){const sx=gp.getX(j),sy=gp.getY(j);   // sx вдоль грани, sy: +LH/2 верх … −LH/2 низ
     const d=(LH/2-sy);                                               // сколько мм от верхнего края вниз
     const q=n.clone().multiplyScalar(LAP+d).addScaledVector(t,sx);   // точка на развёрнутой кашировке
@@ -117,7 +132,7 @@ const LID_CLOSED=new THREE.Vector3(0,H,0);lid.position.copy(LID_CLOSED);
 /* маленькая коробочка внутри: жёлтая, щит на крышке */
 const CB=112,CHh=116;
 const cubeMats=[yel,yel,new THREE.MeshStandardMaterial({map:tCubeTop,roughness:.8}),yel,yel,yel];
-const cube=new THREE.Mesh(new THREE.BoxGeometry(CB,CHh,CB),cubeMats);cube.position.set(-6,T+.6+CHh/2,10);cube.rotation.y=-.35;cube.castShadow=cube.receiveShadow=true;box.add(cube);
+const cube=groupedBox(CB,CHh,CB,cubeMats);cube.position.set(-6,T+.6+CHh/2,10);cube.rotation.y=-.35;cube.castShadow=cube.receiveShadow=true;box.add(cube);
 /* открытка стоит за коробочкой; при открытии подлетает к зрителю */
 const card=new THREE.Group();scene.add(card);
 const cardM=new THREE.Mesh(new THREE.BoxGeometry(150,.8,100),new THREE.MeshStandardMaterial({color:0xf4f4f2,roughness:.8}));cardM.castShadow=true;card.add(cardM);
@@ -154,14 +169,17 @@ renderer.domElement.addEventListener('pointerup',e=>{if(!down||Math.hypot(e.clie
   const r=renderer.domElement.getBoundingClientRect();pt.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);
   ray.setFromCamera(pt,cam);if(ray.intersectObject(card,true).length)cardT=cardT?0:1});
 
-function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.zoom=Math.min(1,w/h*.9);cam.updateProjectionMatrix()}
 addEventListener('resize',resize);resize();
 
 const sm=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x)};
 /* открытая крышка лежит рядом на столе рисунком вверх — низкая, не заслоняет коробку ни с какого ракурса */
 const LID_OPEN=new THREE.Vector3(-390,LH-T,-120);
 const clock=new THREE.Clock();
-const frameLoop=()=>{
+let lastFrame=0;
+const frameLoop=now=>{
+  // 30 кадров/с в автопоказе, 60 при ручном управлении.
+  if(now-lastFrame<1000/(stopped?60:30)-1)return;lastFrame=now;
   const dt=Math.min(.05,clock.getDelta());
   ang+=Math.sign(target-ang)*Math.min(Math.abs(target-ang),dt/2.2);
   /* 0–0.4: крышка уходит; 0.3–0.8: стенки раскрываются; дальше — открытка */

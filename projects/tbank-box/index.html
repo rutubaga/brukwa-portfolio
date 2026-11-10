@@ -12,7 +12,7 @@
   html,body{height:100%;background:var(--bg);overflow:hidden;font:400 14px/1.4 "Inter Tight",system-ui,sans-serif;color:var(--ink)}
   canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
   canvas:active{cursor:grabbing}
-  .ui{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);display:flex;gap:8px;align-items:center}
+  .ui{width:max-content;max-width:calc(100% - 24px);position:absolute;left:50%;bottom:20px;transform:translateX(-50%);display:flex;gap:8px;align-items:center}
   .ui button{height:40px;padding:0 18px;border:0;border-radius:99px;background:var(--ink);color:#fff;font:500 14px "Inter Tight",system-ui,sans-serif;cursor:pointer}
   .ui button.g{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
   .hint{position:absolute;left:50%;top:16px;transform:translateX(-50%);font-size:12px;color:#8a8a8a;pointer-events:none;transition:opacity .4s}
@@ -34,8 +34,9 @@ import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'
 const W=364, HD=176, H=54, T=3, FLAP=54;
 const PAPER=0xFFF495;
 
+const compact=matchMedia('(max-width:720px)').matches;
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setPixelRatio(Math.min(devicePixelRatio,compact?1.25:1.5));
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.NeutralToneMapping;
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -43,7 +44,8 @@ document.body.prepend(renderer.domElement);
 
 const scene=new THREE.Scene();
 const pm=new THREE.PMREMGenerator(renderer);
-scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;
+const room=new RoomEnvironment();
+scene.environment=pm.fromScene(room,.04).texture;room.dispose();pm.dispose();
 scene.environmentIntensity=.75;
 
 const cam=new THREE.PerspectiveCamera(30,1,10,6000);
@@ -55,7 +57,7 @@ ctl.autoRotate=true;ctl.autoRotateSpeed=.6;
 
 /* свет: мягкий ключевой с тенью + окружение */
 const sun=new THREE.DirectionalLight(0xffffff,1.6);sun.position.set(-380,900,520);
-sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.radius=6;sun.shadow.bias=-.0004;
+sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.radius=6;sun.shadow.bias=-.0004;
 Object.assign(sun.shadow.camera,{left:-600,right:600,top:600,bottom:-600,near:100,far:2200});
 scene.add(sun);
 scene.add(new THREE.HemisphereLight(0xffffff,0xe9e4d6,.35));
@@ -64,14 +66,14 @@ const ground=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000),new THREE.ShadowM
 ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
 
 const tl=new THREE.TextureLoader();
-const tex=(u,srgb=true)=>{const t=tl.load(u,()=>{ready++;if(ready>=5)document.getElementById('load').remove()});if(srgb)t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t};
+const tex=(u,srgb=true)=>{const t=tl.load(compact?u.replace('.webp','-small.webp'):u,()=>{ready++;if(ready>=5)document.getElementById('load').remove()});if(srgb)t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(compact?2:4,renderer.capabilities.getMaxAnisotropy());return t};
 let ready=0;
-const tTop=tex('top.jpg'),tIn=tex('inner-top.jpg'),tCont=tex('contents.jpg'),tTag=tex('tag.png'),tCard=tex('card.jpg');
+const tTop=tex('top.webp'),tIn=tex('inner-top.webp'),tCont=tex('contents.webp'),tTag=tex('tag.webp'),tCard=tex('card.webp');
 
 const paper=new THREE.MeshStandardMaterial({color:PAPER,roughness:.86,metalness:0});
 const paperIn=new THREE.MeshStandardMaterial({color:0xFFF07C,roughness:.9,metalness:0});
 const edge=new THREE.MeshStandardMaterial({color:0xF2E38A,roughness:.95});
-function board(w,h,d,mat=paper,r=1.2){const m=new THREE.Mesh(new RoundedBoxGeometry(w,h,d,2,r),mat);m.castShadow=true;m.receiveShadow=true;return m}
+function board(w,h,d,mat=paper,r=1.2){const m=new THREE.Mesh(new RoundedBoxGeometry(w,h,d,1,r),mat);m.castShadow=true;m.receiveShadow=true;return m}
 function decal(w,h,map){return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map,roughness:.86,metalness:0}))}
 
 const box=new THREE.Group();scene.add(box);
@@ -85,7 +87,7 @@ const TW=W-8, TD=HD*2-4, TH=H-T-1, WT=2.5;
 const tray=new THREE.Group();tray.position.set(0,T,-1);box.add(tray);
 /* содержимое: фото сверху на мягкой «подушке» — у стенок опускается и темнеет, как ткань в коробке */
 const CW=TW-2*WT, CD=TD-2*WT;
-const cg=new THREE.PlaneGeometry(CW,CD,72,72);cg.rotateX(-Math.PI/2);
+const cg=new THREE.PlaneGeometry(CW,CD,32,32);cg.rotateX(-Math.PI/2);
 const cpos=cg.attributes.position, ccol=[];
 const sm=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x)};
 for(let i=0;i<cpos.count;i++){
@@ -122,8 +124,8 @@ const jute=new THREE.MeshStandardMaterial({color:0xB0895A,roughness:1});
 const tw=new THREE.Group();box.add(tw);
 const yJ=34, ox=W/2+1.4, oz=HD+T+1.4;
 const loop=new THREE.CatmullRomCurve3([[-ox,yJ,oz],[-ox,yJ,-oz],[ox,yJ,-oz],[ox,yJ,oz],[16,yJ,oz+.6],[0,yJ+.8,oz+2.6],[-16,yJ,oz+.6]].map(p=>new THREE.Vector3(...p)),true,'catmullrom',.02);
-const rope=new THREE.Mesh(new THREE.TubeGeometry(loop,260,1.3,8,true),jute);rope.castShadow=true;tw.add(rope);
-const knot=new THREE.Mesh(new THREE.SphereGeometry(4.2,16,12),jute);knot.position.set(0,yJ+.6,oz+3);knot.scale.set(1.4,1,1);knot.castShadow=true;tw.add(knot);
+const rope=new THREE.Mesh(new THREE.TubeGeometry(loop,128,1.3,6,true),jute);rope.castShadow=true;tw.add(rope);
+const knot=new THREE.Mesh(new THREE.SphereGeometry(4.2,12,8),jute);knot.position.set(0,yJ+.6,oz+3);knot.scale.set(1.4,1,1);knot.castShadow=true;tw.add(knot);
 /* бирка: дырочка — точка подвеса, низ касается стола */
 const tagW=72,tagH=tagW*0.79,hole=new THREE.Vector3(2,yJ-12,oz+7);
 const tagG=new THREE.Group();tagG.position.copy(hole);tw.add(tagG);
@@ -138,9 +140,12 @@ const tq=tagG.getWorldQuaternion(new THREE.Quaternion());
 const nrm=new THREE.Vector3(0,0,1).applyQuaternion(tq), upv=new THREE.Vector3(0,1,0).applyQuaternion(tq);
 const P=(n,u)=>hole.clone().addScaledVector(nrm,n).addScaledVector(upv,u);
 const str=new THREE.CatmullRomCurve3([new THREE.Vector3(-2.5,yJ,oz+4.5),P(7,10),P(2.2,2.4),P(0,0),P(-1.6,-1.6),P(-3.2,4),P(-2.4,13.5),P(1.5,17),new THREE.Vector3(2.5,yJ-.5,oz+4)]);
-const strM=new THREE.Mesh(new THREE.TubeGeometry(str,80,.9,8,false),jute);strM.castShadow=true;tw.add(strM);
+const strM=new THREE.Mesh(new THREE.TubeGeometry(str,40,.9,6,false),jute);strM.castShadow=true;tw.add(strM);
 const tail2=new THREE.CatmullRomCurve3([[-1,yJ,oz+4],[-20,yJ-5,oz+4.5],[-42,yJ-15,oz+8],[-60,1,oz+20],[-80,.9,oz+26]].map(p=>new THREE.Vector3(...p)));
-const tailM=new THREE.Mesh(new THREE.TubeGeometry(tail2,40,1.1,6,false),jute);tailM.castShadow=true;tw.add(tailM);
+const tailM=new THREE.Mesh(new THREE.TubeGeometry(tail2,24,1.1,5,false),jute);tailM.castShadow=true;tw.add(tailM);
+const twMaterials=[...new Set([jute,tag.material])];
+twMaterials.forEach(material=>material.transparent=true);
+let lastFade=-1;
 /* открытие: крышка уходит назад на петле, джут исчезает */
 let target=0,ang=0,cardT=0,cv=0;
 const bOpen=document.getElementById('open');
@@ -172,11 +177,14 @@ renderer.domElement.addEventListener('pointerup',e=>{
 
 /* ?tag — камера вплотную к бирке (для проверки) */
 if(location.search.includes('tag')){ctl.autoRotate=false;ctl.minDistance=40;ctl.target.copy(hole);cam.position.copy(hole).add(new THREE.Vector3(70,70,110));}
-function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.zoom=Math.min(1,w/h*.9);cam.updateProjectionMatrix()}
 addEventListener('resize',resize);resize();
 
 const clock=new THREE.Clock();
-const frameLoop=()=>{
+let lastFrame=0;
+const frameLoop=now=>{
+  // 30 кадров/с в автопоказе, 60 при ручном управлении.
+  if(now-lastFrame<1000/(stopped?60:30)-1)return;lastFrame=now;
   const dt=Math.min(.05,clock.getDelta());
   ang+=Math.sign(target-ang)*Math.min(Math.abs(target-ang),dt/1.4);
   const e=ang<.5?4*ang*ang*ang:1-Math.pow(-2*ang+2,3)/2;
@@ -193,7 +201,7 @@ const frameLoop=()=>{
     const p=cardHome.p.clone().lerp(tp,kk);p.y+=Math.sin(kk*Math.PI)*90;
     card.position.copy(p);card.quaternion.copy(cardHome.q).slerp(tq,kk);
   }else{card.position.copy(cardHome.p);card.quaternion.copy(cardHome.q)}
-  const fade=Math.max(0,1-ang*3);tw.visible=fade>.02;tw.traverse(m=>{if(m.material){m.material.transparent=true;m.material.opacity=fade}});
+  const fade=Math.max(0,1-ang*3);tw.visible=fade>.02;if(fade!==lastFade){twMaterials.forEach(material=>material.opacity=fade);lastFade=fade;}
   /* автопоказ: не крутится по кругу, а покачивается вокруг вида спереди — открывается всегда лицом к зрителю */
   {const off=cam.position.clone().sub(ctl.target),sp=new THREE.Spherical().setFromVector3(off);
    if(homeTheta===null)homeTheta=sp.theta;

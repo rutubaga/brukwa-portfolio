@@ -35,8 +35,9 @@ const W=330, D=210, H=65, FLAP=65, T=2;
 const IW=1864, IH=2484;
 const EDGE=0xF5C21A;
 
+const compact=matchMedia('(max-width:720px)').matches;
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setPixelRatio(Math.min(devicePixelRatio,compact?1.25:1.5));
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.NoToneMapping;
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -44,7 +45,8 @@ document.body.prepend(renderer.domElement);
 
 const scene=new THREE.Scene();
 const pm=new THREE.PMREMGenerator(renderer);
-scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;
+const room=new RoomEnvironment();
+scene.environment=pm.fromScene(room,.04).texture;room.dispose();pm.dispose();
 scene.environmentIntensity=.25;
 
 const cam=new THREE.PerspectiveCamera(30,1,10,6000);
@@ -56,7 +58,7 @@ ctl.autoRotate=true;ctl.autoRotateSpeed=.6;
 
 /* свет ровный: крышка и стенки одного тона, как в печати */
 const sun=new THREE.DirectionalLight(0xffffff,.55);sun.position.set(-380,900,520);
-sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.radius=6;sun.shadow.bias=-.0004;
+sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.radius=6;sun.shadow.bias=-.0004;
 Object.assign(sun.shadow.camera,{left:-500,right:500,top:500,bottom:-500,near:100,far:2200});
 scene.add(sun);
 scene.add(new THREE.HemisphereLight(0xffffff,0xf2eee2,.9));
@@ -67,7 +69,7 @@ ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
 
 let ready=0;
 const tl=new THREE.TextureLoader();
-const tex=u=>{const t=tl.load(u,()=>{if(++ready>=2)document.getElementById('load')?.remove()});t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t};
+const tex=u=>{const t=tl.load(compact?u.replace('.webp','-small.webp'):u,()=>{if(++ready>=2)document.getElementById('load')?.remove()});t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(compact?2:4,renderer.capabilities.getMaxAnisotropy());return t};
 /* насыщенность печати: усиливаем цвет текстуры в шейдере */
 const SAT=1.35;
 const saturate=m=>{m.onBeforeCompile=s=>{s.fragmentShader=s.fragmentShader.replace('#include <map_fragment>',
@@ -75,8 +77,8 @@ const saturate=m=>{m.onBeforeCompile=s=>{s.fragmentShader=s.fragmentShader.repla
   float l=dot(diffuseColor.rgb,vec3(.2126,.7152,.0722));
   diffuseColor.rgb=clamp(mix(vec3(l),diffuseColor.rgb,${SAT.toFixed(2)}),0.,1.);`)};return m};
 /* снаружи 3275:12680 (без паттерна в карманах); внутри: 1 — 3259:26481 крупный паттерн, 2 — 3330:14677 мелкий паттерн 60% */
-const OUT=tex('outer3.jpg?rev=f740fcd3f861');
-const INN=tex('inner4.jpg?rev=0b3c7cb7ab87');
+const OUT=tex('outer3.webp');
+const INN=tex('inner4.webp');
 const mOut=saturate(new THREE.MeshStandardMaterial({map:OUT,roughness:.85,metalness:0}));
 const mIn=saturate(new THREE.MeshStandardMaterial({map:INN,roughness:.9,metalness:0}));
 const mEdge=new THREE.MeshStandardMaterial({color:EDGE,roughness:.95});
@@ -162,11 +164,14 @@ function stopAuto(){if(autoStep)return;stopped=true;autoOrbit=false;ctl.autoRota
  ctl.autoRotate=false;if(window.parent===window)play();}
 renderer.domElement.addEventListener('pointerdown',stopAuto);
 
-function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.zoom=Math.min(1,w/h*.9);cam.updateProjectionMatrix()}
 addEventListener('resize',resize);resize();
 
 const clock=new THREE.Clock();
-const frameLoop=()=>{
+let lastFrame=0;
+const frameLoop=now=>{
+  // 30 кадров/с в автопоказе, 60 при ручном управлении.
+  if(now-lastFrame<1000/(stopped?60:30)-1)return;lastFrame=now;
   const dt=Math.min(.05,clock.getDelta());
   ang+=Math.sign(target-ang)*Math.min(Math.abs(target-ang),dt/1.4);
   const e=ang<.5?4*ang*ang*ang:1-Math.pow(-2*ang+2,3)/2;
