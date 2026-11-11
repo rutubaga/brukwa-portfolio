@@ -1363,6 +1363,17 @@
   @media (min-width:1800px){ html{zoom:1.2} }
   @media (min-width:2200px){ html{zoom:1.4} }
   @media (min-width:2800px){ html{zoom:1.7} }
+
+  /* The first mobile screen fills the phone; later slices decode as needed. */
+  .rv-mobile{container-type:inline-size!important;background:#010101}
+  .rv-mobile-hero{width:100%;aspect-ratio:390/844;background:#010101}
+  .rv-mobile-hero>img,.scr.rv-mobile>img{position:static!important;display:block;width:100%!important;height:auto!important;max-width:none;object-fit:contain!important}
+  .rv-cover .rv-orb{animation-play-state:paused}
+  .rv-cover.motion-in .rv-orb{animation-play-state:running}
+  html.page-hidden .rv-orb,html.page-hidden .igq b{animation-play-state:paused!important}
+  @media(prefers-reduced-motion:reduce){.rv-cover .rv-orb{animation:none!important}}
+  @media(max-width:760px){.bento.brow>.ph-tile.rv-phone{flex:1 1 100%!important;aspect-ratio:390/640!important}}
+
 </style>
 <script>
   // большие экраны: html{zoom} в CSS. Браузер отдаёт координаты в увеличенных пикселях, а стили ставит в пикселях вёрстки —
@@ -1464,6 +1475,15 @@
    Тексты: факты — из брифов, Behance и Figma; формулировки черновые, править можно смело. */
 const G = (id, n, ext='jpg') => Array.from({length:n}, (_, k)=>`assets/comms/${id}/${String(k+1).padStart(2,'0')}.${ext}`);
 const RV = 'assets/cases/revnikoff/';
+
+// Responsive assets for this case; other projects keep their existing images.
+const RV_MEDIA={"assets/cases/revnikoff/v2/hero.webp":{"w":1920,"h":1064,"variants":[["assets/cases/revnikoff/v2/hero-480.webp",480],["assets/cases/revnikoff/v2/hero-960.webp",960],["assets/cases/revnikoff/v2/hero.webp",1920]]},"assets/cases/revnikoff/v2/orb-1.webp":{"w":247,"h":247,"variants":[["assets/cases/revnikoff/v2/orb-1.webp",247]]},"assets/cases/revnikoff/v2/orb-2.webp":{"w":247,"h":247,"variants":[["assets/cases/revnikoff/v2/orb-2.webp",247]]},"assets/cases/revnikoff/v2/orb-3.webp":{"w":247,"h":247,"variants":[["assets/cases/revnikoff/v2/orb-3.webp",247]]},"assets/cases/revnikoff/v2/orb-4.webp":{"w":247,"h":247,"variants":[["assets/cases/revnikoff/v2/orb-4.webp",247]]},"assets/cases/revnikoff/v2/orb-5.webp":{"w":247,"h":247,"variants":[["assets/cases/revnikoff/v2/orb-5.webp",247]]},"assets/cases/revnikoff/site.webp":{"w":1200,"h":6676,"variants":[["assets/cases/revnikoff/site-640.webp",640],["assets/cases/revnikoff/site.webp",1200]]},"assets/cases/revnikoff/v2/card.webp":{"w":1920,"h":1150,"variants":[["assets/cases/revnikoff/v2/card-480.webp",480],["assets/cases/revnikoff/v2/card-960.webp",960],["assets/cases/revnikoff/v2/card.webp",1920]]},"assets/cases/revnikoff/box.webp":{"w":1800,"h":1200,"variants":[["assets/cases/revnikoff/box-480.webp",480],["assets/cases/revnikoff/box-960.webp",960],["assets/cases/revnikoff/box.webp",1800]]},"assets/cases/revnikoff/v2/adapt-bg.webp":{"w":1920,"h":1500,"variants":[["assets/cases/revnikoff/v2/adapt-bg-480.webp",480],["assets/cases/revnikoff/v2/adapt-bg-960.webp",960],["assets/cases/revnikoff/v2/adapt-bg.webp",1920]]},"assets/cases/revnikoff/box/front.webp":{"w":640,"h":640,"variants":[["assets/cases/revnikoff/box/front.webp",640]]},"assets/cases/revnikoff/box/back.webp":{"w":640,"h":640,"variants":[["assets/cases/revnikoff/box/back.webp",640]]},"assets/cases/revnikoff/box/left.webp":{"w":640,"h":630,"variants":[["assets/cases/revnikoff/box/left.webp",640]]},"assets/cases/revnikoff/box/right.webp":{"w":640,"h":640,"variants":[["assets/cases/revnikoff/box/right.webp",640]]},"assets/cases/revnikoff/box/top.webp":{"w":640,"h":640,"variants":[["assets/cases/revnikoff/box/top.webp",640]]},"assets/cases/revnikoff/box/bottom.webp":{"w":640,"h":640,"variants":[["assets/cases/revnikoff/box/bottom.webp",640]]},"assets/cases/revnikoff/v2/cap.webp":{"w":944,"h":1234,"variants":[["assets/cases/revnikoff/v2/cap.webp",944]]},"assets/cases/revnikoff/v2/bag.webp":{"w":1920,"h":997,"variants":[["assets/cases/revnikoff/v2/bag-480.webp",480],["assets/cases/revnikoff/v2/bag-960.webp",960],["assets/cases/revnikoff/v2/bag.webp",1920]]},"assets/cases/revnikoff/v2/foam.webp":{"w":976,"h":1226,"variants":[["assets/cases/revnikoff/v2/foam-480.webp",480],["assets/cases/revnikoff/v2/foam-960.webp",960],["assets/cases/revnikoff/v2/foam.webp",976]]},"assets/cases/revnikoff/stories/05.webp":{"w":636,"h":1131,"variants":[["assets/cases/revnikoff/stories/05.webp",636]]},"assets/cases/revnikoff/stories/06.webp":{"w":636,"h":1131,"variants":[["assets/cases/revnikoff/stories/06.webp",636]]},"assets/cases/revnikoff/stories/07.webp":{"w":636,"h":1131,"variants":[["assets/cases/revnikoff/stories/07.webp",636]]},"assets/cases/revnikoff/stories/08.webp":{"w":636,"h":1131,"variants":[["assets/cases/revnikoff/stories/08.webp",636]]},"assets/cases/revnikoff/stories/09.webp":{"w":633,"h":1127,"variants":[["assets/cases/revnikoff/stories/09.webp",633]]},"assets/cases/revnikoff/stories/10.webp":{"w":632,"h":1127,"variants":[["assets/cases/revnikoff/stories/10.webp",632]]},"assets/cases/revnikoff/v2/mobile-hero.webp":{"w":780,"h":1688,"variants":[["assets/cases/revnikoff/v2/mobile-hero-390.webp",390],["assets/cases/revnikoff/v2/mobile-hero-520.webp",520],["assets/cases/revnikoff/v2/mobile-hero.webp",780]]},"assets/cases/revnikoff/v2/mobile-part-1.webp":{"w":780,"h":2400,"variants":[["assets/cases/revnikoff/v2/mobile-part-1-390.webp",390],["assets/cases/revnikoff/v2/mobile-part-1-520.webp",520],["assets/cases/revnikoff/v2/mobile-part-1.webp",780]]},"assets/cases/revnikoff/v2/mobile-part-2.webp":{"w":780,"h":2400,"variants":[["assets/cases/revnikoff/v2/mobile-part-2-390.webp",390],["assets/cases/revnikoff/v2/mobile-part-2-520.webp",520],["assets/cases/revnikoff/v2/mobile-part-2.webp",780]]},"assets/cases/revnikoff/v2/mobile-part-3.webp":{"w":780,"h":2400,"variants":[["assets/cases/revnikoff/v2/mobile-part-3-390.webp",390],["assets/cases/revnikoff/v2/mobile-part-3-520.webp",520],["assets/cases/revnikoff/v2/mobile-part-3.webp",780]]},"assets/cases/revnikoff/v2/mobile-part-4.webp":{"w":780,"h":2400,"variants":[["assets/cases/revnikoff/v2/mobile-part-4-390.webp",390],["assets/cases/revnikoff/v2/mobile-part-4-520.webp",520],["assets/cases/revnikoff/v2/mobile-part-4.webp",780]]},"assets/cases/revnikoff/v2/mobile-part-5.webp":{"w":780,"h":2400,"variants":[["assets/cases/revnikoff/v2/mobile-part-5-390.webp",390],["assets/cases/revnikoff/v2/mobile-part-5-520.webp",520],["assets/cases/revnikoff/v2/mobile-part-5.webp",780]]},"assets/cases/revnikoff/v2/mobile-part-6.webp":{"w":780,"h":2400,"variants":[["assets/cases/revnikoff/v2/mobile-part-6-390.webp",390],["assets/cases/revnikoff/v2/mobile-part-6-520.webp",520],["assets/cases/revnikoff/v2/mobile-part-6.webp",780]]},"assets/cases/revnikoff/v2/mobile-part-7.webp":{"w":780,"h":2038,"variants":[["assets/cases/revnikoff/v2/mobile-part-7-390.webp",390],["assets/cases/revnikoff/v2/mobile-part-7-520.webp",520],["assets/cases/revnikoff/v2/mobile-part-7.webp",780]]}};
+function revImageAttrs(src,sizes='auto, (max-width:760px) 88vw, 72vw'){
+  const m=RV_MEDIA[src];if(!m)return '';
+  if(src.includes('/mobile-'))sizes='auto, (max-width:760px) 160px, 240px';
+  return `width="${m.w}" height="${m.h}" decoding="async" srcset="${m.variants.map(([s,w])=>`${s} ${w}w`).join(', ')}" sizes="${sizes}"`;
+}
+
 const MV = k => `assets/comms/mvideo/${String(k).padStart(2,'0')}.jpg`;
 const IG = k => `assets/comms/onewin-ig/${String(k).padStart(2,'0')}.jpg`, YT = k => `assets/comms/onewin-yt/${String(k).padStart(2,'0')}.jpg`;
 const CASES = [
@@ -1492,15 +1512,15 @@ const CASES = [
          { big:'4', small:'адаптива: 1200 · 1024 · 768 · 390', a:2, cls:'big' }] ] } ] },
 
   { id:'revnikoff', type:'landings', name:'Revnikoff', kind:'сайт мастерской',
-    status:'Запущен', img:'assets/revnikoff.jpg', cover:RV+'v2/hero.jpg', coverPos:'50% 50%',
+    status:'Запущен', img:'assets/revnikoff.jpg', cover:RV+'v2/hero.webp', coverPos:'50% 50%',
     color:'#ff6a13',
     theme:{ bg:'#0a0a0a', card:'#171717', acc:'#ff6a13', accInk:'#140600' },
     slides:['assets/slides/revnikoff-1.jpg','assets/slides/revnikoff-2.jpg','assets/slides/revnikoff-3.jpg','assets/slides/revnikoff-4.jpg'],
     line:'Сайт мастерской, которая реставрирует брендовые сумки, обувь, часы и украшения.',
     role:'Структура, путь клиента, визуал, вёрстка', short:'REVNIKOFF',
     url:'https://revnikoff.ru/', urlLabel:'Открыть сайт',
-    caseCover:RV+'v2/hero.jpg',
-    orbs:[[RV+'v2/orb-1.png',6,10,1.2],[RV+'v2/orb-2.png',44,6,.7],[RV+'v2/orb-3.png',76,18,1],[RV+'v2/orb-4.png',4,72,.5],[RV+'v2/orb-5.png',72,70,1.4]],
+    caseCover:RV+'v2/hero.webp',
+    orbs:[[RV+'v2/orb-1.webp',6,10,1.2],[RV+'v2/orb-2.webp',44,6,.7],[RV+'v2/orb-3.webp',76,18,1],[RV+'v2/orb-4.webp',4,72,.5],[RV+'v2/orb-5.webp',72,70,1.4]],
     blocks:[
       { t:'lead', h:'Задача', text:'Посетитель решает одно: можно ли доверить дорогую вещь незнакомой мастерской.' },
       { t:'kv', items:[
@@ -1509,19 +1529,19 @@ const CASES = [
         ['Платформа','Тильда — собрала сама'] ] },
       // бенто: сайт в окне, экраны, адаптивы, процесс, стиль, сторис «до / после», упаковка
       { t:'bento', rows:[
-        [{ win:RV+'site.jpg', url:'revnikoff.ru', bg:'linear-gradient(150deg,#ff6a13,#9a3a06 65%,#1a0a02)', mesh:['#fbdcc8','#e6e7d3','#f3e6dc'], a:2.1, lb:'Главная' }],
-        [{ img:RV+'v2/card.jpg', a:1.670, lb:'Карточка товара' }, { img:RV+'box.jpg', a:1.5, lb:'Choco Boom — подарок клиентам' }],
+        [{ win:RV+'site.webp', url:'revnikoff.ru', bg:'linear-gradient(150deg,#ff6a13,#9a3a06 65%,#1a0a02)', mesh:['#fbdcc8','#e6e7d3','#f3e6dc'], a:2.1, lb:'Главная' }],
+        [{ img:RV+'v2/card.webp', a:1.670, lb:'Карточка товара' }, { img:RV+'box.webp', a:1.5, lb:'Choco Boom — подарок клиентам' }],
         // ряды по смыслу: адаптивы · процесс и цвет · цифры и подарок
-        [{ img:RV+'v2/adapt-bg.jpg', a:1.28, lb:'Планшет' },
-         { phone:RV+'v2/mobile-long.jpg', long:true, bg:'#ff6a13', a:1.1, lb:'Телефон — листайте внутри' }],
+        [{ img:RV+'v2/adapt-bg.webp', a:1.28, lb:'Планшет' },
+         { phone:RV+'v2/mobile-hero.webp', cls:'rv-phone', pages:["assets/cases/revnikoff/v2/mobile-part-1.webp","assets/cases/revnikoff/v2/mobile-part-2.webp","assets/cases/revnikoff/v2/mobile-part-3.webp","assets/cases/revnikoff/v2/mobile-part-4.webp","assets/cases/revnikoff/v2/mobile-part-5.webp","assets/cases/revnikoff/v2/mobile-part-6.webp","assets/cases/revnikoff/v2/mobile-part-7.webp"], long:true, bg:'#ff6a13', a:1.1, lb:'Телефон — листайте внутри' }],
         [{ list:['Брифинг','Исследование','Прототипирование','Референсы','Визуальная концепция','UI-кит и адаптация'], h:'Как шла работа', a:1.2 },
          { pal:[['#F3F3F3','Grey','#111'],['#0A0A0A','Black'],['#FF6A13','Orange','#140600']], a:2.2 }],
         [{ big:'55', small:'экранов: десктоп, планшет, телефон и попапы', a:1.1, cls:'big' },
-         { box:{ f:RV+'box/front.jpg', bk:RV+'box/back.jpg', l:RV+'box/left.jpg', r:RV+'box/right.jpg', t:RV+'box/top.jpg', bt:RV+'box/bottom.jpg' }, a:1.1, lb:'Покрутите коробку' }],
-        [{ img:RV+'v2/cap.jpg', a:.765 }, { img:RV+'v2/bag.jpg', a:1.926, lb:'Пакет доставки' }, { img:RV+'v2/foam.jpg', a:.796 }] ] },
+         { box:{ f:RV+'box/front.webp', bk:RV+'box/back.webp', l:RV+'box/left.webp', r:RV+'box/right.webp', t:RV+'box/top.webp', bt:RV+'box/bottom.webp' }, a:1.1, lb:'Покрутите коробку' }],
+        [{ img:RV+'v2/cap.webp', a:.765 }, { img:RV+'v2/bag.webp', a:1.926, lb:'Пакет доставки' }, { img:RV+'v2/foam.webp', a:.796 }] ] },
       // сторис «до / после» — отдельным разделом
       { t:'igrail', h:'Визуальный язык в Instagram', text:'Сторис «до / после»: одна система для всех ремонтов. Нажмите, чтобы переключить.',
-        frames:[2,3,4].flatMap(k=>[`${RV}stories/${String(k*2+1).padStart(2,'0')}.jpg`, `${RV}stories/${String(k*2+2).padStart(2,'0')}.jpg`]) },
+        frames:[2,3,4].flatMap(k=>[`${RV}stories/${String(k*2+1).padStart(2,'0')}.webp`, `${RV}stories/${String(k*2+2).padStart(2,'0')}.webp`]) },
       { t:'cta' } ] },
 
   { id:'impre', wip:true, type:'apps', name:'Impre', kind:'приложение о здоровье',
@@ -1965,7 +1985,7 @@ function linkAttrs(c){ return /^https?:/.test(c.url) ? 'target="_blank" rel="noo
 const lockSVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>';
 // проект в разработке: вместо картинок — цвет проекта и надпись
 const wipCover = c => `<div class="wip-cover" style="background:${c.color}"><span>${L('В разработке')}</span></div>`;
-const lockCover = c => `<img class="cover" src="${pvSrc(c)}" alt="${c.name}" style="object-position:center"><div class="lock-badge">${lockSVG}<span>${L('Кейс по запросу')}</span></div>`;
+const lockCover = c => `<img class="cover" src="${pvSrc(c)}" ${revImageAttrs(pvSrc(c),'(max-width:760px) 100vw, 64vw')} alt="${c.name}" style="object-position:center"><div class="lock-badge">${lockSVG}<span>${L('Кейс по запросу')}</span></div>`;
 
 /* ---------- лента проектов ---------- */
 let pvIdx = -1, pvBusy = false;
@@ -2125,7 +2145,7 @@ const picHTML = (c, i) => `<div class="pv-pic" data-i="${i}">${
   c.coverType ? motionCover(c)
   : c.lock ? lockCover(c)
   : c.wip ? wipCover(c)
-  : `<img class="cover" src="${pvSrc(c)}" alt="${c.name}" style="object-position:${c.coverPos || (c.cover ? 'center' : 'center top')}">${
+  : `<img class="cover" src="${pvSrc(c)}" ${revImageAttrs(pvSrc(c),'(max-width:760px) 100vw, 64vw')} alt="${c.name}" style="object-position:${c.coverPos || (c.cover ? 'center' : 'center top')}">${
       c.device ? `<div class="pv-device"><img class="pv-shot" src="${c.device.shot}" alt=""><i class="cam"></i><i class="glare"></i></div>` : ''}${
       c.coverLive && canLive ? `<iframe class="cover-live" src="${c.coverLive}" title="${c.name}" tabindex="-1" aria-hidden="true" onload="this.classList.add('on')"></iframe>` : ''}`
 }</div>`;
@@ -2286,9 +2306,9 @@ const revealIO = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersectin
 const nextOpen = i => { const list = visible(); do { i = (i + 1) % list.length; } while(list[i].wip); return i; };
 /* ---------- блоки кейса: у каждого кейса свой набор и порядок (CASES[].blocks) ---------- */
 const pad2 = k => String(k + 1).padStart(2, '0');
-const imgT = (src, extra = '') => `<img src="${src}" alt="" loading="lazy" ${extra}>`;
+const imgT = (src, extra = '') => `<img src="${src}" alt="" loading="lazy" ${revImageAttrs(src)} ${extra}>`;
 const headT = b => (b.h || b.text) ? `<header class="b-head"><h3>${b.h || ''}</h3>${b.text ? `<p>${b.text}</p>` : ''}</header>` : '';
-const screenT = (x, vw) => `<div class="scr${x.long ? ' long' : ''}"${x.live ? ` data-live="${x.live}" data-vw="${vw}"` : ''}>${imgT(x.shot || x.src)}${x.live ? `<span class="live">${L('Живой сайт')}</span>` : ''}</div>`;
+const screenT = (x, vw) => x.pages ? `<div class="scr long rv-mobile" aria-label="Мобильная версия Revnikoff — листайте внутри"><div class="rv-mobile-hero">${imgT(x.shot || x.src)}</div>${x.pages.map(src=>imgT(src)).join('')}</div>` : `<div class="scr${x.long ? ' long' : ''}"${x.live ? ` data-live="${x.live}" data-vw="${vw}"` : ''}>${imgT(x.shot || x.src)}${x.live ? `<span class="live">${L('Живой сайт')}</span>` : ''}</div>`;
 const igBar = '<span class="igb"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><svg viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-11.6 7.1L4 20l1.4-4.2A8 8 0 1 1 20 11.5z"/></svg><svg viewBox="0 0 24 24"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4 18-7z"/></svg><svg viewBox="0 0 24 24" class="bm"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></span>';
 // плитка бенто — одна разметка и для сетки, и для рядов
 // сквозной номер плитки в кейсе — «ID 001» в углу карточки, как на рефе; обнуляется в fillCase
@@ -2315,7 +2335,7 @@ const bentoTile = x=>{
       if(x.gen) return `<div class="${cls} gen">${imgT(x.gen)}<div class="gc"><b>→ ${x.e}</b><span>${x.p}</span></div></div>`;
       // 3D-коробка: крутится сама, тянешь — поворачиваешь
       if(x.box) return `<div class="${cls} bx"><div class="cube-wrap" data-spin><div class="cube">${
-          Object.entries(x.box).map(([k, s])=>`<i class="${k}" style="background-image:url('${s}')"></i>`).join('')}</div></div>${lb}</div>`;
+          Object.entries(x.box).map(([k, s])=>`<i class="${k}" data-face="${s}"></i>`).join('')}</div></div>${lb}</div>`;
       // шторка «до / после»
       // сторис как в Instagram: полоски прогресса сверху, «до» сменяется «после»
       if(x.ig) return `<div class="${cls} igs" style="--i:${x.k || 0}"><div class="igp"><i><b></b></i><i><b></b></i></div><img src="${x.ig[1]}" alt="${L('После')}" loading="lazy"><img class="bf" src="${x.ig[0]}" alt="${L('До')}" loading="lazy"><span class="igl"><em>${L('До')}</em><em>${L('После')}</em></span></div>`;
@@ -2327,10 +2347,10 @@ const bentoTile = x=>{
       if(x.step) return `<div class="${cls} st"><i>${x.n || ''}</i><b>${x.step[0]}</b><span>${x.step[1]}</span></div>`;
       if(x.pal && Array.isArray(x.pal[0])) return `<div class="${cls} pal named">${x.pal.map(([hex, n, ink])=>`<i style="background:${hex};color:${ink || '#fff'}"><b>${n}</b>${hex}</i>`).join('')}${lb}</div>`;
       if(x.phone) return `<div class="${cls} ph-tile"${x.bg ? ` style="background:${x.bg}"` : ''}><div class="phone">${x.live || x.long
-          ? screenT({ shot:x.phone, src:x.phone, live:x.live, long:x.long && !x.live }, 390)
+          ? screenT({ shot:x.phone, src:x.phone, live:x.live, long:x.long && !x.live, pages:x.pages }, 390)
           : `<div class="scr"><img src="${x.phone}" alt="" loading="lazy" style="object-fit:cover;object-position:50% 0"></div>`}</div>${lb}</div>`;
       if(x.book) return `<div class="${cls}"><div class="cube-wrap book-wrap" data-spin><div class="book">${
-          Object.entries(x.book).map(([k, s])=>`<i class="${k}" style="background-image:url('${s}')"></i>`).join('')}<i class="pg"></i><i class="tp"></i><i class="bt"></i></div></div>${lb}</div>`;
+          Object.entries(x.book).map(([k, s])=>`<i class="${k}" data-face="${s}"></i>`).join('')}<i class="pg"></i><i class="tp"></i><i class="bt"></i></div></div>${lb}</div>`;
       if(x.pal) return `<div class="${cls} pal">${x.pal.map(c=>`<i style="background:${c}"></i>`).join('')}${lb}</div>`;
       if(x.words) return `<div class="${cls} tx words${x.acc ? ' acc' : ''}">${x.words.map(w=>`<b>${w}</b>`).join('')}${lb}</div>`;
       return `<div class="${cls} tx${x.acc ? ' acc' : ''}"><b>${x.big}</b>${x.small ? `<small>${x.small}</small>` : ''}${lb}</div>`;
@@ -2395,17 +2415,17 @@ const BLOCKS = {
     b.rows.map(([n, c, a, h])=>`<div class="row"><p><b>${c}</b>${n}</p><div class="sh">${Array.from({length:c}, ()=>`<i style="--a:${a};--h:${h}px;--k:${k++}"></i>`).join('')}</div></div>`).join('')}</section>`; },
   ba: b => `<section class="b-ba reveal">${headT(b)}<div class="g">${b.pairs.map(([a, c], k)=>`<div class="cmp" style="--i:${k}"><img src="${c}" alt="После" loading="lazy"><div class="bf"><img src="${a}" alt="До" loading="lazy"></div><i class="hd"></i></div>`).join('')}</div></section>`,
   box: b => `<section class="b-box reveal"><div class="wrap"><div class="cube-wrap" data-spin><div class="cube">${
-      Object.entries(b.faces).map(([k, s])=>`<i class="${k}" style="background-image:url('${s}')"></i>`).join('')}</div></div>
+      Object.entries(b.faces).map(([k, s])=>`<i class="${k}" data-face="${s}"></i>`).join('')}</div></div>
       <div class="t"><h3 class="eb">${b.h}</h3><p>${b.text}</p><small>${b.note}</small></div></div></section>`,
   book: b => `<section class="b-box reveal"><div class="wrap"><div class="cube-wrap book-wrap" data-spin><div class="book">${
-      Object.entries(b.faces).map(([k, s])=>`<i class="${k}" style="background-image:url('${s}')"></i>`).join('')}<i class="pg"></i><i class="tp"></i><i class="bt"></i></div></div>
+      Object.entries(b.faces).map(([k, s])=>`<i class="${k}" data-face="${s}"></i>`).join('')}<i class="pg"></i><i class="tp"></i><i class="bt"></i></div></div>
       <div class="t"><h3 class="eb">${b.h}</h3><p>${b.text}</p><small>${b.note}</small>${
         b.photo ? `<figure class="b-media photo">${imgT(b.photo)}</figure><small>${b.photoCap || ''}</small>` : ''}</div></div></section>`,
   // rk — высота ряда как доля ширины колонки (.5625 — плитка 1×1 ровно 16:9, 1×3 — почти 9:16)
   // rows — ряды с подгонкой: в ряду ширины плиток пропорциональны их сторонам (a = ширина/высота), высота общая — ничего не обрезается
   // сторис лентой, как на рефе: в центре телефон с текущей сторис (полоски прогресса, как в Instagram), по бокам соседние кадры
   igrail: b => `<section class="reveal b-igr">${headT(b)}<div class="igr">${b.frames.map((f, i)=>
-      `<figure class="cd" data-i="${i}"><img src="${f}" alt="${L(i % 2 ? 'После' : 'До')}" loading="lazy"></figure>`).join('')}
+      `<figure class="cd" data-i="${i}"><img src="${f}" ${revImageAttrs(f,'(max-width:760px) 52vw, 360px')} alt="${L(i % 2 ? 'После' : 'До')}" loading="lazy"></figure>`).join('')}
     <div class="igph"><div class="igq"><i><b></b></i><i><b></b></i></div>
       
       <div class="igr-b"><span>${L('Сообщение')}</span><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><svg viewBox="0 0 24 24"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4 18-7z"/></svg></div></div></div></section>`,
@@ -2441,20 +2461,38 @@ function fitLive(el){
 const liveRO = new ResizeObserver(es=>es.forEach(e=>fitLive(e.target)));
 
 // 3D-коробка и книга: крутятся сами, пока видны; тянешь — поворачиваешь
-const spins = new Set();
+const spins=new Set(),caseMediaCleanup=[];
+let spinRaf=0,spinLast=0;
+function stopSpins(){if(spinRaf)cancelAnimationFrame(spinRaf);spinRaf=0;spinLast=0;}
+function clearCaseMedia(){stopSpins();spins.clear();caseMediaCleanup.splice(0).forEach(clean=>clean());}
+function spinLoop(now){
+  spinRaf=0;
+  if(document.hidden||openIdx<0||reduceMotion)return;
+  const active=[...spins].filter(st=>st.seen&&!st.drag&&st.wrap.isConnected);
+  if(!active.length){spinLast=0;return;}
+  if(!spinLast||now-spinLast>=1000/30-1){const dt=spinLast?Math.min(50,now-spinLast):1000/30;spinLast=now;active.forEach(st=>st.tick(dt));}
+  spinRaf=requestAnimationFrame(spinLoop);
+}
+function wakeSpins(){if(!spinRaf&&!document.hidden&&!reduceMotion)spinRaf=requestAnimationFrame(spinLoop);}
+document.addEventListener('visibilitychange',()=>{
+  document.documentElement.classList.toggle('page-hidden',document.hidden);
+  if(document.hidden)stopSpins();else wakeSpins();
+});
 function spinBox(wrap){
-  const obj = wrap.firstElementChild;
-  const st = { ry:-28, rx:-14, v:obj.classList.contains('cube') ? .09 : .22, drag:null, seen:false };
-  const draw = ()=>{ obj.style.transform = `rotateX(${st.rx}deg) rotateY(${st.ry}deg)`; };
-  wrap.addEventListener('pointerdown', e=>{ st.drag = { x:e.clientX, y:e.clientY, ry:st.ry, rx:st.rx }; wrap.setPointerCapture(e.pointerId); });
-  wrap.addEventListener('pointermove', e=>{ if(!st.drag) return;
-    st.ry = st.drag.ry + (e.clientX - st.drag.x) * .5;
-    st.rx = Math.max(-60, Math.min(60, st.drag.rx - (e.clientY - st.drag.y) * .3)); draw(); });
-  const up = ()=>{ st.drag = null; };
-  wrap.addEventListener('pointerup', up); wrap.addEventListener('pointercancel', up);
-  new IntersectionObserver(es=>{ st.seen = es[0].isIntersecting; }).observe(wrap);
-  st.tick = ()=>{ if(st.seen && !st.drag && !reduceMotion){ st.ry += st.v; st.rx += (-14 - st.rx) * .02; draw(); } };
-  draw(); spins.add(st);
+  const obj=wrap.firstElementChild;
+  const st={wrap,ry:-28,rx:-14,v:obj.classList.contains('cube')?.09:.22,drag:null,seen:false};
+  const draw=()=>obj.style.transform=`rotateX(${st.rx}deg) rotateY(${st.ry}deg)`;
+  wrap.addEventListener('pointerdown',e=>{st.drag={x:e.clientX,y:e.clientY,ry:st.ry,rx:st.rx};wrap.setPointerCapture(e.pointerId);});
+  wrap.addEventListener('pointermove',e=>{if(!st.drag)return;st.ry=st.drag.ry+(e.clientX-st.drag.x)*.5;st.rx=Math.max(-60,Math.min(60,st.drag.rx-(e.clientY-st.drag.y)*.3));draw();});
+  const up=()=>{st.drag=null;wakeSpins();};
+  wrap.addEventListener('pointerup',up);wrap.addEventListener('pointercancel',up);
+  const io=new IntersectionObserver(entries=>{
+    st.seen=entries[0].isIntersecting;
+    if(st.seen){wrap.querySelectorAll('[data-face]').forEach(face=>{face.style.backgroundImage=`url("${face.dataset.face}")`;face.removeAttribute('data-face');});wakeSpins();}
+  },{root:caseScroll,rootMargin:'100px 0px'});
+  io.observe(wrap);caseMediaCleanup.push(()=>io.disconnect());
+  st.tick=dt=>{st.ry+=st.v*dt/(1000/60);st.rx+=(-14-st.rx)*Math.min(1,.02*dt/(1000/60));draw();};
+  draw();spins.add(st);
 }
 // лента сторис: кадр «до» → «после» → следующая сторис въезжает в телефон
 function igRail(el){
@@ -2470,7 +2508,7 @@ function igRail(el){
     segs.forEach(b=>{ b.style.animation = 'none'; b.offsetWidth; b.style.animation = ''; });
   };
   const go = to=>{ k = (to + n) % n; place(); left = T; arm(); };
-  const arm = ()=>{ clearTimeout(timer); if(!el.isConnected || !seen || el.classList.contains('pause') || reduceMotion) return;
+  const arm = ()=>{ clearTimeout(timer); if(!el.isConnected || !seen || el.classList.contains('pause') || reduceMotion || document.hidden) return;
     t0 = performance.now(); timer = setTimeout(()=>go(k + 1), left); };
   cds.forEach((c, i)=>c.addEventListener('click', ()=>{ const s = +c.dataset.s; if(s) go(k + s); }));
   el.querySelector('.igph').style.pointerEvents = 'none';
@@ -2480,13 +2518,18 @@ function igRail(el){
     el.classList.add('pause'); clearTimeout(timer); left -= performance.now() - t0; } });
   el.addEventListener('pointerout', e=>{ if(el.classList.contains('pause') && !e.relatedTarget?.closest?.('.cd[data-s="0"]')){
     el.classList.remove('pause'); arm(); } });
-  new IntersectionObserver(es=>{ seen = es[0].isIntersecting; if(seen){ k = k; place(); left = T; arm(); } else clearTimeout(timer); }, { threshold:.5 }).observe(el);
+  const io=new IntersectionObserver(es=>{seen=es[0].isIntersecting;if(seen){place();left=T;arm();}else clearTimeout(timer);},{root:caseScroll,threshold:.5});
+  io.observe(el);
+  const visibility=()=>{if(document.hidden)clearTimeout(timer);else if(seen)arm();};
+  document.addEventListener('visibilitychange',visibility);
+  caseMediaCleanup.push(()=>{clearTimeout(timer);io.disconnect();document.removeEventListener('visibilitychange',visibility);});
   place();
 }
 const reduceMotion = matchMedia('(prefers-reduced-motion:reduce)').matches;
-(function spinLoop(){ if(openIdx > -1) spins.forEach(s=>s.tick()); requestAnimationFrame(spinLoop); })();
+
 
 function fillCase(i){
+  clearCaseMedia();
   const list = visible(), c = list[i], nx = list[nextOpen(i)];
   // тема кейса: цвета страницы под проект
   const t = c.theme || {};
@@ -2502,7 +2545,12 @@ function fillCase(i){
     const pic = $('#caseCover .pv-pic'); pic.classList.add('rv-cover');
     pic.querySelector('img.cover').src = c.caseCover;
     pic.insertAdjacentHTML('beforeend', `<div class="rv-orbs">${(c.orbs || []).map(([t, x, y, d], k)=>
-      `<img class="rv-orb" src="${t}" alt="" style="--x:${x}%;--y:${y}%;--d:${d};--dl:${k * -1.6}s">`).join('')}</div>`);
+      `<img class="rv-orb" src="${t}" ${revImageAttrs(t,'176px')} alt="" style="--x:${x}%;--y:${y}%;--d:${d};--dl:${k * -1.6}s">`).join('')}</div>`);
+  }
+  if(c.id==='revnikoff'){
+    const cover=$('#caseCover .rv-cover');
+    const io=new IntersectionObserver(es=>cover.classList.toggle('motion-in',es[0].isIntersecting),{root:caseScroll});
+    io.observe(cover);caseMediaCleanup.push(()=>io.disconnect());
   }
   if(c.device) requestAnimationFrame(()=>placeDevice($('#caseCover .pv-pic'), c));
   watchFrames($('#caseCover'));
@@ -2510,7 +2558,7 @@ function fillCase(i){
   $('#caseGo').innerHTML = c.url ? `<a class="cta cv-cta" href="${c.url}" ${linkAttrs(c)}>${c.urlLabel} ↗</a>` : '';
   $('#next').innerHTML = `${L('Дальше')}<span class="nx-name">: ${nx.name}</span> →`;
 
-  spins.clear(); TILE_N = 0;
+  TILE_N = 0;
   // «Задача», факты и этапы, если идут подряд, собираются в одну карточку
   const blocks = [];
   (c.blocks || defaultBlocks(c)).forEach(b=>{
@@ -2592,7 +2640,7 @@ function closeCase(){
   caseEl.classList.remove('is-open'); caseEl.setAttribute('aria-hidden','true');
   document.body.classList.remove('case-on');
   syncHash();
-  setTimeout(()=>{ if(openIdx < 0){ $('#caseCover').innerHTML = ''; $('#caseContent').innerHTML = ''; spins.clear(); } }, 500);
+  setTimeout(()=>{ if(openIdx < 0){ $('#caseCover').innerHTML = ''; $('#caseContent').innerHTML = ''; clearCaseMedia(); } }, 500);
 }
 // открыть другой кейс поверх текущего; лента под ним тоже переходит на этот проект
 function switchCase(j){
@@ -2858,7 +2906,7 @@ function setLang(l){
 }
 
 /* ---------- старт ---------- */
-document.fonts.ready.then(()=>{
+(location.hash==='#case/revnikoff'?Promise.race([document.fonts.ready,new Promise(resolve=>setTimeout(resolve,300))]):document.fonts.ready).then(()=>{
   wobble(34, 1300);
   fisheye(logo, 'fishLogo', .5);
   fisheye($('#caseLogo'), 'fishCase', .5);
@@ -2876,6 +2924,7 @@ document.fonts.ready.then(()=>{
     if(ci > -1 && !visible()[ci].wip) setTimeout(()=>openCase(ci), 300);   // кейс в разработке по прямой ссылке не открывается
   }, 450);
 });
+document.fonts.ready.then(()=>{fitTitles();if(openIdx>-1)fitTitles($('#case'));});
 </script>
 </body>
 </html>
