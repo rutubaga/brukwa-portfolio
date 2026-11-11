@@ -312,11 +312,11 @@ body {
   transform: rotate(var(--r, 0deg)); transition: transform .7s var(--ease-out);
   filter: drop-shadow(0 0.6rem 1rem rgba(0,0,0,.45));
 }
-.tile__dice--1 { --r: 15.76deg; width: 4.4rem; right: 1.9rem; bottom: 0.4rem; }
-.tile__dice--2 { --r: -14.49deg; width: 5.8rem; right: 1.5rem; bottom: 0.8rem; }
-.tile__dice--3 { --r: 13.55deg; width: 6.4rem; right: 1.2rem; bottom: 0.6rem; }
-.tile__dice--4 { --r: 0deg; width: 6.6rem; right: 0.6rem; bottom: 0.2rem; }
-.tile__dice--5 { --r: -13.77deg; width: 5.7rem; right: 1.5rem; bottom: 0.6rem; }
+.tile__dice--1 { --r: 15.76deg; width: 5.91rem; right: 1.9rem; bottom: 0.4rem; }
+.tile__dice--2 { --r: -14.49deg; width: 5.98rem; right: 1.5rem; bottom: 0.8rem; }
+.tile__dice--3 { --r: 13.55deg; width: 5.88rem; right: 1.2rem; bottom: 0.6rem; }
+.tile__dice--4 { --r: 0deg; width: 6.19rem; right: 0.6rem; bottom: 0.2rem; }
+.tile__dice--5 { --r: -13.77deg; width: 6.16rem; right: 1.5rem; bottom: 0.6rem; }
 .tile:hover { transform: translateY(-0.4rem); }
 .tile:hover .tile__dice { transform: rotate(calc(var(--r, 0deg) - 18deg)) translateY(-0.4rem) scale(1.06); }
 
@@ -850,9 +850,12 @@ body {
   .tile { flex: 0 0 26rem; height: 10.4rem; padding: 1.6rem 1.3rem; font-size: 1.4rem; scroll-snap-align: start; }
   .tile p, .tile:nth-child(n) p { width: 15.5rem; }
   .tile__dice { width: 6.4rem; }
-  .tile__dice--1 { width: 5rem; right: 2.2rem; }
-  .tile__dice--2 { width: 6.2rem; right: 1.6rem; bottom: 0.4rem; }
-  .tile__dice--3 { width: 6.8rem; right: 1.4rem; bottom: 0.4rem; }
+  /* кубики одного видимого размера: ширина подобрана под поля каждой картинки */
+  .tile__dice--1 { width: 6.23rem; right: 2.2rem; }
+  .tile__dice--2 { width: 6.31rem; right: 1.6rem; bottom: 0.4rem; }
+  .tile__dice--3 { width: 6.2rem; right: 1.4rem; bottom: 0.4rem; }
+  .tile__dice--4 { width: 6.52rem; }
+  .tile__dice--5 { width: 6.49rem; }
 
   /* author results */
   .author { padding-top: 8rem; }
@@ -1060,9 +1063,11 @@ body {
   .tile:nth-child(2) p { width: 11.7rem; }
   .tile:nth-child(4) p { width: 12.2rem; }
   .tile:nth-child(5) p { width: 14.3rem; }
-  .tile__dice--1 { width: 4.4rem; right: 1.9rem; bottom: 0.4rem; }
-  .tile__dice--2 { width: 5.8rem; right: 1.5rem; bottom: 0.8rem; }
-  .tile__dice--3 { width: 6.4rem; right: 1.2rem; bottom: 0.6rem; }
+  .tile__dice--1 { width: 5.91rem; right: 1.9rem; bottom: 0.4rem; }
+  .tile__dice--2 { width: 5.98rem; right: 1.5rem; bottom: 0.8rem; }
+  .tile__dice--3 { width: 5.88rem; right: 1.2rem; bottom: 0.6rem; }
+  .tile__dice--4 { width: 6.19rem; }
+  .tile__dice--5 { width: 6.16rem; }
 
   /* author results: сетка 2×2, как в макете */
   .stats { grid-template-columns: 1fr 1fr; row-gap: 2.1rem; }
@@ -1152,7 +1157,7 @@ body {
 
   /* tariffs: билет — уменьшенная копия десктопного, как в макете */
   .tariffs__head { display: flex; flex-direction: column; gap: 3rem; }
-  .tariffs__title { font-size: 4.8rem; line-height: 0.95; text-align: center; }
+  .tariffs__title { font-size: min(4.8rem, calc((100vw - 4rem) * 0.12)); line-height: 0.95; text-align: center; } /* «погружения» влезает в колонку на любом телефоне */
   .tariffs__grid { --k: 0.6393; margin-top: 3rem; grid-template-columns: 1fr; gap: 2rem; }
   .ticket { --u: calc(var(--px) * var(--k)); grid-row: auto; display: block; }
   .ticket__part--top { min-height: calc(193 * var(--u)); padding: calc(45 * var(--u)) calc(35 * var(--u)) calc(30 * var(--u)); }
@@ -1164,8 +1169,10 @@ body {
   .ticket__desc { margin-top: calc(7 * var(--u)); font-size: calc(16 * var(--u)); max-width: calc(420 * var(--u)); }
   .ticket__badge { height: calc(34 * var(--u)); padding: 0 calc(20 * var(--u)); font-size: calc(16 * var(--u)); border-radius: calc(20.5 * var(--u)); }
   .checks { margin-top: calc(20 * var(--u)); gap: calc(9 * var(--u)); }
-  .checks li { font-size: calc(16 * var(--u)); padding-left: calc(35 * var(--u)); }
-  .checks li::before { width: calc(20 * var(--u)); height: calc(23 * var(--u)); top: calc(-2 * var(--u)); }
+  /* список в билете — 14 px, как на планшете: уменьшенная копия десктопа давала ~10 px */
+  .checks { gap: 0.7rem; max-width: none; }
+  .checks li { font-size: 1.4rem; padding-left: 2.6rem; line-height: 1.2; }
+  .checks li::before { width: 1.4rem; height: 1.6rem; top: 0; }
   .ticket__price { font-size: calc(56 * var(--u)); }
   .ticket .btn { --h: calc(41 * var(--u)); font-size: calc(12 * var(--u)); margin-top: calc(10 * var(--u)); }
 
@@ -1200,7 +1207,8 @@ body {
   .footer__copy { order: 5; margin-top: 3rem; }
   .footer__ids { order: 6; margin-top: 3rem; }
   .footer__panel { position: relative !important; inset: auto !important; }
-  .footer__panel--help { order: 2; margin-top: 3rem; width: 100%; height: 33.5rem; padding: 2.3rem 2.6rem 2.6rem; background-image: url("../assets/svg/foot-help-m.svg"); }
+  .footer__panel--help { order: 2; margin-top: 3rem; width: 100%; height: auto; padding: 2.3rem 2.6rem 2.6rem; background-image: url("../assets/svg/foot-help-m.svg"); }
+  .footer__panel--help .footer__docs { margin-top: 4rem; } /* без пустоты между кнопкой и документами */
   .footer__h, .footer__mail, .footer__docs { font-size: 1.6rem; }
   .footer__mail, .footer__bot { margin-top: 2.7rem; }
   .footer__bot { --h: 3.3rem; font-size: 1.2rem; }
@@ -1244,5 +1252,7 @@ body {
 .how-card__n { font-size: 1.4rem; line-height: 1.15; color: var(--gray); }
 .how-card__t { font-weight: 700; font-size: 1.6rem; line-height: 1.2; letter-spacing: -0.03em; }
 .how-card__d { margin-top: 0.8rem; font-size: 1.4rem; line-height: 1.25; color: var(--gray); max-width: 32rem; }
+/* место под 3 строки описания — заголовки карточек в одном ряду стоят на одной высоте */
+.how-card__d { min-height: calc(3 * 1.25em); }
 @media (max-width: 1023px) { .how__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 600px) { .how { padding-top: 8rem; } .how__grid { grid-template-columns: 1fr; margin-top: 3rem; } .how-card { min-height: 0; } }
+@media (max-width: 600px) { .how { padding-top: 8rem; } .how__grid { grid-template-columns: 1fr; margin-top: 3rem; } .how-card { min-height: 0; } .how-card__d { min-height: 0; } }
