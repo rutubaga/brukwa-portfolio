@@ -1367,7 +1367,13 @@
   /* One continuous page in a fixed display: no separate hero or layout shifts. */
   .rv-phone .phone{container-type:inline-size}
   .rv-phone .scr.rv-mobile{height:calc(100cqw * 844 / 390);aspect-ratio:auto;container-type:normal!important;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;overflow-anchor:none;touch-action:pan-y;-webkit-overflow-scrolling:touch;background:#010101}
-  .scr.rv-mobile>img{position:static!important;display:block;width:100%!important;height:auto!important;max-width:none;object-fit:contain!important}
+  .rv-mobile-page{position:relative;isolation:isolate}
+  .rv-mobile-page>img,.rv-mobile-cta>img{display:block;width:100%;height:auto;max-width:none}
+  /* Source coordinates: 780px wide. Move the 940–1260px text/CTA block
+     down 228px; its button ends about 100px above the 844px display bottom. */
+  .rv-mobile-page::after{content:"";position:absolute;left:calc(100cqw * 100 / 780);top:calc(100cqw * 940 / 780);width:calc(100cqw * 580 / 780);height:calc(100cqw * 320 / 780);background:#010101;pointer-events:none}
+  .rv-mobile-cta{position:absolute;inset:calc(100cqw * 1168 / 780) 0 auto;height:calc(100cqw * 320 / 780);overflow:hidden;clip-path:inset(0 12.820513%);z-index:1;pointer-events:none}
+  .rv-mobile-cta>img{position:absolute;top:calc(-100cqw * 940 / 780);left:0}
   .rv-cover .rv-orb{animation-play-state:paused}
   .rv-cover.motion-in .rv-orb{animation-play-state:running}
   html.page-hidden .rv-orb,html.page-hidden .igq b{animation-play-state:paused!important}
@@ -2308,7 +2314,8 @@ const nextOpen = i => { const list = visible(); do { i = (i + 1) % list.length; 
 const pad2 = k => String(k + 1).padStart(2, '0');
 const imgT = (src, extra = '') => `<img src="${src}" alt="" loading="lazy" ${revImageAttrs(src)} ${extra}>`;
 const headT = b => (b.h || b.text) ? `<header class="b-head"><h3>${b.h || ''}</h3>${b.text ? `<p>${b.text}</p>` : ''}</header>` : '';
-const screenT = (x, vw) => `<div class="scr${x.long ? ' long' : ''}${x.mobilePage ? ' rv-mobile' : ''}"${x.mobilePage ? ' aria-label="Мобильная версия Revnikoff — листайте внутри"' : ''}${x.live ? ` data-live="${x.live}" data-vw="${vw}"` : ''}>${imgT(x.shot || x.src)}${x.live ? `<span class="live">${L('Живой сайт')}</span>` : ''}</div>`;
+const revMobilePageT = src => `<div class="rv-mobile-page">${imgT(src)}<div class="rv-mobile-cta" aria-hidden="true">${imgT(src)}</div></div>`;
+const screenT = (x, vw) => `<div class="scr${x.long ? ' long' : ''}${x.mobilePage ? ' rv-mobile' : ''}"${x.mobilePage ? ' aria-label="Мобильная версия Revnikoff — листайте внутри"' : ''}${x.live ? ` data-live="${x.live}" data-vw="${vw}"` : ''}>${x.mobilePage ? revMobilePageT(x.shot || x.src) : imgT(x.shot || x.src)}${x.live ? `<span class="live">${L('Живой сайт')}</span>` : ''}</div>`;
 const igBar = '<span class="igb"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><svg viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-11.6 7.1L4 20l1.4-4.2A8 8 0 1 1 20 11.5z"/></svg><svg viewBox="0 0 24 24"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4 18-7z"/></svg><svg viewBox="0 0 24 24" class="bm"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></span>';
 // плитка бенто — одна разметка и для сетки, и для рядов
 // сквозной номер плитки в кейсе — «ID 001» в углу карточки, как на рефе; обнуляется в fillCase
